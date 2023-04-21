@@ -28,11 +28,12 @@
 	}
 }*@
 
-<MudDrawer Open="true" Variant="DrawerVariant.Persistent">
+<MudDrawer Open="true" Variant="DrawerVariant.Persistent" Color="Color.Primary">
 	<MudDrawerHeader>
 		<MudText Typo="Typo.h5">EuroConnector</MudText>
 	</MudDrawerHeader>
-	<MudNavMenu>
-		<MudNavLink Href="/" Match="NavLinkMatch.All" Icon="fa-solid fa-house">Home</MudNavLink>
+	<MudNavMenu Color="Color.Secondary" Bordered="true">
+		<MudNavLink Href="/" Match="NavLinkMatch.All" Icon="fa-solid fa-house" IconColor="Color.Inherit">Home</MudNavLink>
+		<MudNavLink Href="/aaa" Match="NavLinkMatch.All" Icon="fa-solid fa-times" IconColor="Color.Inherit">Not Found</MudNavLink>
 	</MudNavMenu>
 </MudDrawer>

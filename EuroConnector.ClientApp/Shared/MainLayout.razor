@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider/>
+<MudThemeProvider Theme="@_theme" IsDarkMode="false"/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 
@@ -11,3 +11,18 @@
 		@Body
 	</MudMainContent>
 </MudDrawerContainer>
+
+@code
+{
+	private MudTheme _theme = new()
+	{
+		Palette = new PaletteLight()
+		{
+			Primary = new MudBlazor.Utilities.MudColor("#322b78"),
+			Secondary = new MudBlazor.Utilities.MudColor("#50e2d0"),
+			PrimaryContrastText = new MudBlazor.Utilities.MudColor("#ffffff"),
+			SecondaryContrastText = new MudBlazor.Utilities.MudColor("#ffffff"),
+			TextPrimary = new MudBlazor.Utilities.MudColor("#000000")
+		},
+	};
+}
