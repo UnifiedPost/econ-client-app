@@ -1,0 +1,17 @@
+﻿@page "/about"
+
+@inject IVersionService _versionService
+
+<MudText Typo="Typo.h3">About</MudText>
+
+<MudText>API Version: @apiVersion</MudText>
+
+@code
+{
+    private string apiVersion;
+
+    protected override async Task OnInitializedAsync()
+    {
+        apiVersion = await _versionService.GetApiVersion();
+    }
+}
