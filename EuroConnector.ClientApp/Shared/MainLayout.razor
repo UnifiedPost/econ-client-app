@@ -1,0 +1,13 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<MudDrawerContainer Class="page">
+	<NavMenu />
+
+	<MudMainContent Style="padding: 35px 20px 25px 30px">
+		@Body
+	</MudMainContent>
+</MudDrawerContainer>
