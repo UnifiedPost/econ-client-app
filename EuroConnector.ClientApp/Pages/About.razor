@@ -1,10 +1,12 @@
 ﻿@page "/about"
 
+@using EuroConnector.ClientApp.Data.Interfaces
+
 @inject IVersionService _versionService
 
-<MudText Typo="Typo.h3">About</MudText>
+<MudText Typo="Typo.h3" id="page-title">About</MudText>
 
-<MudText>API Version: @apiVersion</MudText>
+<MudText id="api-version">API Version: @(string.IsNullOrEmpty(apiVersion) ? "Loading..." : apiVersion)</MudText>
 
 @code
 {

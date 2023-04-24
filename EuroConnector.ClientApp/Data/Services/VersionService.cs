@@ -13,11 +13,9 @@ namespace EuroConnector.ClientApp.Data.Services
 
 		public async Task<string> GetApiVersion()
 		{
-			var request = new HttpRequestMessage(HttpMethod.Get, "public/version");
+			var result = await _httpClient.GetStringAsync("public/version");
 
-			var response = await _httpClient.SendAsync(request);
-
-			return await response.Content.ReadAsStringAsync();
+			return result;
 		}
 	}
 }
