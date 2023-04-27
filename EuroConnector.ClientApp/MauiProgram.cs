@@ -1,6 +1,7 @@
 ﻿using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Data.Services;
 using Microsoft.Extensions.Configuration;
+using MudBlazor;
 using MudBlazor.Services;
 using System.Reflection;
 
@@ -26,7 +27,18 @@ public static class MauiProgram
 		builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
 
-		builder.Services.AddMudServices();
+		builder.Services.AddMudServices(config =>
+		{
+			config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
+
+			config.SnackbarConfiguration.PreventDuplicates = false;
+			config.SnackbarConfiguration.NewestOnTop = false;
+			config.SnackbarConfiguration.ShowCloseIcon = true;
+			config.SnackbarConfiguration.VisibleStateDuration = 7500;
+			config.SnackbarConfiguration.ShowTransitionDuration = 150;
+			config.SnackbarConfiguration.HideTransitionDuration = 150;
+			config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
+		});
 
 		builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(config["ApiEndpoint"]) });
 

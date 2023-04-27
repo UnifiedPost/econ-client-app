@@ -1,0 +1,15 @@
+﻿@inject ISnackbar Snackbar
+
+<CascadingValue Value=this>
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    public void ProcessError(Exception ex)
+    {
+        Snackbar.Add(ex.Message, Severity.Error);
+    }
+}

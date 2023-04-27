@@ -2,18 +2,29 @@
 
 @using EuroConnector.ClientApp.Data.Interfaces
 
-@inject IVersionService _versionService
+@inject IVersionService VersionService
 
 <MudText Typo="Typo.h3" id="page-title">About</MudText>
 
 <MudText id="api-version">API Version: @(string.IsNullOrEmpty(apiVersion) ? "Loading..." : apiVersion)</MudText>
 
 @code
-{
+    {
+    [CascadingParameter]
+    public Error Error { get; set; }
+
     private string apiVersion;
 
     protected override async Task OnInitializedAsync()
     {
-        apiVersion = await _versionService.GetApiVersion();
+        try
+        {
+            apiVersion = await VersionService.GetApiVersion();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+            apiVersion = "Error";
+        }
     }
 }
