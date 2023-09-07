@@ -3,7 +3,14 @@
 		<MudText Typo="Typo.h5">EuroConnector</MudText>
 	</MudDrawerHeader>
 	<MudNavMenu Color="Color.Secondary" Bordered="true">
-		<MudNavLink Href="/" Match="NavLinkMatch.All" Icon="fa-solid fa-house" IconColor="Color.Inherit">Home</MudNavLink>
-		<MudNavLink Href="/about" Match="NavLinkMatch.All" Icon="fa-solid fa-info-circle" IconColor="Color.Inherit">About</MudNavLink>
+		<AuthorizeView Roles="User, Admin, ErpAdmin">
+			<MudNavLink Href="/" Match="NavLinkMatch.All" Icon="fa-solid fa-house" IconColor="Color.Inherit">Home</MudNavLink>
+			<MudNavLink Href="/about" Match="NavLinkMatch.All" Icon="fa-solid fa-info-circle" IconColor="Color.Inherit">About</MudNavLink>
+		</AuthorizeView>
+		<MudNavLink Href="/setup" Match="NavLinkMatch.All" Icon="fa-solid fa-cog" IconColor="Color.Inherit">Setup</MudNavLink>
 	</MudNavMenu>
 </MudDrawer>
+
+@code
+{
+}

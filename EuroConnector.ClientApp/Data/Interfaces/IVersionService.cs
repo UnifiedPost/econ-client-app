@@ -1,7 +1,9 @@
-﻿namespace EuroConnector.ClientApp.Data.Interfaces
+﻿using EuroConnector.ClientApp.Data.Entities;
+
+namespace EuroConnector.ClientApp.Data.Interfaces
 {
     public interface IVersionService
     {
-        Task<string> GetApiVersion();
+        Task<ApiVersion> GetApiVersion();
     }
 }

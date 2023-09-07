@@ -1,28 +1,15 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider Theme="@_theme" IsDarkMode="false"/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
+@inject ThemeProvider _theme;
 
-<MudDrawerContainer Class="page">
-	<NavMenu />
+		<MudThemeProvider Theme="@_theme.Theme" IsDarkMode="false" />
+		<MudDialogProvider />
+		<MudSnackbarProvider />
 
-	<MudMainContent Style="padding: 35px 20px 25px 30px">
-		@Body
-	</MudMainContent>
-</MudDrawerContainer>
+		<MudDrawerContainer Class="page">
+			<NavMenu />
 
-@code
-{
-	private MudTheme _theme = new()
-	{
-		Palette = new PaletteLight()
-		{
-			Primary = new MudBlazor.Utilities.MudColor("#322b78"),
-			Secondary = new MudBlazor.Utilities.MudColor("#50e2d0"),
-			PrimaryContrastText = new MudBlazor.Utilities.MudColor("#ffffff"),
-			SecondaryContrastText = new MudBlazor.Utilities.MudColor("#ffffff"),
-			TextPrimary = new MudBlazor.Utilities.MudColor("#000000"),
-		},
-	};
-}
+			<MudMainContent Style="padding: 35px 20px 25px 30px">
+				@Body
+			</MudMainContent>
+		</MudDrawerContainer>

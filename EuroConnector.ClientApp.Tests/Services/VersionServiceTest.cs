@@ -1,7 +1,10 @@
-﻿using EuroConnector.ClientApp.Data.Services;
+﻿using EuroConnector.ClientApp.Data.Entities;
+using EuroConnector.ClientApp.Data.Services;
+using FluentAssertions;
 using Moq;
 using Moq.Protected;
 using System.Net;
+using System.Net.Http.Json;
 
 namespace EuroConnector.ClientApp.Tests.Services
 {
@@ -10,13 +13,19 @@ namespace EuroConnector.ClientApp.Tests.Services
         private readonly Mock<HttpMessageHandler> _handlerMock = new();
 
         [Fact]
-        public async Task GetApiVersion_ShouldReturnVersionString()
+        public async Task GetApiVersion_WhenApiIsCalled_ShouldReturnApiVersionInformation()
         {
             // Arrange
+            var apiVersion = new ApiVersion
+            {
+                Version = "1.0.0",
+                ReleaseDate = DateTime.UtcNow,
+            };
+
             var apiResponse = new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent("1.0.0"),
+                Content = JsonContent.Create(apiVersion),
             };
 
             _handlerMock.Protected()
@@ -37,7 +46,7 @@ namespace EuroConnector.ClientApp.Tests.Services
             var version = await versionService.GetApiVersion();
 
             // Assert
-            Assert.Equal("1.0.0", version);
+            version.Should().BeEquivalentTo(apiVersion);
         }
     }
 }

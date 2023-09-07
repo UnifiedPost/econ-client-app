@@ -1,0 +1,27 @@
+﻿@page "/setup"
+
+@inject AuthenticationProvider _authenticationProvider
+
+@attribute [AllowAnonymous]
+
+<div>
+    <MudText Typo="Typo.h3">Setup</MudText>
+
+    <MudForm @ref="form" @bind-IsValid="success">
+        <MudTextField T="string" Label="Username" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        <MudTextField T="string" InputType="InputType.Password" Label="Secret Key" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        <MudTextField T="string" Label="API URL" Variant="Variant.Outlined" Margin="Margin.Dense" />
+    </MudForm>
+
+    <MudButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnUserClicked">Apply</MudButton>
+</div>
+
+@code {
+    bool success;
+    MudForm form;
+
+    private void OnUserClicked()
+    {
+        _authenticationProvider.FakedSignIn();
+    }
+}

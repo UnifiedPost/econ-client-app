@@ -1,30 +1,38 @@
 ﻿@page "/about"
 
+@using EuroConnector.ClientApp.Data.Entities;
 @using EuroConnector.ClientApp.Data.Interfaces
 
-@inject IVersionService VersionService
+@inject IVersionService _versionService
 
-<MudText Typo="Typo.h3" id="page-title">About</MudText>
+<AuthorizeView Roles="User, Admin, ErpAdmin">
+    <MudText Typo="Typo.h3" id="page-title">About</MudText>
 
-<MudText id="api-version">API Version: @(string.IsNullOrEmpty(apiVersion) ? "Loading..." : apiVersion)</MudText>
+    <MudText id="api-version">API Version: @(apiVersion is null ? "Loading..." : apiVersion.Version)</MudText>
+    <MudText id="api-release-date">Release Date: @(apiVersion is null ? "Loading..." : apiVersion.ReleaseDate?.ToString("d") ?? "Error")</MudText>
+</AuthorizeView>
 
 @code
     {
     [CascadingParameter]
     public Error Error { get; set; }
 
-    private string apiVersion;
+    private ApiVersion apiVersion;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            apiVersion = await VersionService.GetApiVersion();
+            var response = await _versionService.GetApiVersion();
+            apiVersion = response;
         }
         catch (Exception ex)
         {
             Error.ProcessError(ex);
-            apiVersion = "Error";
+            apiVersion = new()
+            {
+                Version = "Error",
+            };
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Data.Services;
+using EuroConnector.ClientApp.Providers;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Configuration;
 using MudBlazor;
 using MudBlazor.Services;
@@ -41,6 +43,12 @@ public static class MauiProgram
 		});
 
 		builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(config["ApiEndpoint"]) });
+
+		builder.Services.AddScoped<AuthenticationProvider>();
+		builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetService<AuthenticationProvider>());
+		builder.Services.AddAuthorizationCore();
+
+		builder.Services.AddScoped<ThemeProvider>();
 
 		builder.Services.AddScoped<IVersionService, VersionService>();
 

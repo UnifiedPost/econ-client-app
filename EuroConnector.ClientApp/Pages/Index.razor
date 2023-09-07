@@ -1,3 +1,5 @@
 ﻿@page "/"
 
-<MudText Typo="Typo.h3">Home Page</MudText>
+<AuthorizeView Roles="User, Admin, ErpAdmin">
+    <MudText Typo="Typo.h3">Home Page</MudText>
+</AuthorizeView>

@@ -1,4 +1,5 @@
-﻿using EuroConnector.ClientApp.Data.Interfaces;
+﻿using EuroConnector.ClientApp.Data.Entities;
+using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Pages;
 using EuroConnector.ClientApp.Shared;
 using Moq;
@@ -13,12 +14,16 @@ namespace EuroConnector.ClientApp.Tests.Pages
         private readonly Mock<ISnackbar> _snackbarMock = new();
 
         [Fact]
-        public void InitialRender_ReceivesApiVersionFromTheApi()
+        public void InitialRender_ReceivesApiVersionFromTheApi_ShouldRenderTheApiVersion()
         {
             // Arrange
             using var ctx = new TestContext();
 
-            _versionServiceMock.Setup(x => x.GetApiVersion()).ReturnsAsync("1.0.0");
+            _versionServiceMock.Setup(x => x.GetApiVersion()).ReturnsAsync(new ApiVersion()
+            {
+                Version = "1.0.0",
+                ReleaseDate = DateTime.UtcNow,
+            });
 
             ctx.Services.AddSingleton(_versionServiceMock.Object);
             ctx.Services.AddSingleton(_snackbarMock.Object);

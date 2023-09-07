@@ -1,4 +1,6 @@
-﻿using EuroConnector.ClientApp.Data.Interfaces;
+﻿using EuroConnector.ClientApp.Data.Entities;
+using EuroConnector.ClientApp.Data.Interfaces;
+using System.Net.Http.Json;
 
 namespace EuroConnector.ClientApp.Data.Services
 {
@@ -11,9 +13,9 @@ namespace EuroConnector.ClientApp.Data.Services
 			_httpClient = httpClient;
 		}
 
-		public async Task<string> GetApiVersion()
+		public async Task<ApiVersion> GetApiVersion()
 		{
-			var result = await _httpClient.GetStringAsync("public/version");
+			var result = await _httpClient.GetFromJsonAsync<ApiVersion>("public/v1/extensions/version");
 
 			return result;
 		}
