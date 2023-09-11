@@ -1,21 +1,26 @@
-﻿using EuroConnector.ClientApp.Data.Entities;
+﻿using EuroConnector.ClientApp.Data.Models;
 using EuroConnector.ClientApp.Data.Interfaces;
 using System.Net.Http.Json;
+using Blazored.LocalStorage;
 
 namespace EuroConnector.ClientApp.Data.Services
 {
     public class VersionService : IVersionService
 	{
 		private readonly HttpClient _httpClient;
+		private readonly ILocalStorageService _localStorage;
 
-		public VersionService(HttpClient httpClient)
+		public VersionService(HttpClient httpClient, ILocalStorageService localStorage)
 		{
 			_httpClient = httpClient;
+			_localStorage = localStorage;
 		}
 
 		public async Task<ApiVersion> GetApiVersion()
 		{
-			var result = await _httpClient.GetFromJsonAsync<ApiVersion>("public/v1/extensions/version");
+			var apiUrl = await _localStorage.GetItemAsStringAsync("apiUrl");
+
+			var result = await _httpClient.GetFromJsonAsync<ApiVersion>($"{apiUrl}public/v1/extensions/version");
 
 			return result;
 		}

@@ -13,6 +13,14 @@
     border-color: var(--mud-palette-text-primary) !important;
 }
 
-::deep .mud-input:hover .mud-input-outlined-border{
+::deep .mud-input:hover .mud-input-outlined-border {
     border-color: var(--mud-palette-secondary) !important;
+}
+
+::deep .mud-input-control-helper-container {
+    display: none;
+}
+
+::deep .mud-input-control > .mud-input-control-input-container > .mud-input-label-inputcontrol.mud-input-error {
+    color: var(--mud-palette-text-primary) !important;
 }

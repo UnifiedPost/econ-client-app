@@ -1,4 +1,4 @@
-﻿using EuroConnector.ClientApp.Data.Entities;
+﻿using EuroConnector.ClientApp.Data.Models;
 using EuroConnector.ClientApp.Data.Services;
 using FluentAssertions;
 using Moq;

@@ -1,6 +1,9 @@
 ﻿@page "/setup"
+@using EuroConnector.ClientApp.Data.Interfaces;
+@using EuroConnector.ClientApp.Data.Models;
 
-@inject AuthenticationProvider _authenticationProvider
+@inject ISetupService _setupService
+@inject ISnackbar _snackbar
 
 @attribute [AllowAnonymous]
 
@@ -8,20 +11,45 @@
     <MudText Typo="Typo.h3">Setup</MudText>
 
     <MudForm @ref="form" @bind-IsValid="success">
-        <MudTextField T="string" Label="Username" Variant="Variant.Outlined" Margin="Margin.Dense" />
-        <MudTextField T="string" InputType="InputType.Password" Label="Secret Key" Variant="Variant.Outlined" Margin="Margin.Dense" />
-        <MudTextField T="string" Label="API URL" Variant="Variant.Outlined" Margin="Margin.Dense" />
+        <MudTextField T="string" @bind-Value="properties.UserName" Required="true"
+                      Label="Username" Variant="Variant.Outlined" Margin="Margin.Dense" Error="false" RequiredError="lmfao"/>
+        <MudTextField T="string" @bind-Value="properties.SecretKey" Required="true" InputType="InputType.Password"
+                      Label="Secret Key" Variant="Variant.Outlined" Margin="Margin.Dense" Error="false" RequiredError="" />
+        <MudTextField T="string" @bind-Value="properties.ApiUrl" Required="true"
+                      Label="API URL" Variant="Variant.Outlined" Margin="Margin.Dense" Error="false" RequiredError="" />
     </MudForm>
 
-    <MudButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnUserClicked">Apply</MudButton>
+    <MudButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnApplyClicked" Disabled="!success">Apply</MudButton>
+    <MudButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnClearClicked">Clear</MudButton>
 </div>
 
 @code {
+    [CascadingParameter]
+    public Error Error { get; set; }
+
     bool success;
     MudForm form;
+    SetupProperties properties = new();
 
-    private void OnUserClicked()
+    private async Task OnApplyClicked()
     {
-        _authenticationProvider.FakedSignIn();
+        if (success)
+        {
+            try
+            {
+                await _setupService.ApplySettings(properties);
+                _snackbar.Add("Settings applied successfully.", Severity.Success);
+            }
+            catch(Exception ex)
+            {
+                Error.ProcessError(ex);
+            }
+        }
+    }
+
+    private async Task OnClearClicked()
+    {
+        await _setupService.ClearSettings();
+        _snackbar.Add("Settings cleared.", Severity.Success);
     }
 }

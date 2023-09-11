@@ -1,4 +1,4 @@
-﻿using EuroConnector.ClientApp.Data.Entities;
+﻿using EuroConnector.ClientApp.Data.Models;
 
 namespace EuroConnector.ClientApp.Data.Interfaces
 {

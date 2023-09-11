@@ -1,4 +1,4 @@
-﻿namespace EuroConnector.ClientApp.Data.Entities
+﻿namespace EuroConnector.ClientApp.Data.Models
 {
     public class ApiVersion
     {

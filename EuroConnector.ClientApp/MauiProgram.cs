@@ -1,4 +1,5 @@
-﻿using EuroConnector.ClientApp.Data.Interfaces;
+﻿using Blazored.LocalStorage;
+using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Data.Services;
 using EuroConnector.ClientApp.Providers;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using MudBlazor;
 using MudBlazor.Services;
 using System.Reflection;
+using Toolbelt.Blazor.Extensions.DependencyInjection;
 
 namespace EuroConnector.ClientApp;
 
@@ -29,6 +31,8 @@ public static class MauiProgram
 		builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
 
+		builder.Services.AddBlazoredLocalStorage();
+
 		builder.Services.AddMudServices(config =>
 		{
 			config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
@@ -42,7 +46,7 @@ public static class MauiProgram
 			config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
 		});
 
-		builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(config["ApiEndpoint"]) });
+		builder.Services.AddSingleton(sp => new HttpClient().EnableIntercept(sp));
 
 		builder.Services.AddScoped<AuthenticationProvider>();
 		builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetService<AuthenticationProvider>());
@@ -51,6 +55,10 @@ public static class MauiProgram
 		builder.Services.AddScoped<ThemeProvider>();
 
 		builder.Services.AddScoped<IVersionService, VersionService>();
+		builder.Services.AddScoped<ISetupService, SetupService>();
+		builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+
+		builder.Services.AddHttpClientInterceptor();
 
 		return builder.Build();
 	}

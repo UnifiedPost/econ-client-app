@@ -1,4 +1,4 @@
-﻿using EuroConnector.ClientApp.Data.Entities;
+﻿using EuroConnector.ClientApp.Data.Models;
 using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Pages;
 using EuroConnector.ClientApp.Shared;
