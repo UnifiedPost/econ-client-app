@@ -1,4 +1,5 @@
-﻿using EuroConnector.ClientApp.Data.Models;
+﻿using Blazored.LocalStorage;
+using EuroConnector.ClientApp.Data.Models;
 using EuroConnector.ClientApp.Data.Services;
 using FluentAssertions;
 using Moq;
@@ -11,6 +12,7 @@ namespace EuroConnector.ClientApp.Tests.Services
     public class VersionServiceTest
     {
         private readonly Mock<HttpMessageHandler> _handlerMock = new();
+        private readonly Mock<ILocalStorageService> _localStorageMock = new();
 
         [Fact]
         public async Task GetApiVersion_WhenApiIsCalled_ShouldReturnApiVersionInformation()
@@ -40,7 +42,7 @@ namespace EuroConnector.ClientApp.Tests.Services
                 BaseAddress = new Uri("http://localhost:4444/api/"),
             };
 
-            var versionService = new VersionService(httpClient);
+            var versionService = new VersionService(httpClient, _localStorageMock.Object);
 
             // Act
             var version = await versionService.GetApiVersion();

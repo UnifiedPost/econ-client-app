@@ -1,4 +1,4 @@
-﻿@inject ISnackbar _snackbar
+﻿@inject ISnackbar Snackbar
 
 <CascadingValue Value=this>
     @ChildContent
@@ -10,6 +10,6 @@
 
     public void ProcessError(Exception ex)
     {
-        _snackbar.Add(ex.Message, Severity.Error);
+        Snackbar.Add(ex.Message, Severity.Error);
     }
 }

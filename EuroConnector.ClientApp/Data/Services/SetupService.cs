@@ -61,7 +61,7 @@ namespace EuroConnector.ClientApp.Data.Services
 		public async Task RefreshToken()
 		{
 			var refreshToken = await _localStorage.GetItemAsync<string>("refreshToken");
-			var apiUrl = await _localStorage.GetItemAsStringAsync("apiUrl");
+			var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
 
 			using var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"{apiUrl}public/v1/authorization/token-refresh");
 			requestMessage.Headers.Authorization = new AuthenticationHeaderValue("bearer", refreshToken);
@@ -72,6 +72,8 @@ namespace EuroConnector.ClientApp.Data.Services
 
 			var responseData = await response.Content.ReadFromJsonAsync<TokenResponse>();
 			await SetTokens(responseData);
+
+			_authenticationProvider.SignIn(responseData.AccessToken);
 		}
 
 		private async Task SetTokens(TokenResponse tokenResponse)

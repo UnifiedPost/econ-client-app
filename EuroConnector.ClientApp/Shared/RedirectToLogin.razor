@@ -1,8 +1,8 @@
-﻿@inject NavigationManager _navigationManager;
+﻿@inject NavigationManager NavigationManager;
 
 @code {
     protected override void OnInitialized()
     {
-        _navigationManager.NavigateTo("/setup");
+        NavigationManager.NavigateTo("/setup");
     }
 }

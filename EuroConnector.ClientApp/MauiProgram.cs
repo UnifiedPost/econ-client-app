@@ -46,7 +46,7 @@ public static class MauiProgram
 			config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
 		});
 
-		builder.Services.AddSingleton(sp => new HttpClient().EnableIntercept(sp));
+		builder.Services.AddScoped(sp => new HttpClient().EnableIntercept(sp));
 
 		builder.Services.AddScoped<AuthenticationProvider>();
 		builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetService<AuthenticationProvider>());
@@ -57,6 +57,7 @@ public static class MauiProgram
 		builder.Services.AddScoped<IVersionService, VersionService>();
 		builder.Services.AddScoped<ISetupService, SetupService>();
 		builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+		builder.Services.AddScoped<HttpInterceptorService>();
 
 		builder.Services.AddHttpClientInterceptor();
 

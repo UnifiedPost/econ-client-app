@@ -18,11 +18,18 @@ namespace EuroConnector.ClientApp.Data.Services
 		{
 			var authState = await _authenticationProvider.GetAuthenticationStateAsync();
 
-			var exp = authState.User.FindFirst(x => x.Type.Equals("exp")).Value;
-			var expTime = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(exp));
+			try
+			{
+				var exp = authState.User.FindFirst(x => x.Type.Equals("exp")).Value;
+				var expTime = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(exp));
 
-			var diff = expTime - DateTime.UtcNow;
-			if (diff.TotalMinutes <= 10) await _setupService.RefreshToken();
+				var diff = expTime - DateTime.UtcNow;
+				if (diff.TotalMinutes <= 10) await _setupService.RefreshToken();
+			}
+			catch (Exception)
+			{
+				return;
+			}
 		}
 	}
 }

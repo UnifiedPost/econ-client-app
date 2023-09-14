@@ -25,5 +25,7 @@ namespace EuroConnector.ClientApp.Data.Services
 				await _refreshTokenService.TryRefreshToken();
 			}
 		}
+
+		public void DisposeEvent() => _interceptor.BeforeSendAsync -= InterceptBeforeHttpAsync;
 	}
 }

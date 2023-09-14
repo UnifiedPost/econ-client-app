@@ -2,8 +2,8 @@
 @using EuroConnector.ClientApp.Data.Interfaces;
 @using EuroConnector.ClientApp.Data.Models;
 
-@inject ISetupService _setupService
-@inject ISnackbar _snackbar
+@inject ISetupService SetupService
+@inject ISnackbar Snackbar
 
 @attribute [AllowAnonymous]
 
@@ -12,15 +12,17 @@
 
     <MudForm @ref="form" @bind-IsValid="success">
         <MudTextField T="string" @bind-Value="properties.UserName" Required="true"
-                      Label="Username" Variant="Variant.Outlined" Margin="Margin.Dense" Error="false" RequiredError="lmfao"/>
+                      Label="Username" Variant="Variant.Outlined" Margin="Margin.Dense"/>
         <MudTextField T="string" @bind-Value="properties.SecretKey" Required="true" InputType="InputType.Password"
-                      Label="Secret Key" Variant="Variant.Outlined" Margin="Margin.Dense" Error="false" RequiredError="" />
+                      Label="Secret Key" Variant="Variant.Outlined" Margin="Margin.Dense"/>
         <MudTextField T="string" @bind-Value="properties.ApiUrl" Required="true"
-                      Label="API URL" Variant="Variant.Outlined" Margin="Margin.Dense" Error="false" RequiredError="" />
+                      Label="API URL" Variant="Variant.Outlined" Margin="Margin.Dense" />
     </MudForm>
 
-    <MudButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnApplyClicked" Disabled="!success">Apply</MudButton>
+    <MudButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnApplyClicked">Apply</MudButton>
     <MudButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnClearClicked">Clear</MudButton>
+
+    <MudText Typo="@Typo.subtitle1">@requiredMessage</MudText>
 </div>
 
 @code {
@@ -30,26 +32,29 @@
     bool success;
     MudForm form;
     SetupProperties properties = new();
+    string requiredMessage = string.Empty;
 
     private async Task OnApplyClicked()
     {
         if (success)
         {
+            requiredMessage = string.Empty;
             try
             {
-                await _setupService.ApplySettings(properties);
-                _snackbar.Add("Settings applied successfully.", Severity.Success);
+                await SetupService.ApplySettings(properties);
+                Snackbar.Add("Settings applied successfully.", Severity.Success);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Error.ProcessError(ex);
             }
         }
+        else requiredMessage = "All fields are required.";
     }
 
     private async Task OnClearClicked()
     {
-        await _setupService.ClearSettings();
-        _snackbar.Add("Settings cleared.", Severity.Success);
+        await SetupService.ClearSettings();
+        Snackbar.Add("Settings cleared.", Severity.Success);
     }
 }
