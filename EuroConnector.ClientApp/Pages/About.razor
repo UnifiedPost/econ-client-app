@@ -6,6 +6,8 @@
 @using EuroConnector.ClientApp.Data.Interfaces
 @using EuroConnector.ClientApp.Data.Services;
 
+@attribute [Authorize(Roles = "User, Admin, ErpAdmin")]
+
 @inject IVersionService VersionService
 @inject HttpInterceptorService Interceptor
 

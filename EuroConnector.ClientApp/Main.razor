@@ -1,4 +1,9 @@
-﻿<Error>
+﻿@using Blazored.LocalStorage;
+
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationProvider AuthProvider
+
+<Error>
 	<Router AppAssembly="@typeof(Main).Assembly">
 		<Found Context="routeData">
 			<AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
@@ -15,3 +20,19 @@
 		</NotFound>
 	</Router>
 </Error>
+
+@code
+{
+	protected override async Task OnInitializedAsync()
+	{
+		var refreshToken = await LocalStorage.GetItemAsync<string>("refreshToken");
+		if (!string.IsNullOrEmpty(refreshToken) && TokenHelper.IsExpired(refreshToken))
+		{
+			AuthProvider.SignOut();
+			await LocalStorage.ClearAsync();
+		}
+
+		var accessToken = await LocalStorage.GetItemAsync<string>("accessToken");
+		if (!string.IsNullOrEmpty(accessToken)) AuthProvider.SignIn(accessToken);
+	}
+}

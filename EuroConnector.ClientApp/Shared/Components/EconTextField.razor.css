@@ -1,0 +1,18 @@
+﻿::deep .mud-input {
+    color: var(--mud-palette-text-primary) !important;
+    margin-bottom: 5px;
+    width: 35vw;
+}
+
+::deep .mud-input-label {
+    background: var(--mud-palette-background) !important;
+    color: var(--mud-pallette-primary-text) !important;
+}
+
+::deep .mud-input-outlined-border {
+    border-color: var(--mud-palette-text-primary) !important;
+}
+
+::deep .mud-input:hover .mud-input-outlined-border {
+    border-color: var(--mud-palette-secondary) !important;
+}

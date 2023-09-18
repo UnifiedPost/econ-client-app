@@ -1,0 +1,10 @@
+﻿@inherits MudButton
+
+<div>
+    @RenderBase()
+</div>
+
+
+@code {
+    public RenderFragment RenderBase() => builder => base.BuildRenderTree(builder);
+}

@@ -1,5 +1,6 @@
 ﻿using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Providers;
+using System.Security.Claims;
 
 namespace EuroConnector.ClientApp.Data.Services
 {
@@ -20,11 +21,11 @@ namespace EuroConnector.ClientApp.Data.Services
 
 			try
 			{
-				var exp = authState.User.FindFirst(x => x.Type.Equals("exp")).Value;
+				var exp = authState.User.FindFirst("exp").Value;
 				var expTime = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(exp));
 
 				var diff = expTime - DateTime.UtcNow;
-				if (diff.TotalMinutes <= 10) await _setupService.RefreshToken();
+				if (diff.TotalMinutes <= 2) await _setupService.RefreshToken();
 			}
 			catch (Exception)
 			{

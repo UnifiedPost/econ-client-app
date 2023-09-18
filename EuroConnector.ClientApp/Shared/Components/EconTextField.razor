@@ -1,0 +1,10 @@
+﻿@inherits MudTextField<T>
+@typeparam T
+
+<div>
+    @RenderBase()
+</div>
+
+@code {
+    public RenderFragment RenderBase() => builder => base.BuildRenderTree(builder);
+}

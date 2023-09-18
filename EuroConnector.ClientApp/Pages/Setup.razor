@@ -11,11 +11,11 @@
     <MudText Typo="Typo.h3">Setup</MudText>
 
     <MudForm @ref="form" @bind-IsValid="success">
-        <MudTextField T="string" @bind-Value="properties.UserName" Required="true"
+        <EconTextField T="string" @bind-Value="properties.UserName" Required="true"
                       Label="Username" Variant="Variant.Outlined" Margin="Margin.Dense"/>
-        <MudTextField T="string" @bind-Value="properties.SecretKey" Required="true" InputType="InputType.Password"
+        <EconTextField T="string" @bind-Value="properties.SecretKey" Required="true" InputType="InputType.Password"
                       Label="Secret Key" Variant="Variant.Outlined" Margin="Margin.Dense"/>
-        <MudTextField T="string" @bind-Value="properties.ApiUrl" Required="true"
+        <EconTextField T="string" @bind-Value="properties.ApiUrl" Required="true"
                       Label="API URL" Variant="Variant.Outlined" Margin="Margin.Dense" />
     </MudForm>
 

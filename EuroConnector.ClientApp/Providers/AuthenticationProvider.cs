@@ -85,8 +85,6 @@ namespace EuroConnector.ClientApp.Providers
             var accessToken = await _localStorage.GetItemAsync<string>("accessToken");
             if (string.IsNullOrEmpty(accessToken)) return AnonymousUser;
 
-            SignIn(accessToken);
-
             return ReadFromJwt(accessToken);
         }
 
