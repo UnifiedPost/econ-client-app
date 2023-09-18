@@ -1,16 +1,31 @@
-﻿<MudDrawer Open="true" Variant="DrawerVariant.Persistent" Color="Color.Primary">
+﻿@using Blazored.LocalStorage;
+
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationProvider AuthProvider
+
+<MudDrawer Open="true" Variant="DrawerVariant.Persistent" Color="Color.Primary">
 	<MudDrawerHeader>
 		<MudText Typo="Typo.h5">EuroConnector</MudText>
 	</MudDrawerHeader>
-	<MudNavMenu Color="Color.Secondary" Bordered="true">
+	<MudNavMenu Color="Color.Secondary" Bordered="true" Style="display: flex; height: 100%; flex-direction: column;">
 		<AuthorizeView Roles="User, Admin, ErpAdmin">
-			<MudNavLink Href="/" Match="NavLinkMatch.All" Icon="fa-solid fa-house" IconColor="Color.Inherit">Home</MudNavLink>
-			<MudNavLink Href="/about" Match="NavLinkMatch.All" Icon="fa-solid fa-info-circle" IconColor="Color.Inherit">About</MudNavLink>
+			<Authorized>
+				<MudNavLink Href="/" Match="NavLinkMatch.All" Icon="fa-solid fa-house" IconColor="Color.Inherit">Home</MudNavLink>
+				<MudNavLink Href="/about" Match="NavLinkMatch.All" Icon="fa-solid fa-info-circle" IconColor="Color.Inherit">About</MudNavLink>
+				<MudNavLink Icon="fa-solid fa-right-from-bracket" IconColor="Color.Inherit" OnClick="OnLogoutClicked" Style="margin-top: auto;">Logout</MudNavLink>
+			</Authorized>
+			<NotAuthorized>
+				<MudNavLink Href="/login" Match="NavLinkMatch.All" Icon="fa-solid fa-right-to-bracket" IconColor="Color.Inherit">Login</MudNavLink>
+			</NotAuthorized>
 		</AuthorizeView>
-		<MudNavLink Href="/setup" Match="NavLinkMatch.All" Icon="fa-solid fa-cog" IconColor="Color.Inherit">Setup</MudNavLink>
 	</MudNavMenu>
 </MudDrawer>
 
 @code
 {
+	private async Task OnLogoutClicked()
+	{
+		AuthProvider.SignOut();
+		await LocalStorage.ClearAsync();
+	}
 }

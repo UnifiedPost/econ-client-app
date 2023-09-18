@@ -1,14 +1,16 @@
-﻿@page "/setup"
+﻿@page "/login"
 @using EuroConnector.ClientApp.Data.Interfaces;
 @using EuroConnector.ClientApp.Data.Models;
 
 @inject ISetupService SetupService
 @inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+
 
 @attribute [AllowAnonymous]
 
 <div>
-    <MudText Typo="Typo.h3">Setup</MudText>
+    <MudText Typo="Typo.h3">Login</MudText>
 
     <MudForm @ref="form" @bind-IsValid="success">
         <EconTextField T="string" @bind-Value="properties.UserName" Required="true"
@@ -19,8 +21,7 @@
                       Label="API URL" Variant="Variant.Outlined" Margin="Margin.Dense" />
     </MudForm>
 
-    <MudButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnApplyClicked">Apply</MudButton>
-    <MudButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnClearClicked">Clear</MudButton>
+    <EconButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnApplyClicked">Apply</EconButton>
 
     <MudText Typo="@Typo.subtitle1">@requiredMessage</MudText>
 </div>
@@ -43,6 +44,7 @@
             {
                 await SetupService.ApplySettings(properties);
                 Snackbar.Add("Settings applied successfully.", Severity.Success);
+                NavigationManager.NavigateTo("/");
             }
             catch (Exception ex)
             {
