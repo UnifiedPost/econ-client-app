@@ -2,7 +2,7 @@
 @using EuroConnector.ClientApp.Data.Interfaces;
 @using EuroConnector.ClientApp.Data.Models;
 
-@inject ISetupService SetupService
+@inject ILoginService LoginService
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
 
@@ -13,15 +13,15 @@
     <MudText Typo="Typo.h3">Login</MudText>
 
     <MudForm @ref="form" @bind-IsValid="success">
-        <EconTextField T="string" @bind-Value="properties.UserName" Required="true"
+        <EconTextField T="string" @bind-Value="@properties.UserName" Required="true" Immediate="true"
                       Label="Username" Variant="Variant.Outlined" Margin="Margin.Dense"/>
-        <EconTextField T="string" @bind-Value="properties.SecretKey" Required="true" InputType="InputType.Password"
+        <EconTextField T="string" @bind-Value="@properties.SecretKey" Required="true" InputType="InputType.Password" Immediate="true"
                       Label="Secret Key" Variant="Variant.Outlined" Margin="Margin.Dense"/>
-        <EconTextField T="string" @bind-Value="properties.ApiUrl" Required="true"
+        <EconTextField T="string" @bind-Value="@properties.ApiUrl" Required="true" Immediate="true"
                       Label="API URL" Variant="Variant.Outlined" Margin="Margin.Dense" />
     </MudForm>
 
-    <EconButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnApplyClicked">Apply</EconButton>
+    <EconButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnApplyClicked" Disabled="!success">Apply</EconButton>
 
     <MudText Typo="@Typo.subtitle1">@requiredMessage</MudText>
 </div>
@@ -42,7 +42,7 @@
             requiredMessage = string.Empty;
             try
             {
-                await SetupService.ApplySettings(properties);
+                await LoginService.Login(properties);
                 Snackbar.Add("Settings applied successfully.", Severity.Success);
                 NavigationManager.NavigateTo("/");
             }
@@ -52,11 +52,5 @@
             }
         }
         else requiredMessage = "All fields are required.";
-    }
-
-    private async Task OnClearClicked()
-    {
-        await SetupService.ClearSettings();
-        Snackbar.Add("Settings cleared.", Severity.Success);
     }
 }

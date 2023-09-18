@@ -13,13 +13,13 @@ using System.Threading.Tasks;
 
 namespace EuroConnector.ClientApp.Data.Services
 {
-    public class SetupService : ISetupService
+    public class LoginService : ILoginService
 	{
 		private readonly AuthenticationProvider _authenticationProvider;
 		private readonly HttpClient _httpClient;
 		private readonly ILocalStorageService _localStorage;
 
-		public SetupService(
+		public LoginService(
 			AuthenticationProvider authenticationProvider,
 			HttpClient httpClient,
 			ILocalStorageService localStorage)
@@ -29,7 +29,7 @@ namespace EuroConnector.ClientApp.Data.Services
 			_localStorage = localStorage;
 		}
 
-		public async Task ApplySettings(SetupProperties properties)
+		public async Task Login(SetupProperties properties)
 		{
 			if (!properties.ApiUrl.StartsWith("http")) properties.ApiUrl = $"https://{properties.ApiUrl}";
 			if (!properties.ApiUrl.EndsWith("/")) properties.ApiUrl = $"{properties.ApiUrl}/" ;

@@ -2,9 +2,9 @@
 
 namespace EuroConnector.ClientApp.Data.Interfaces
 {
-    public interface ISetupService
+    public interface ILoginService
     {
-        Task ApplySettings(SetupProperties properties);
+        Task Login(SetupProperties properties);
         Task ClearSettings();
         Task RefreshToken();
     }
