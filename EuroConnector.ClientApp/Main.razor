@@ -29,7 +29,7 @@
 		if (!string.IsNullOrEmpty(refreshToken) && TokenHelper.IsExpired(refreshToken))
 		{
 			AuthProvider.SignOut();
-			await LocalStorage.ClearAsync();
+			await LocalStorage.RemoveItemsAsync(new List<string> { "accessToken", "refreshToken", "apiUrl" });
 		}
 
 		var accessToken = await LocalStorage.GetItemAsync<string>("accessToken");

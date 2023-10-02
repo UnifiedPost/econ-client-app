@@ -1,7 +1,42 @@
 ﻿@page "/"
+@using System.Globalization;
+
+@implements IDisposable
 
 @attribute [Authorize(Roles = "User, Admin, ErpAdmin")]
 
 <AuthorizeView Roles="User, Admin, ErpAdmin">
-    <MudText Typo="Typo.h3">Home Page</MudText>
+    <MudText Typo="Typo.h3">Home</MudText>
+
+    <div class="time">
+        <MudText Typo="Typo.h5">@currentTime</MudText>
+    </div>
+
+    <MudText Typo="Typo.h6"><strong>Messages:</strong></MudText>
+    <div class="links">
+        <MudLink Href="/inbox">Inbox: 123</MudLink>
+        <MudLink Href="/outbox">Outbox: 321</MudLink>
+    </div>
 </AuthorizeView>
+
+@code
+{
+    string currentTime;
+    Timer timer;
+
+    protected override void OnInitialized()
+    {
+        timer = new Timer(Tick, null, 0, 1000);
+    }
+
+    private void Tick(object _)
+    {
+        currentTime = DateTime.Now.ToString(CultureInfo.CurrentCulture);
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}

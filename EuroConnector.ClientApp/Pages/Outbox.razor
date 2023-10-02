@@ -1,0 +1,30 @@
+﻿@page "/outbox"
+@using EuroConnector.ClientApp.Data.Interfaces;
+@using EuroConnector.ClientApp.Data.Models;
+
+@inject ISetupService SetupService;
+
+@attribute [Authorize(Roles = "User, Admin, ErpAdmin")]
+
+<MudText Typo="Typo.h3">Outbox</MudText>
+
+<MudText Typo="Typo.h5">Outbox Spool</MudText>
+<MudText>Path: @settings.OutboxPath</MudText>
+<FileList Path="@settings.OutboxPath"/>
+
+<MudText Typo="Typo.h5" style="margin-top: 10px;">Sent</MudText>
+<MudText>Path: @settings.SentPath</MudText>
+<FileList Path="@settings.SentPath" />
+
+<MudText Typo="Typo.h5" style="margin-top: 10px;">Failed</MudText>
+<MudText>Path: @settings.FailedPath</MudText>
+<FileList Path="@settings.FailedPath" />
+
+@code {
+    OutboxSettings settings = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        settings = await SetupService.GetOutboxSettings();
+    }
+}

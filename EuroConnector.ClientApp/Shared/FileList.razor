@@ -1,0 +1,50 @@
+﻿
+<div>
+    <MudDataGrid Items="@files" Dense="true" ReadOnly="true" Elevation="4" HeaderClass="grid-header" RowsPerPage="10">
+        <Columns>
+            <PropertyColumn Property="x => x.Name" Title="Filename"/>
+            <PropertyColumn Property="x => x.CreationTime" Title="Created At"/>
+            <PropertyColumn Property="x => FileSizeDisplay(x.Length)" Title="Size" SortBy="x => x.Length"/>
+        </Columns>
+        <PagerContent>
+            <div class="grid-footer">
+                <MudDataGridPager PageSizeOptions="@(new int[] {5, 10, 25} )" />
+            </div>
+        </PagerContent>
+    </MudDataGrid>
+</div>
+
+@code {
+    [Parameter]
+    public string Path { get; set; }
+
+    List<FileInfo> files;
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrEmpty(Path))
+        {
+            var directory = new DirectoryInfo(Path);
+            files = directory.GetFiles().ToList();
+        }
+    }
+
+    private string FileSizeDisplay(long length)
+    {
+        var result = $"{length} bytes";
+
+        if (length > 1024)
+        {
+            double kbytes = length / 1024.0;
+            result = $"{kbytes:0.###} KB";
+
+            if (kbytes > 1024)
+            {
+                double mbytes = kbytes / 1024.0;
+                result = $"{mbytes:0.###} MB";
+            }
+        }
+
+        return result;
+    }
+}

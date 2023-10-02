@@ -14,8 +14,8 @@
     </MudForm>
 
     <div class="button-group">
-        <EconButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnSaveClicked">Save</EconButton>
-        <EconButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnClearClicked">Clear</EconButton>
+        <EconButton OnClick="OnSaveClicked">Save</EconButton>
+        <EconButton OnClick="OnClearClicked">Clear</EconButton>
     </div>
 </div>
 
@@ -38,6 +38,7 @@
     private async Task OnClearClicked()
     {
         await SetupService.ClearSettings(new List<string> { "outboxPath", "sentPath", "failedPath" });
+        settings = new();
         Snackbar.Add("Settings cleared successfully.", Severity.Success);
     }
 }

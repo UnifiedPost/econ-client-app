@@ -1,0 +1,20 @@
+﻿@page "/inbox"
+@using Blazored.LocalStorage;
+
+@inject ILocalStorageService LocalStorage;
+
+<MudText Typo="Typo.h3">Inbox</MudText>
+
+<MudText>Path: @path</MudText>
+<FileList Path="@path" />
+
+<EconButton>Check For New Invoices</EconButton>
+
+@code {
+    string path;
+
+    protected override async Task OnInitializedAsync()
+    {
+        path = await LocalStorage.GetItemAsync<string>("inboxPath");
+    }
+}

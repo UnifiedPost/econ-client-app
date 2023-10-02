@@ -1,0 +1,24 @@
+﻿::deep .grid-header {
+    background: var(--mud-palette-primary) !important;
+}
+
+.grid-footer {
+    background: var(--mud-palette-primary);
+    color: var(--mud-palette-primary-text);
+}
+
+::deep .mud-button-root:disabled {
+    opacity: 0.4;
+}
+
+::deep .mud-sort-index {
+    display: none;
+}
+
+::deep th.mud-table-cell, ::deep .mud-icon-root, ::deep .mud-input {
+    color: var(--mud-palette-primary-text) !important;
+}
+
+::deep .mud-table {
+    overflow: hidden;
+}

@@ -1,0 +1,8 @@
+﻿.time {
+    margin: 10px 0;
+}
+
+.links {
+    display: flex;
+    flex-direction: column;
+}
