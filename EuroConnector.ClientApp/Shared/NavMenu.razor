@@ -3,7 +3,7 @@
 @inject ILocalStorageService LocalStorage
 @inject AuthenticationProvider AuthProvider
 
-<MudDrawer Open="true" Variant="DrawerVariant.Persistent" Color="Color.Primary">
+<MudDrawer Open="true" Variant="DrawerVariant.Persistent" Color="Color.Primary" Style="position: fixed;">
 	<MudDrawerHeader>
 		<MudText Typo="Typo.h5">EuroConnector</MudText>
 	</MudDrawerHeader>
@@ -11,21 +11,14 @@
 		<AuthorizeView Roles="User, Admin, ErpAdmin">
 			<Authorized>
 				<MudNavLink Href="/" Match="NavLinkMatch.All" Icon="fa-solid fa-house" IconColor="Color.Inherit">Home</MudNavLink>
+				<MudNavLink Href="/inbox" Match="NavLinkMatch.All" Icon="fa-solid fa-file" IconColor="Color.Inherit">Inbox</MudNavLink>
+				<MudNavLink Href="/outbox" Match="NavLinkMatch.All" Icon="fa-solid fa-file" IconColor="Color.Inherit">Outbox</MudNavLink>
 				<MudNavLink Href="/about" Match="NavLinkMatch.All" Icon="fa-solid fa-info-circle" IconColor="Color.Inherit">About</MudNavLink>
-				<MudNavLink Icon="fa-solid fa-right-from-bracket" IconColor="Color.Inherit" OnClick="OnLogoutClicked" Style="margin-top: auto;">Logout</MudNavLink>
 			</Authorized>
 			<NotAuthorized>
-				<MudNavLink Href="/login" Match="NavLinkMatch.All" Icon="fa-solid fa-right-to-bracket" IconColor="Color.Inherit">Login</MudNavLink>
+				<MudNavLink Href="/setup" Match="NavLinkMatch.All" Icon="fa-solid fa-cog" IconColor="Color.Inherit">Setup</MudNavLink>
 			</NotAuthorized>
 		</AuthorizeView>
 	</MudNavMenu>
 </MudDrawer>
 
-@code
-{
-	private async Task OnLogoutClicked()
-	{
-		AuthProvider.SignOut();
-		await LocalStorage.ClearAsync();
-	}
-}

@@ -11,7 +11,6 @@ namespace EuroConnector.ClientApp.Providers
     {
         private readonly HttpClient _httpClient;
         private readonly ILocalStorageService _localStorage;
-        private readonly IRefreshTokenService _refreshTokenService;
 
         public AuthenticationProvider(HttpClient httpClient, ILocalStorageService localStorage)
         {

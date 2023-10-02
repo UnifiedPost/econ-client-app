@@ -1,0 +1,43 @@
+﻿@using EuroConnector.ClientApp.Data.Interfaces;
+@using EuroConnector.ClientApp.Data.Models;
+
+@inject ISetupService SetupService;
+@inject ISnackbar Snackbar;
+
+<div>
+    <MudText Typo="Typo.h5">Outbox Settings</MudText>
+
+    <MudForm @ref="form" @bind-IsValid="success">
+        <EconTextField T="string" @bind-Value="@settings.OutboxPath" Label="Outbox Spool Folder" />
+        <EconTextField T="string" @bind-Value="@settings.SentPath" Label="Sent Folder" />
+        <EconTextField T="string" @bind-Value="@settings.FailedPath" Label="Failed Folder" />
+    </MudForm>
+
+    <div class="button-group">
+        <EconButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnSaveClicked">Save</EconButton>
+        <EconButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnClearClicked">Clear</EconButton>
+    </div>
+</div>
+
+@code {
+    MudForm form;
+    bool success;
+    OutboxSettings settings = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        settings = await SetupService.GetOutboxSettings();
+    }
+
+    private async Task OnSaveClicked()
+    {
+        await SetupService.ApplyOutboxSettings(settings);
+        Snackbar.Add("Outbox settings applied successfully.", Severity.Success);
+    }
+
+    private async Task OnClearClicked()
+    {
+        await SetupService.ClearSettings(new List<string> { "outboxPath", "sentPath", "failedPath" });
+        Snackbar.Add("Settings cleared successfully.", Severity.Success);
+    }
+}

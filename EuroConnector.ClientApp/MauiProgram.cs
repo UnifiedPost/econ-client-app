@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using CommunityToolkit.Maui;
 using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Data.Services;
 using EuroConnector.ClientApp.Providers;
@@ -18,6 +19,7 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
+			.UseMauiCommunityToolkit()
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

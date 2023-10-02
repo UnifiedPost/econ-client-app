@@ -13,13 +13,13 @@ using System.Threading.Tasks;
 
 namespace EuroConnector.ClientApp.Data.Services
 {
-    public class LoginService : ILoginService
+    public class SetupService : ISetupService
 	{
 		private readonly AuthenticationProvider _authenticationProvider;
 		private readonly HttpClient _httpClient;
 		private readonly ILocalStorageService _localStorage;
 
-		public LoginService(
+		public SetupService(
 			AuthenticationProvider authenticationProvider,
 			HttpClient httpClient,
 			ILocalStorageService localStorage)
@@ -29,7 +29,7 @@ namespace EuroConnector.ClientApp.Data.Services
 			_localStorage = localStorage;
 		}
 
-		public async Task Login(SetupProperties properties)
+		public async Task Login(LoginSettings properties)
 		{
 			if (!properties.ApiUrl.StartsWith("http")) properties.ApiUrl = $"https://{properties.ApiUrl}";
 			if (!properties.ApiUrl.EndsWith("/")) properties.ApiUrl = $"{properties.ApiUrl}/" ;
@@ -52,10 +52,44 @@ namespace EuroConnector.ClientApp.Data.Services
             _authenticationProvider.SignIn(responseData.AccessToken);
 		}
 
-		public async Task ClearSettings()
+		public async Task Logout()
+        {
+			await _localStorage.RemoveItemsAsync(new List<string> { "accessToken", "refreshToken", "apiUrl" });
+            _authenticationProvider.SignOut();
+        }
+
+		public async Task ClearSettings(IEnumerable<string> keysToClear)
 		{
-			await _localStorage.ClearAsync();
-			_authenticationProvider.SignOut();
+			if (keysToClear is null)
+			{
+				await _localStorage.ClearAsync();
+				_authenticationProvider.SignOut();
+
+				return;
+			}
+
+			await _localStorage.RemoveItemsAsync(keysToClear);
+		}
+
+		public async Task ApplyOutboxSettings(OutboxSettings settings)
+		{
+			await _localStorage.SetItemAsync("outboxPath", settings.OutboxPath);
+			await _localStorage.SetItemAsync("sentPath", settings.SentPath);
+			await _localStorage.SetItemAsync("failedPath", settings.FailedPath);
+        }
+
+		public async Task<OutboxSettings> GetOutboxSettings()
+		{
+			var outboxPath = await _localStorage.GetItemAsync<string>("outboxPath");
+			var sentPath = await _localStorage.GetItemAsync<string>("sentPath");
+			var failedPath = await _localStorage.GetItemAsync<string>("failedPath");
+
+			return new()
+			{
+				OutboxPath = outboxPath,
+				SentPath = sentPath,
+				FailedPath = failedPath,
+			};
 		}
 
 		public async Task RefreshToken()

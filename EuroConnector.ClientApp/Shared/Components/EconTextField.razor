@@ -7,4 +7,12 @@
 
 @code {
     public RenderFragment RenderBase() => builder => base.BuildRenderTree(builder);
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        Margin = Margin.Dense;
+        Immediate = true;
+        Variant = Variant.Outlined;
+    }
 }

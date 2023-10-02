@@ -1,0 +1,59 @@
+﻿@using EuroConnector.ClientApp.Data.Interfaces;
+@using EuroConnector.ClientApp.Data.Models;
+
+@inject ISetupService LoginService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+@attribute [AllowAnonymous]
+
+<div>
+    <MudText Typo="Typo.h5">Login</MudText>
+
+    <MudForm @ref="form" @bind-IsValid="success">
+        <EconTextField T="string" @bind-Value="@properties.UserName" Required="true" Label="Username" />
+        <EconTextField T="string" @bind-Value="@properties.SecretKey" Required="true" InputType="InputType.Password" Label="Secret Key"/>
+        <EconTextField T="string" @bind-Value="@properties.ApiUrl" Required="true" Label="API URL"/>
+    </MudForm>
+
+    <div class="button-group">
+        <EconButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnSaveClicked" Disabled="!success">Save</EconButton>
+        <EconButton Variant="Variant.Outlined" Color="Color.Inherit" OnClick="OnClearClicked" Disabled="!success">Clear</EconButton>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public Error Error { get; set; }
+
+    bool success;
+    MudForm form;
+    LoginSettings properties = new();
+
+    private async Task OnSaveClicked()
+    {
+        try
+        {
+            await LoginService.Login(properties);
+            Snackbar.Add("Login settings applied successfully.", Severity.Success);
+            Navigation.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    private async Task OnClearClicked()
+    {
+        try
+        {
+            await LoginService.Logout();
+            Snackbar.Add("Logged out successfully.", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+}
