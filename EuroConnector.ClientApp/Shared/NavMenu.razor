@@ -11,9 +11,8 @@
 		<AuthorizeView Roles="User, Admin, ErpAdmin">
 			<Authorized>
 				<MudNavLink Href="/" Match="NavLinkMatch.All" Icon="fa-solid fa-house" IconColor="Color.Inherit">Home</MudNavLink>
-				<MudNavLink Href="/inbox" Match="NavLinkMatch.All" Icon="fa-solid fa-file" IconColor="Color.Inherit">Inbox</MudNavLink>
-				<MudNavLink Href="/outbox" Match="NavLinkMatch.All" Icon="fa-solid fa-file" IconColor="Color.Inherit">Outbox</MudNavLink>
-				<MudNavLink Href="/about" Match="NavLinkMatch.All" Icon="fa-solid fa-info-circle" IconColor="Color.Inherit">About</MudNavLink>
+				<MudNavLink Href="/inbox" Match="NavLinkMatch.All" Icon="fa-solid fa-inbox" IconColor="Color.Inherit">Inbox</MudNavLink>
+				<MudNavLink Href="/outbox" Match="NavLinkMatch.All" Icon="fa-solid fa-file-export" IconColor="Color.Inherit">Outbox</MudNavLink>
 			</Authorized>
 		</AuthorizeView>
 		<MudNavLink Href="/setup" Match="NavLinkMatch.All" Icon="fa-solid fa-cog" IconColor="Color.Inherit">Setup</MudNavLink>

@@ -29,4 +29,8 @@
     <ProjectReference Include="..\EuroConnector.ClientApp\EuroConnector.ClientApp.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pages\" />
+  </ItemGroup>
+
 </Project>

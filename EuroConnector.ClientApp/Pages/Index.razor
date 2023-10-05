@@ -1,7 +1,15 @@
 ﻿@page "/"
 @using System.Globalization;
+@using Blazored.LocalStorage;
+@using EuroConnector.ClientApp.Data.Interfaces;
+@using EuroConnector.ClientApp.Data.Models;
+@using EuroConnector.ClientApp.Data.Services;
 
 @implements IDisposable
+
+@inject ILocalStorageService LocalStorage;
+@inject IVersionService VersionService;
+@inject HttpInterceptorService Interceptor;
 
 @attribute [Authorize(Roles = "User, Admin, ErpAdmin")]
 
@@ -14,19 +22,65 @@
 
     <MudText Typo="Typo.h6"><strong>Messages:</strong></MudText>
     <div class="links">
-        <MudLink Href="/inbox">Inbox: 123</MudLink>
-        <MudLink Href="/outbox">Outbox: 321</MudLink>
+        <MudLink Href="/inbox">Inbox: @inboxCount</MudLink>
+        <MudLink Href="/outbox">Outbox: @outboxCount</MudLink>
+    </div>
+
+    <div class="api-info">
+        <MudText id="api-version">API Version: @(apiVersion is null ? "Loading..." : apiVersion.Version)</MudText>
+        <MudText id="api-release-date">Release Date: @(apiVersion is null ? "Loading..." : apiVersion.ReleaseDate?.ToString("d") ?? "Error")</MudText>
+        <MudText id="api-release-date">@(apiVersion is null ? "" : apiVersion.Comment)</MudText>
     </div>
 </AuthorizeView>
 
 @code
-{
+    {
+    [CascadingParameter]
+    public Error Error { get; set; }
+
     string currentTime;
     Timer timer;
 
-    protected override void OnInitialized()
+    int inboxCount = 0;
+    int outboxCount = 0;
+
+    ApiVersion apiVersion;
+
+    protected override async Task OnInitializedAsync()
     {
         timer = new Timer(Tick, null, 0, 1000);
+
+        inboxCount = await GetFileCount("inboxPath");
+        outboxCount = await GetFileCount("outboxPath");
+
+        await GetApiInformation();
+    }
+
+    private async Task<int> GetFileCount(string key)
+    {
+        var path = await LocalStorage.GetItemAsync<string>(key);
+        var directory = new DirectoryInfo(path);
+        var files = directory.GetFiles();
+        return files.Count();
+    }
+
+    private async Task GetApiInformation()
+    {
+        Interceptor.RegisterEvent();
+
+        try
+        {
+            var response = await VersionService.GetApiVersion();
+            apiVersion = response;
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+            apiVersion = new()
+                {
+                    Version = "Error",
+                };
+        }
     }
 
     private void Tick(object _)

@@ -22,6 +22,7 @@ namespace EuroConnector.ClientApp.Tests.Services
             {
                 Version = "1.0.0",
                 ReleaseDate = DateTime.UtcNow,
+                Comment = "TESTING",
             };
 
             var apiResponse = new HttpResponseMessage()
