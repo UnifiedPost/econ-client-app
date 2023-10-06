@@ -1,5 +1,5 @@
 ﻿
-<div>
+<div style="margin: 5px 0;">
     <MudDataGrid Items="@files" Dense="true" ReadOnly="true" Elevation="4" HeaderClass="grid-header" RowsPerPage="10">
         <Columns>
             <PropertyColumn Property="x => x.Name" Title="Filename"/>
@@ -12,6 +12,11 @@
             </div>
         </PagerContent>
     </MudDataGrid>
+
+    <div style ="margin-top: 5px;">
+        <MudText>Total Files: @files?.Count()</MudText>
+        <EconButton>Refresh File List</EconButton>
+    </div>
 </div>
 
 @code {

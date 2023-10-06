@@ -19,6 +19,11 @@ namespace EuroConnector.ClientApp.Data.Services
 		public async Task<ApiVersion> GetApiVersion()
 		{
 			var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+			if (string.IsNullOrEmpty(apiUrl)) return new ApiVersion
+			{
+				Version = "Error",
+				ReleaseDate = null,
+			};
 
 			var result = await _httpClient.GetFromJsonAsync<ApiVersion>($"{apiUrl}public/v1/extensions/version");
 

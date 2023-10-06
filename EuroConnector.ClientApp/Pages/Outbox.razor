@@ -1,8 +1,10 @@
 ﻿@page "/outbox"
+@using Blazored.LocalStorage;
 @using EuroConnector.ClientApp.Data.Interfaces;
 @using EuroConnector.ClientApp.Data.Models;
 
 @inject ISetupService SetupService;
+@inject ILocalStorageService LocalStorage;
 
 @attribute [Authorize(Roles = "User, Admin, ErpAdmin")]
 
@@ -10,21 +12,52 @@
 
 <MudText Typo="Typo.h5">Outbox Spool</MudText>
 <MudText>Path: @settings.OutboxPath</MudText>
+<div class="outbox-spool-buttons">
+    <EconButton>Send Documents</EconButton>
+    <MudTooltip Text="Outbox Settings">
+        <MudIconButton OnClick="@ToggleOutboxSettingsOpen" Icon="fa-solid fa-cog" Size="Size.Medium"></MudIconButton>
+        <MudPopover Open="@isOutboxSettingsOpen" AnchorOrigin="Origin.BottomLeft">
+            <div style="padding: 5px;">
+                <EconTextField T="int" InputType="InputType.Number" Style="width: 300px;"
+                    Label="Minutes between sending documents" @bind-Value="minsBetweenSend"/>
+                <div style="display: flex; flex-direction: row; gap: 5px;">
+                    <EconButton OnClick="SaveOutboxDelay">Save</EconButton>
+                    <EconButton OnClick="ToggleOutboxSettingsOpen">Close</EconButton>
+                </div>
+            </div>
+        </MudPopover>
+    </MudTooltip>
+</div>
 <FileList Path="@settings.OutboxPath"/>
+
+<MudDivider/>
 
 <MudText Typo="Typo.h5" style="margin-top: 10px;">Sent</MudText>
 <MudText>Path: @settings.SentPath</MudText>
 <FileList Path="@settings.SentPath" />
 
+<MudDivider />
+
 <MudText Typo="Typo.h5" style="margin-top: 10px;">Failed</MudText>
 <MudText>Path: @settings.FailedPath</MudText>
 <FileList Path="@settings.FailedPath" />
 
+
 @code {
     OutboxSettings settings = new();
+    bool isOutboxSettingsOpen = false;
+    int minsBetweenSend = 10;
 
     protected override async Task OnInitializedAsync()
     {
         settings = await SetupService.GetOutboxSettings();
+        minsBetweenSend = await LocalStorage.GetItemAsync<int?>("sendDelay") ?? 10;
+    }
+
+    private void ToggleOutboxSettingsOpen() => isOutboxSettingsOpen ^= true; // invert the value
+
+    private async Task SaveOutboxDelay()
+    {
+        await LocalStorage.SetItemAsync("sendDelay", minsBetweenSend);
     }
 }
