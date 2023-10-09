@@ -3,6 +3,6 @@
     public class DocumentSendRequest
     {
         public string DocumentStandard { get; set; }
-        public string DocumentContent { get; set; }
+        public byte[] DocumentContent { get; set; }
     }
 }

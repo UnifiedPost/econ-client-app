@@ -31,7 +31,7 @@ namespace EuroConnector.ClientApp.Data.Services
                 var request = new DocumentSendRequest
                 {
                     DocumentStandard = "BIS3",
-                    DocumentContent = File.ReadAllText(file.FullName),
+                    DocumentContent = File.ReadAllBytes(file.FullName),
                 };
 
                 var response = await _httpClient.PostAsync($"{apiUrl}/api/public/v1/documents/send", JsonContent.Create(request));
