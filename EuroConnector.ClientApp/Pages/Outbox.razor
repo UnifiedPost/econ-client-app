@@ -5,6 +5,8 @@
 
 @inject ISetupService SetupService;
 @inject ILocalStorageService LocalStorage;
+@inject IDocumentService DocumentService;
+@inject TimerProvider Timer;
 
 @attribute [Authorize(Roles = "User, Admin, ErpAdmin")]
 
@@ -13,7 +15,7 @@
 <MudText Typo="Typo.h5">Outbox Spool</MudText>
 <MudText>Path: @settings.OutboxPath</MudText>
 <div class="outbox-spool-buttons">
-    <EconButton>Send Documents</EconButton>
+    <EconButton OnClick="@SendDocuments">Send Documents</EconButton>
     <MudTooltip Text="Outbox Settings">
         <MudIconButton OnClick="@ToggleOutboxSettingsOpen" Icon="fa-solid fa-cog" Size="Size.Medium"></MudIconButton>
         <MudPopover Open="@isOutboxSettingsOpen" AnchorOrigin="Origin.BottomLeft">
@@ -59,5 +61,11 @@
     private async Task SaveOutboxDelay()
     {
         await LocalStorage.SetItemAsync("sendDelay", minsBetweenSend);
+        Timer.SetTimer(minsBetweenSend);
+    }
+
+    private async Task SendDocuments()
+    {
+        await DocumentService.SendDocuments();
     }
 }

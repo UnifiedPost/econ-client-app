@@ -1,0 +1,25 @@
+﻿@using Blazored.LocalStorage;
+@using System.Timers;
+@using EuroConnector.ClientApp.Data.Interfaces;
+@implements IDisposable
+
+@inject ILocalStorageService LocalStorage;
+@inject ISnackbar Snackbar;
+@inject IDocumentService DocumentService;
+@inject TimerProvider Timer;
+
+@attribute [Authorize("Admin, ErpAdmin, User")]
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var sendDelay = await LocalStorage.GetItemAsync<int?>("sendDelay") ?? 10;
+
+        Timer.SetTimer(sendDelay);
+    }
+
+    public void Dispose()
+    {
+        Timer.DisposeTimer();
+    }
+}
