@@ -3,3 +3,21 @@
     flex-direction: column;
     gap: 15px;
 }
+
+::deep .path-field {
+    width: 340px;
+}
+
+::deep .browse {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+::deep .browse-button
+{
+    height: 40px;
+    width: 100px;
+    margin-top: -4px;
+}

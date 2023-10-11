@@ -1,0 +1,98 @@
+﻿@page "/logs"
+@using System.Reflection;
+
+@inject ILogger Logger
+
+<MudText Typo="Typo.h3">Logs</MudText>
+
+<div class="fields">
+    <EconDatePicker Date="selectedDate" DateChanged="OnDateChange" Class="field"/>
+    <EconTextField @bind-Value="search" T="string" Label="Search" Class="field" />
+    <EconSelect @bind-Value="logLevel" T="string" Label="Log Level" Class="field" Style="width: 200px;" FullWidth="true">
+        <MudSelectItem T="string" Value='"All"'>All</MudSelectItem>
+        <MudSelectItem T="string" Value='"INF"'>Information</MudSelectItem>
+        <MudSelectItem T="string" Value='"WRN"'>Warning</MudSelectItem>
+        <MudSelectItem T="string" Value='"ERR"'>Error</MudSelectItem>
+    </EconSelect>
+    <MudTooltip Text="Reverse Sorting">
+        <MudIconButton OnClick="ToggleListReverse" Icon="fa-solid fa-arrow-right-arrow-left" Style="height: 40px; width: 40px; margin: 0 0 5px 5px;"/>
+    </MudTooltip>
+</div>
+<MudPaper Elevation="4" Style="margin-top: 5px; padding: 10px; height: calc(100vh - 200px); white-space: pre-line; overflow: auto;">
+    @if(contents.Count > 0)
+    {
+        foreach(var line in GetContents())
+        {
+            <MudText>@line</MudText>
+        }
+    }
+    else
+    {
+        <MudText>File not found or is empty.</MudText>
+    }
+</MudPaper>
+
+@code {
+    List<string> contents;
+    DateTime? selectedDate = DateTime.Now;
+    string logLevel = "All";
+    string search = string.Empty;
+    bool reverse = false;
+
+    protected override void OnInitialized()
+    {
+        SetContents();
+    }
+
+    private void OnDateChange(DateTime? newDate)
+    {
+        selectedDate = newDate;
+        SetContents();
+    }
+
+    private bool FilterLogs(string line) => 
+        (string.IsNullOrEmpty(search) || line.Contains(search)) && (string.IsNullOrEmpty(logLevel) || logLevel.Equals("All") || line.Contains(logLevel));
+
+    private void SetContents()
+    {
+        contents = new();
+
+        var appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        var logPath = Path.Combine(appPath, "logs");
+
+        try
+        {
+            contents = ReadFile($"{logPath}\\log-{selectedDate?.ToString("yyyyMMdd")}.txt").ToList();
+        }
+        catch (Exception)
+        {
+            Logger.Warning("{LogFileName} file was not found or is empty", $"log-{selectedDate?.ToString("yyyyMMdd")}.txt");
+        }
+    }
+
+    private IEnumerable<string> GetContents()
+    {
+        var filtered = contents.Where(FilterLogs);
+
+        if (reverse) return filtered.Reverse();
+
+        return filtered;
+    }
+
+    private void ToggleListReverse()
+    {
+        reverse ^= true;
+    }
+
+    private IEnumerable<string> ReadFile(string path)
+    {
+        using var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        using var reader = new StreamReader(stream);
+        //return reader.ReadToEnd();
+        string line;
+        while ((line = reader.ReadLine()) is not null)
+        {
+            yield return line;
+        }
+    }
+}

@@ -1,0 +1,12 @@
+﻿.fields {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.field {
+    margin-top: 5px;
+    min-width: 200px;
+    width: 200px;
+}

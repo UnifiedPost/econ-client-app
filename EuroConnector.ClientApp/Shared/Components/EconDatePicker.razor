@@ -1,0 +1,16 @@
+﻿@inherits MudDatePicker
+
+<div>
+    @RenderBase()
+</div>
+
+@code {
+    public RenderFragment RenderBase() => builder => base.BuildRenderTree(builder);
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        Margin = Margin.Dense;
+        Variant = Variant.Outlined;
+    }
+}

@@ -24,7 +24,7 @@ public static class MauiProgram
             .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
             .MinimumLevel.Override("MudBlazor", Serilog.Events.LogEventLevel.Warning)
             .Enrich.FromLogContext()
-            .WriteTo.File(Path.Combine(path, "logs", "log.txt"), rollingInterval: RollingInterval.Day)
+            .WriteTo.File(Path.Combine(path, "logs", "log-.txt"), rollingInterval: RollingInterval.Day, shared: true)
             .CreateLogger();
 
         var builder = MauiApp.CreateBuilder();
@@ -35,7 +35,7 @@ public static class MauiProgram
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             })
-            .Logging.AddSerilog(dispose: true);
+            .Logging.AddSerilog(Log.Logger, dispose: true);
 
         var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
         builder.Configuration.AddConfiguration(config);
@@ -76,9 +76,11 @@ public static class MauiProgram
         builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         builder.Services.AddScoped<HttpInterceptorService>();
 
+        builder.Services.AddSingleton(Log.Logger);
+
         builder.Services.AddHttpClientInterceptor();
 
-        Log.Information("Starting Application");
+        Log.Information("EuroConnector Client Starting");
 
         return builder.Build();
     }

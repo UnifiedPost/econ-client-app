@@ -46,6 +46,9 @@
 
 
 @code {
+    [CascadingParameter]
+    public Shared.Error Error { get; set; }
+
     OutboxSettings settings = new();
     bool isOutboxSettingsOpen = false;
     int minsBetweenSend = 10;
@@ -66,6 +69,13 @@
 
     private async Task SendDocuments()
     {
-        await DocumentService.SendDocuments();
+        try
+        {
+            await DocumentService.SendDocuments();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
     }
 }

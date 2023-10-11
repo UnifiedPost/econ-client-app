@@ -5,3 +5,7 @@
 ::deep .mud-input-control > .mud-input-control-input-container > .mud-input-label-inputcontrol.mud-input-error {
     color: var(--mud-palette-text-primary) !important;
 }
+
+::deep .mud-input {
+    width: 450px;
+}

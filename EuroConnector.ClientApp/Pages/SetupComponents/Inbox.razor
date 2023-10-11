@@ -1,9 +1,11 @@
 ﻿@using Blazored.LocalStorage;
+@using CommunityToolkit.Maui.Storage;
 @using EuroConnector.ClientApp.Data.Interfaces;
 
 @inject ISetupService SetupService;
 @inject ILocalStorageService LocalStorage;
 @inject ISnackbar Snackbar;
+@inject ILogger Logger;
 
 @attribute [Authorize(Roles = "User, Admin, ErpAdmin")]
 
@@ -11,7 +13,10 @@
     <MudText Typo="Typo.h5">Inbox Settings</MudText>
 
     <MudForm @ref="form" @bind-IsValid="success">
-        <EconTextField T="string" @bind-Value="@inboxPath" Label="Inbox Folder" />
+        <div class="browse">
+            <EconTextField T="string" @bind-Value="@inboxPath" Label="Inbox Folder" Class="path-field"/>
+            <EconButton OnClick="BrowseClicked" Class="browse-button">Browse</EconButton>
+        </div>
     </MudForm>
 
     <div class="button-group">
@@ -30,16 +35,29 @@
         inboxPath = await LocalStorage.GetItemAsync<string>("inboxPath");
     }
 
+    private async Task BrowseClicked()
+    {
+        var folderPickerResult = await FolderPicker.PickAsync(inboxPath, CancellationToken.None);
+
+        if (folderPickerResult.IsSuccessful) inboxPath = folderPickerResult.Folder.Path;
+    }
+
     private async Task OnSaveClicked()
     {
+        Logger.Information("Inbox save clicked.");
         await LocalStorage.SetItemAsync("inboxPath", inboxPath);
+
         Snackbar.Add("Inbox settings applied successfully.", Severity.Success);
+        Logger.Information("Inbox settings applied successfully.");
     }
 
     private async Task OnClearClicked()
     {
+        Logger.Information("Inbox clear clicked.");
         await SetupService.ClearSettings(new List<string> { "inboxPath" });
         inboxPath = string.Empty;
+
         Snackbar.Add("Settings cleared successfully.", Severity.Success);
+        Logger.Information("Inbox settings cleared successfully.");
     }
 }

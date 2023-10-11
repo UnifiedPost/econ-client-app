@@ -6,19 +6,16 @@ namespace EuroConnector.ClientApp.Providers
 {
     public class TimerProvider
     {
-        private readonly IDocumentService _documentService;
-
         public System.Timers.Timer Timer { get; private set; }
 
-        public TimerProvider(IDocumentService documentService)
+        public TimerProvider()
         {
-            _documentService = documentService;
+            Timer = new System.Timers.Timer();
         }
 
         public void SetTimer(int minutes)
         {
-            Timer = new System.Timers.Timer(minutes * 60 * 1000);
-            Timer.Elapsed += OnTimedEvent;
+            Timer.Interval = minutes * 60 * 1000;
             Timer.AutoReset = true;
             Timer.Enabled = true;
         }
@@ -26,11 +23,6 @@ namespace EuroConnector.ClientApp.Providers
         public void DisposeTimer()
         {
             Timer.Dispose();
-        }
-
-        private async void OnTimedEvent(object source, ElapsedEventArgs e)
-        {
-            await _documentService.SendDocuments();
         }
     }
 }

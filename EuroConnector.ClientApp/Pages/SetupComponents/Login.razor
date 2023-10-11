@@ -4,6 +4,7 @@
 @inject ISetupService LoginService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
+@inject ILogger Logger
 
 @attribute [AllowAnonymous]
 
@@ -24,7 +25,7 @@
 
 @code {
     [CascadingParameter]
-    public Error Error { get; set; }
+    public Shared.Error Error { get; set; }
 
     bool success;
     MudForm form;
@@ -32,28 +33,36 @@
 
     private async Task OnSaveClicked()
     {
+        Logger.Information("Login save clicked.");
+
         try
         {
             await LoginService.Login(properties);
             Snackbar.Add("Login settings applied successfully.", Severity.Success);
+            Logger.Information("Login settings applied successfully.");
             Navigation.NavigateTo("/");
         }
         catch (Exception ex)
         {
             Error.ProcessError(ex);
+            Logger.Error("Login exception.", ex);
         }
     }
 
     private async Task OnClearClicked()
     {
+        Logger.Information("Logout clicked.");
+
         try
         {
             await LoginService.Logout();
             Snackbar.Add("Logged out successfully.", Severity.Success);
+            Logger.Information("Logged out successfully.");
         }
         catch (Exception ex)
         {
             Error.ProcessError(ex);
+            Logger.Error("Logout exception.", ex);
         }
     }
 }

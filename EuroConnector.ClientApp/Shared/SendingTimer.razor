@@ -11,11 +11,27 @@
 @attribute [Authorize("Admin, ErpAdmin, User")]
 
 @code {
+    [CascadingParameter]
+    public Error Error { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         var sendDelay = await LocalStorage.GetItemAsync<int?>("sendDelay") ?? 10;
 
         Timer.SetTimer(sendDelay);
+        Timer.Timer.Elapsed += OnTimedEvent;
+    }
+
+    private async void OnTimedEvent(object source, ElapsedEventArgs e)
+    {
+        try
+        {
+            await DocumentService.SendDocuments();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
     }
 
     public void Dispose()

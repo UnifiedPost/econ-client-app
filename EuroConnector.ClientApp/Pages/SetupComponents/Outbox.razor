@@ -1,16 +1,27 @@
-﻿@using EuroConnector.ClientApp.Data.Interfaces;
+﻿@using CommunityToolkit.Maui.Storage;
+@using EuroConnector.ClientApp.Data.Interfaces;
 @using EuroConnector.ClientApp.Data.Models;
 
 @inject ISetupService SetupService;
 @inject ISnackbar Snackbar;
+@inject ILogger Logger;
 
 <div>
     <MudText Typo="Typo.h5">Outbox Settings</MudText>
 
     <MudForm @ref="form" @bind-IsValid="success">
-        <EconTextField T="string" @bind-Value="@settings.OutboxPath" Label="Outbox Spool Folder" />
-        <EconTextField T="string" @bind-Value="@settings.SentPath" Label="Sent Folder" />
-        <EconTextField T="string" @bind-Value="@settings.FailedPath" Label="Failed Folder" />
+        <div class="browse">
+            <EconTextField T="string" @bind-Value="@settings.OutboxPath" Label="Outbox Spool Folder" Class="path-field" />
+            <EconButton OnClick='async () => await BrowseClicked("outbox")' Class="browse-button">Browse</EconButton>
+        </div>
+        <div class="browse">
+            <EconTextField T="string" @bind-Value="@settings.SentPath" Label="Sent Folder" Class="path-field" />
+            <EconButton OnClick='async () => await BrowseClicked("sent")' Class="browse-button">Browse</EconButton>
+        </div>
+        <div class="browse">
+            <EconTextField T="string" @bind-Value="@settings.FailedPath" Label="Failed Folder" Class="path-field" />
+            <EconButton OnClick='async () => await BrowseClicked("failed")' Class="browse-button">Browse</EconButton>
+        </div>
     </MudForm>
 
     <div class="button-group">
@@ -29,16 +40,62 @@
         settings = await SetupService.GetOutboxSettings();
     }
 
+    private async Task BrowseClicked(string field)
+    {
+        var folderPickerResult = await FolderPicker.PickAsync(GetPath(field), CancellationToken.None);
+
+        if (folderPickerResult.IsSuccessful) SetPath(field, folderPickerResult.Folder.Path);
+    }
+
+    private string GetPath(string field)
+    {
+        switch(field)
+        {
+            case "outbox":
+                return settings.OutboxPath;
+            case "sent":
+                return settings.SentPath;
+            case "failed":
+                return settings.FailedPath;
+            default:
+                return "";
+        }
+    }
+
+    private void SetPath(string field, string path)
+    {
+        switch (field)
+        {
+            case "outbox":
+                settings.OutboxPath = path;
+                break;
+            case "sent":
+                settings.SentPath = path;
+                break;
+            case "failed":
+                settings.FailedPath = path;
+                break;
+            default:
+                break;
+        }
+    }
+
     private async Task OnSaveClicked()
     {
+        Logger.Information("Outbox save clicked.");
         await SetupService.ApplyOutboxSettings(settings);
+
         Snackbar.Add("Outbox settings applied successfully.", Severity.Success);
+        Logger.Information("Outbox settings applied successfully.");
     }
 
     private async Task OnClearClicked()
     {
+        Logger.Information("Outbox clear clicked.");
         await SetupService.ClearSettings(new List<string> { "outboxPath", "sentPath", "failedPath" });
         settings = new();
+
         Snackbar.Add("Settings cleared successfully.", Severity.Success);
+        Logger.Information("Outbox settings cleared successfully.");
     }
 }

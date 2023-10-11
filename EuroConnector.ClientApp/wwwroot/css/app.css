@@ -103,3 +103,8 @@ a, .btn-link {
     flex-direction: row;
     gap: 5px;
 }
+
+*::selection {
+    background-color: var(--mud-palette-primary);
+    color: white;
+}
