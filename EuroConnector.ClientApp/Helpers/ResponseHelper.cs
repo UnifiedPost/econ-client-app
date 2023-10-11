@@ -9,12 +9,21 @@ namespace EuroConnector.ClientApp.Helpers
     {
         public static async Task<string> ProcessFailedRequest(HttpResponseMessage response, ILogger logger, string message = null)
         {
-            var json = await response.Content.ReadAsStringAsync();
-            var error = JsonSerializer.Deserialize<Error>(json);
+            string logMessage;
+            try
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var error = JsonSerializer.Deserialize<Error>(json);
 
-            var logMessage = $"{(string.IsNullOrEmpty(message) ? message + "\n" : "")}Trace ID: {error.TraceId}\n{error.Message}";
+                logMessage = $"{(string.IsNullOrEmpty(message) ? message + "\n" : "")}Trace ID: {error.TraceId}\n{error.StatusCode} - {error.Message}";
 
-            logger.Error(logMessage.Replace("\n", " - "));
+                logger.Error(logMessage.Replace("\n", " - "));
+            }
+            catch (Exception)
+            {
+                logMessage = $"{(int)response.StatusCode} - {response.ReasonPhrase}";
+                logger.Error(logMessage);
+            }
 
             return logMessage;
         }

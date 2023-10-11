@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using EuroConnector.ClientApp.Data.Interfaces;
+using Serilog;
 using System.Timers;
 
 namespace EuroConnector.ClientApp.Providers

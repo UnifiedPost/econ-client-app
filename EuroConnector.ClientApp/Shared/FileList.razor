@@ -1,18 +1,21 @@
 ﻿@inject ILogger Logger;
 
 <div style="margin: 5px 0;">
-    <MudDataGrid Items="@files" Dense="true" ReadOnly="true" Elevation="4" HeaderClass="grid-header" RowsPerPage="10">
-        <Columns>
-            <PropertyColumn Property="x => x.Name" Title="Filename"/>
-            <PropertyColumn Property="x => x.CreationTime" Title="Created At"/>
-            <PropertyColumn Property="x => FileSizeDisplay(x.Length)" Title="Size" SortBy="x => x.Length"/>
-        </Columns>
-        <PagerContent>
-            <div class="grid-footer">
-                <MudDataGridPager PageSizeOptions="@(new int[] {5, 10, 25} )" />
-            </div>
-        </PagerContent>
-    </MudDataGrid>
+    @if (files is null || files.Count() > 0)
+    {
+        <MudDataGrid Items="@files" Dense="true" ReadOnly="true" Elevation="4" HeaderClass="grid-header" RowsPerPage="10">
+            <Columns>
+                <PropertyColumn Property="x => x.Name" Title="Filename"/>
+                <PropertyColumn Property="x => x.CreationTime" Title="Created At"/>
+                <PropertyColumn Property="x => FileSizeDisplay(x.Length)" Title="Size" SortBy="x => x.Length"/>
+            </Columns>
+            <PagerContent>
+                <div class="grid-footer">
+                    <MudDataGridPager PageSizeOptions="@(new int[] {5, 10, 25} )" />
+                </div>
+            </PagerContent>
+        </MudDataGrid>
+    }
 
     <div style ="margin-top: 5px;">
         <MudText>Total Files: @files?.Count()</MudText>

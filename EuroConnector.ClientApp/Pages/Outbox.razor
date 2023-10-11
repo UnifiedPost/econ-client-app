@@ -6,6 +6,8 @@
 @inject ISetupService SetupService;
 @inject ILocalStorageService LocalStorage;
 @inject IDocumentService DocumentService;
+@inject ISnackbar Snackbar;
+@inject ILogger Logger;
 @inject TimerProvider Timer;
 
 @attribute [Authorize(Roles = "User, Admin, ErpAdmin")]
@@ -63,8 +65,13 @@
 
     private async Task SaveOutboxDelay()
     {
+        Logger.Information("Setting automatic sending timer to {Minutes} minutes", minsBetweenSend);
+
         await LocalStorage.SetItemAsync("sendDelay", minsBetweenSend);
         Timer.SetTimer(minsBetweenSend);
+
+        Logger.Information("Automatic sending timer set to {Minutes} minutes.", minsBetweenSend);
+        Snackbar.Add($"Automatic sending timer set to {minsBetweenSend} minutes.", Severity.Success);
     }
 
     private async Task SendDocuments()

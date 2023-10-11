@@ -5,6 +5,7 @@
 
 @inject ILocalStorageService LocalStorage;
 @inject ISnackbar Snackbar;
+@inject ILogger Logger;
 @inject IDocumentService DocumentService;
 @inject TimerProvider Timer;
 
@@ -24,6 +25,8 @@
 
     private async void OnTimedEvent(object source, ElapsedEventArgs e)
     {
+        Snackbar.Add("Automatic document sending has started.", Severity.Info);
+        Logger.Information("Automatic document sending has started.");
         try
         {
             await DocumentService.SendDocuments();

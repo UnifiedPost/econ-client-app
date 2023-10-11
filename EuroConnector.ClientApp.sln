@@ -4,8 +4,6 @@ VisualStudioVersion = 17.0.31611.283
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EuroConnector.ClientApp", "EuroConnector.ClientApp\EuroConnector.ClientApp.csproj", "{63FE63BC-19F9-4D99-A7E5-FEBAF91128B8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EuroConnector.ClientApp.Tests", "EuroConnector.ClientApp.Tests\EuroConnector.ClientApp.Tests.csproj", "{EAE4B02B-D70A-4D08-8FCE-5DE3AF637456}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,10 +16,6 @@ Global
 		{63FE63BC-19F9-4D99-A7E5-FEBAF91128B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63FE63BC-19F9-4D99-A7E5-FEBAF91128B8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{63FE63BC-19F9-4D99-A7E5-FEBAF91128B8}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{EAE4B02B-D70A-4D08-8FCE-5DE3AF637456}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EAE4B02B-D70A-4D08-8FCE-5DE3AF637456}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EAE4B02B-D70A-4D08-8FCE-5DE3AF637456}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EAE4B02B-D70A-4D08-8FCE-5DE3AF637456}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

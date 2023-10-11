@@ -1,6 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Data.Models;
+using EuroConnector.ClientApp.Extensions;
 using EuroConnector.ClientApp.Helpers;
 using Serilog;
 using System.Net.Http.Json;
@@ -48,17 +49,17 @@ namespace EuroConnector.ClientApp.Data.Services
 
                 _logger.Information("Sending document. File {FileName}.", file.Name);
 
-                var response = await _httpClient.PostAsync($"{apiUrl}/api/public/v1/documents/send", JsonContent.Create(request));
+                var response = await _httpClient.PostAsync($"{apiUrl}public/v1/documents/send", JsonContent.Create(request));
 
                 if (response.IsSuccessStatusCode)
                 {
                     _logger.Information("File {FileName} sent successfully. Moving to {SentPath}.", file.Name, sentPath);
-                    file.MoveTo(Path.Combine(sentPath, file.Name));
+                    file.SaveMoveTo(Path.Combine(sentPath, file.Name));
                 }
                 else
                 {
                     _logger.Error("File {FileName} sending failed. Moving to {FailedPath}.", file.Name, failedPath);
-                    file.MoveTo(Path.Combine(failedPath, file.Name));
+                    file.SaveMoveTo(Path.Combine(failedPath, file.Name));
 
                     var message = await ResponseHelper.ProcessFailedRequest(response, _logger, $"File {file.Name} sending failed.");
                     failed++;
