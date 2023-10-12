@@ -3,6 +3,8 @@
 
 @inject ILocalStorageService LocalStorage;
 
+@attribute [Authorize]
+
 <MudText Typo="Typo.h3">Inbox</MudText>
 
 <MudText>Path: @path</MudText>

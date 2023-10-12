@@ -116,7 +116,9 @@ namespace EuroConnector.ClientApp.Data.Services
         private async Task SetTokens(TokenResponse tokenResponse)
         {
             await _localStorage.SetItemAsync("accessToken", tokenResponse.AccessToken);
+            await _localStorage.SetItemAsync("accessExpiration", tokenResponse.AccessTokenExpiresUtc);
             await _localStorage.SetItemAsync("refreshToken", tokenResponse.RefreshToken);
+            await _localStorage.SetItemAsync("refreshExpiration", tokenResponse.RefreshTokenExpiresUtc);
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", tokenResponse.AccessToken);
         }
     }

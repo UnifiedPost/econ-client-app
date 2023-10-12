@@ -26,10 +26,11 @@
 	protected override async Task OnInitializedAsync()
 	{
 		var refreshToken = await LocalStorage.GetItemAsync<string>("refreshToken");
-		if (!string.IsNullOrEmpty(refreshToken) && TokenHelper.IsExpired(refreshToken))
+		var refreshExpiration = await LocalStorage.GetItemAsync<DateTime>("refreshExpiration");
+		if (!string.IsNullOrEmpty(refreshToken) && DateTime.UtcNow > refreshExpiration)
 		{
 			AuthProvider.SignOut();
-			await LocalStorage.RemoveItemsAsync(new List<string> { "accessToken", "refreshToken", "apiUrl" });
+			await LocalStorage.RemoveItemsAsync(new List<string> { "accessToken", "accessExpiration", "refreshToken", "refreshExpiration", "apiUrl" });
 		}
 
 		var accessToken = await LocalStorage.GetItemAsync<string>("accessToken");

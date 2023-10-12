@@ -8,7 +8,7 @@
 		<MudText Typo="Typo.h5">EuroConnector</MudText>
 	</MudDrawerHeader>
 	<MudNavMenu Color="Color.Secondary" Bordered="true" Style="display: flex; height: 100%; flex-direction: column;">
-		<AuthorizeView Roles="User, Admin, ErpAdmin">
+		<AuthorizeView>
 			<Authorized>
 				<MudNavLink Href="/" Match="NavLinkMatch.All" Icon="fa-solid fa-house" IconColor="Color.Inherit">Home</MudNavLink>
 				<MudNavLink Href="/inbox" Match="NavLinkMatch.All" Icon="fa-solid fa-inbox" IconColor="Color.Inherit">Inbox</MudNavLink>
