@@ -1,0 +1,63 @@
+﻿@using EuroConnector.ClientApp.Data.Models;
+
+<MudList DisablePadding="true">
+    <MudListItem>
+        <strong>Document Number: </strong> @DocumentMetadata.DocumentNo
+    </MudListItem>
+    <MudListItem>
+        <strong>Document Standard: </strong> @DocumentMetadata.DocumentStandard
+    </MudListItem>
+    <MudListItem>
+        <strong>Document Type: </strong> @DocumentMetadata.DocumentType
+    </MudListItem>
+    <MudListItem>
+        <strong>Sender Endpoint ID: </strong> @DocumentMetadata.SenderEndpointId
+    </MudListItem>
+    <MudListItem>
+        <strong>Sender Name: </strong> @DocumentMetadata.SenderName
+    </MudListItem>
+    <MudListItem>
+        <strong>Sender Entity Code: </strong> @DocumentMetadata.SenderEntityCode
+    </MudListItem>
+    <MudListItem>
+        <strong>Sender VAT Number: </strong> @DocumentMetadata.SenderVatNumber
+    </MudListItem>
+    <MudListItem>
+        <strong>Recipient Endpoint ID: </strong> @DocumentMetadata.RecipientEndpointId
+    </MudListItem>
+    <MudListItem>
+        <strong>Recipient Name: </strong> @DocumentMetadata.RecipientName
+    </MudListItem>
+    <MudListItem>
+        <strong>Recipient Entity Code: </strong> @DocumentMetadata.RecipientEntityCode
+    </MudListItem>
+    <MudListItem>
+        <strong>Recipient VAT Number: </strong> @DocumentMetadata.RecipientVatNumber
+    </MudListItem>
+    <MudListItem>
+        <strong>Date Created: </strong> @DocumentMetadata.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+    </MudListItem>
+    <MudListItem>
+        <strong>Date Updated: </strong> @DocumentMetadata.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+    </MudListItem>
+    <MudListItem>
+        <strong>Document Status: </strong> @DocumentMetadata.Status
+    </MudListItem>
+    <MudListItem>
+        <strong>Status Notes: </strong> @DocumentMetadata.StatusNotes
+    </MudListItem>
+    <MudListItem>
+        <strong>Folder Name: </strong> @DocumentMetadata.FolderName
+    </MudListItem>
+    @foreach (var field in DocumentMetadata.CustomFields)
+    {
+        <MudListItem>
+            <strong>@field.Field: </strong> @field.Value
+        </MudListItem>
+    }
+</MudList>
+
+@code {
+    [Parameter]
+    public DocumentMetadata DocumentMetadata { get; set; }
+}

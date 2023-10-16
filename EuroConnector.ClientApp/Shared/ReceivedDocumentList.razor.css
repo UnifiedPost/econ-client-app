@@ -18,3 +18,11 @@
 ::deep .mud-table {
     overflow: hidden;
 }
+
+.button-cells {
+    width: 25px;
+}
+
+::deep .mud-tooltip-root .mud-icon-root {
+    color: var(--mud-palette-action-default) !important;
+}

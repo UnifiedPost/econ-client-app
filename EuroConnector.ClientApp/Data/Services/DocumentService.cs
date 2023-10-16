@@ -68,5 +68,60 @@ namespace EuroConnector.ClientApp.Data.Services
 
             if (failed > 0) throw new Exception($"{failed} documents failed. Check the logs for more information.");
         }
+
+        public async Task<ReceivedDocuments> ReceiveDocumentList()
+        {
+            _logger.Information("Fetching the list of received documents.");
+
+            var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+            var response = await _httpClient.GetAsync($"{apiUrl}public/v1/documents/received-list");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var message = await ResponseHelper.ProcessFailedRequest(response, _logger);
+                throw new Exception(message);
+            }
+
+            var receivedDocuments = await response.Content.ReadFromJsonAsync<ReceivedDocuments>();
+
+            _logger.Information("Received {NumberOfDocuments} documents.", receivedDocuments.Documents.Count());
+            return receivedDocuments;
+        }
+
+        public async Task<DownloadedDocument> DownloadDocument(Guid id)
+        {
+            _logger.Information("Downloading document ID {DocumentId}", id);
+
+            var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+            var response = await _httpClient.GetAsync($"{apiUrl}public/v1/documents/{id}/content");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var message = await ResponseHelper.ProcessFailedRequest(response, _logger);
+                throw new Exception(message);
+            }
+
+            var downloadedDocument = await response.Content.ReadFromJsonAsync<DownloadedDocument>();
+
+            _logger.Information("Document ID {DocumentId} content successfully downloaded.", id);
+            return downloadedDocument;
+        }
+
+        public async Task<DocumentMetadataList> ViewDocumentMetadata(Guid id)
+        {
+            _logger.Information("Fetching the metadata for document ID {DocumentId}", id);
+
+            var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+            var response = await _httpClient.GetAsync($"{apiUrl}/public/v1/documents/{id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var message = await ResponseHelper.ProcessFailedRequest(response, _logger);
+                throw new Exception(message);
+            }
+
+            var documentMetadata = await response.Content.ReadFromJsonAsync<DocumentMetadataList>();
+            return documentMetadata;
+        }
     }
 }

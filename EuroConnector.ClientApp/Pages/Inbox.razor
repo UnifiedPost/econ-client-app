@@ -7,10 +7,8 @@
 
 <MudText Typo="Typo.h3">Inbox</MudText>
 
-<MudText>Path: @path</MudText>
-<FileList Path="@path" />
-
-<EconButton Style="margin: 5px 0">Check For New Invoices</EconButton>
+<MudText>Documents will be downloaded to: @path</MudText>
+<ReceivedDocumentList/>
 
 @code {
     string path;

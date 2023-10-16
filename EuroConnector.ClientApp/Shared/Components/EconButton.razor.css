@@ -1,2 +1,3 @@
-﻿body {
+﻿::deep .mud-button-root:disabled {
+    opacity: 0.4;
 }

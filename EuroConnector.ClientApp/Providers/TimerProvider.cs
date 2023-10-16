@@ -11,19 +11,32 @@ namespace EuroConnector.ClientApp.Providers
 
         public TimerProvider()
         {
-            Timer = new System.Timers.Timer();
+            CreateTimer();
         }
 
         public void SetTimer(int minutes)
         {
-            Timer.Interval = minutes * 60 * 1000;
-            Timer.AutoReset = true;
-            Timer.Enabled = true;
+            try
+            {
+                Timer.Interval = minutes * 60 * 1000;
+                Timer.AutoReset = true;
+                Timer.Enabled = true;
+            }
+            catch (ObjectDisposedException)
+            {
+                CreateTimer();
+                SetTimer(minutes);
+            }
         }
 
         public void DisposeTimer()
         {
             Timer.Dispose();
+        }
+
+        private void CreateTimer()
+        {
+            Timer = new System.Timers.Timer();
         }
     }
 }

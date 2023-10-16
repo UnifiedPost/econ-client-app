@@ -1,0 +1,138 @@
+﻿@using Blazored.LocalStorage;
+@using EuroConnector.ClientApp.Data.Interfaces;
+@using EuroConnector.ClientApp.Data.Models;
+@using System.Text;
+
+@inject ILogger Logger;
+@inject ISnackbar Snackbar;
+@inject ILocalStorageService LocalStorage;
+@inject IDocumentService DocumentService;
+
+<div style="margin: 5px 0;">
+    @if (receivedDocuments is not null && receivedDocuments?.Documents.Count() > 0)
+    {
+        <MudDataGrid Items="@receivedDocuments.Documents" Dense="true" ReadOnly="true" Elevation="4" HeaderClass="grid-header" RowsPerPage="10">
+            <Columns>
+                <PropertyColumn Property="x => x.DocumentId" Title="Document ID" />
+                <PropertyColumn Property="x => x.DocumentType" Title="Document Type" />
+                <PropertyColumn Property="x => x.Status" Title="Status" />
+                <TemplateColumn CellClass="button-cells">
+                    <CellTemplate>
+                        <MudTooltip Text="View Document Data">
+                            <MudIconButton Icon="fa-solid fa-eye" OnClick="() => ViewDocument(context.Item.DocumentId)" Size="Size.Small" />
+                        </MudTooltip>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn CellStyle="button-cells">
+                    <CellTemplate>
+                        <MudTooltip Text="Download Document">
+                            <MudIconButton Icon="fa-solid fa-download" OnClick="() => DownloadDocument(context.Item.DocumentId)" Size="Size.Small" />
+                        </MudTooltip>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+            <PagerContent>
+                <div class="grid-footer">
+                    <MudDataGridPager PageSizeOptions="@(new int[] {5, 10, 25} )" />
+                </div>
+            </PagerContent>
+        </MudDataGrid>
+    }
+
+    <div style="margin-top: 5px;">
+        <MudText>Total Documents: @(receivedDocuments?.Documents.Count() ?? 0)</MudText>
+        <EconButton OnClick="@GetReceivedDocuments">Check For New Invoices</EconButton>
+    </div>
+
+    <MudDialog OnBackdropClick="CloseMetadataView" @bind-IsVisible="isMetadataViewOpen">
+        <DialogContent>
+            @if (documentMetadata is null) 
+            {
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true"/>
+            }
+            else 
+            {
+                <DocumentMetadataView DocumentMetadata="documentMetadata"/>
+            }
+        </DialogContent>
+        <DialogActions>
+            <EconButton OnClick="CloseMetadataView">Close</EconButton>
+        </DialogActions>
+    </MudDialog>
+</div>
+
+@code {
+    [CascadingParameter]
+    public Error Error { get; set; }
+
+    ReceivedDocuments receivedDocuments;
+    DocumentMetadata documentMetadata;
+    bool isMetadataViewOpen = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetReceivedDocuments();
+    }
+
+    private async Task GetReceivedDocuments()
+    {
+        try
+        {
+            receivedDocuments = await DocumentService.ReceiveDocumentList();
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("An error occured while receiving documents.", ex);
+            Error.ProcessError(ex);
+        }
+    }
+
+    private async Task DownloadDocument(Guid id)
+    {
+        try
+        {
+            var document = await DocumentService.DownloadDocument(id);
+            await SaveDocument(document);
+            Snackbar.Add($"Document ID {id} successfully downloaded and saved in the outbox folder.", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("An error occured while downloading document ID {DocumentId}", id, ex);
+            Error.ProcessError(ex);
+        }
+    }
+
+    private async Task ViewDocument(Guid id)
+    {
+        try
+        {
+            isMetadataViewOpen = true;
+            var document = await DocumentService.ViewDocumentMetadata(id);
+            documentMetadata = document.Documents.FirstOrDefault();
+
+            if (documentMetadata is null)
+            {
+                isMetadataViewOpen = false;
+                Snackbar.Add("No metadata was fetched for this document.", Severity.Info);
+                Logger.Information("Document ID {DocumentId} has no metadata.", id);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("An error occured while fetching document ID data {DocumentId}", id, ex);
+            Error.ProcessError(ex);
+            isMetadataViewOpen = false;
+        }
+    }
+
+    private async Task SaveDocument(DownloadedDocument document)
+    {
+        var inboxPath = await LocalStorage.GetItemAsync<string>("inboxPath");
+        var filename = $"{document.DocumentId}.xml";
+
+        var content = Encoding.UTF8.GetString(document.DocumentContent);
+        await File.WriteAllTextAsync(Path.Combine(inboxPath, filename), content);
+    }
+
+    private void CloseMetadataView() => isMetadataViewOpen = false;
+}
