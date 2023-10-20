@@ -11,6 +11,7 @@
 @inject IVersionService VersionService;
 @inject HttpInterceptorService Interceptor;
 @inject IDocumentService DocumentService;
+@inject ILogger Logger;
 
 @attribute [Authorize]
 
@@ -54,10 +55,17 @@
 
         await GetApiInformation();
 
-        var docList = await DocumentService.ReceiveDocumentList();
-        inboxCount = docList.Documents.Count();
-        inboxCountDownloaded = await GetFileCount("inboxPath");
-        outboxCount = await GetFileCount("outboxPath");
+        try
+        {
+            var docList = await DocumentService.ReceiveDocumentList();
+            inboxCount = docList.Documents.Count();
+            inboxCountDownloaded = await GetFileCount("inboxPath");
+            outboxCount = await GetFileCount("outboxPath");
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "An exception occured.");
+        }
     }
 
     private async Task<int> GetFileCount(string key)
