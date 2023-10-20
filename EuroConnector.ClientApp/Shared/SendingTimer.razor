@@ -30,6 +30,7 @@
         try
         {
             await DocumentService.SendDocuments();
+            Snackbar.Add("All documents were sent successfully.", Severity.Success);
         }
         catch (Exception ex)
         {

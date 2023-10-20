@@ -76,6 +76,7 @@ namespace EuroConnector.ClientApp.Data.Services
             }
 
             if (failed > 0) throw new Exception($"{failed} documents failed. Check the logs for more information.");
+            _logger.Information("All documents were sent successfully.");
         }
 
         public async Task<ReceivedDocuments> ReceiveDocumentList()
