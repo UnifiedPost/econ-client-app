@@ -17,7 +17,7 @@
 <MudText Typo="Typo.h5">Outbox Spool</MudText>
 <MudText>Path: @settings.OutboxPath</MudText>
 <div class="outbox-spool-buttons">
-    <EconButton OnClick="@SendDocuments">Send Documents</EconButton>
+    <EconButton OnClick="@SendDocuments" Disabled="sending">Send Documents</EconButton>
     <MudTooltip Text="Outbox Settings">
         <MudIconButton OnClick="@ToggleOutboxSettingsOpen" Icon="fa-solid fa-cog" Size="Size.Medium"></MudIconButton>
         <MudPopover Open="@isOutboxSettingsOpen" AnchorOrigin="Origin.BottomLeft">
@@ -32,7 +32,7 @@
         </MudPopover>
     </MudTooltip>
 </div>
-<FileList Path="outboxPath" Name="Outbox" />
+<FileList Path="outboxPath" Name="Outbox" Loading="sending"/>
 
 <MudDivider />
 
@@ -53,6 +53,7 @@
 
     OutboxSettings settings = new();
     bool isOutboxSettingsOpen = false;
+    bool sending = false;
     int minsBetweenSend = 10;
 
     protected override async Task OnInitializedAsync()
@@ -76,6 +77,8 @@
 
     private async Task SendDocuments()
     {
+        Snackbar.Add("Sending Documents.", Severity.Info);
+        sending = true;
         try
         {
             await DocumentService.SendDocuments();
@@ -83,6 +86,10 @@
         catch (Exception ex)
         {
             Error.ProcessError(ex);
+        }
+        finally
+        {
+            sending = false;
         }
     }
 }

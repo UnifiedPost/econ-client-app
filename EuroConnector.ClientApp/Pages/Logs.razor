@@ -45,6 +45,8 @@
 
     protected override void OnInitialized()
     {
+        contents = new();
+
         SetContents();
     }
 
@@ -59,7 +61,7 @@
 
     private void SetContents()
     {
-        contents = new();
+        contents.Clear();
 
         var appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         var logPath = Path.Combine(appPath, "logs");

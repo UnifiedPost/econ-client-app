@@ -11,7 +11,8 @@
 <div style="margin: 5px 0;">
     @if (receivedDocuments is not null && receivedDocuments?.Documents.Count() > 0)
     {
-        <MudDataGrid Items="@receivedDocuments.Documents" Dense="true" ReadOnly="true" Elevation="4" HeaderClass="grid-header" RowsPerPage="10">
+        <MudDataGrid Items="@receivedDocuments.Documents" Dense="true" ReadOnly="true" Elevation="4" HeaderClass="grid-header"
+                     RowsPerPage="10" Loading="loading" LoadingProgressColor="Color.Secondary">
             <Columns>
                 <PropertyColumn Property="x => x.DocumentId" Title="Document ID" />
                 <PropertyColumn Property="x => x.DocumentType" Title="Document Type" />
@@ -41,7 +42,7 @@
 
     <div style="margin-top: 5px;">
         <MudText>Total Documents: @(receivedDocuments?.Documents.Count() ?? 0)</MudText>
-        <EconButton OnClick="@GetReceivedDocuments">Check For New Invoices</EconButton>
+        <EconButton OnClick="@GetReceivedDocuments" Disabled="loading">Check For New Invoices</EconButton>
     </div>
 
     <MudDialog OnBackdropClick="CloseMetadataView" @bind-IsVisible="isMetadataViewOpen">
@@ -68,6 +69,7 @@
     ReceivedDocuments receivedDocuments;
     DocumentMetadata documentMetadata;
     bool isMetadataViewOpen = false;
+    bool loading = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,14 +78,21 @@
 
     private async Task GetReceivedDocuments()
     {
+        loading = true;
+        Snackbar.Add("Fetching the list of received documents.", Severity.Info);
         try
         {
             receivedDocuments = await DocumentService.ReceiveDocumentList();
+            Snackbar.Add($"Received a list of {receivedDocuments.Documents.Count()} documents.", Severity.Info);
         }
         catch (Exception ex)
         {
             Logger.Error(ex, "An error occured while receiving documents.");
             Error.ProcessError(ex);
+        }
+        finally
+        {
+            loading = false;
         }
     }
 

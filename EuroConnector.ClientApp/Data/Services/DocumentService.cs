@@ -5,6 +5,7 @@ using EuroConnector.ClientApp.Extensions;
 using EuroConnector.ClientApp.Helpers;
 using Serilog;
 using System.Net.Http.Json;
+using System.Text;
 
 namespace EuroConnector.ClientApp.Data.Services
 {
@@ -27,7 +28,7 @@ namespace EuroConnector.ClientApp.Data.Services
         public async Task SendDocuments()
         {
             var outPath = await _localStorage.GetItemAsync<string>("outboxPath");
-            var sentPath = await _localStorage.GetItemAsync<string>("sendPath");
+            var sentPath = await _localStorage.GetItemAsync<string>("sentPath");
             var failedPath = await _localStorage.GetItemAsync<string>("failedPath");
 
             _logger.Information("Sending documents in the outbox location. {OutboxPath}", outPath);
@@ -47,10 +48,12 @@ namespace EuroConnector.ClientApp.Data.Services
 
             foreach (var file in files)
             {
+                var fileContents = File.ReadAllText(file.FullName);
+
                 var request = new DocumentSendRequest
                 {
                     DocumentStandard = "BIS3",
-                    DocumentContent = File.ReadAllBytes(file.FullName),
+                    DocumentContent = Encoding.UTF8.GetBytes(fileContents),
                 };
 
                 _logger.Information("Sending document. File {FileName}.", file.Name);

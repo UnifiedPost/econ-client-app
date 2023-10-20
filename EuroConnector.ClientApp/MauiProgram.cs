@@ -23,6 +23,7 @@ public static class MauiProgram
             .MinimumLevel.Verbose()
             .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
             .MinimumLevel.Override("MudBlazor", Serilog.Events.LogEventLevel.Warning)
+            .MinimumLevel.Override("WindowsAppRuntime", Serilog.Events.LogEventLevel.Fatal)
             .Enrich.FromLogContext()
             .WriteTo.File(Path.Combine(path, "logs", "log-.txt"), rollingInterval: RollingInterval.Day, shared: true)
             .CreateLogger();
