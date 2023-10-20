@@ -45,7 +45,7 @@
         catch (Exception ex)
         {
             Error.ProcessError(ex);
-            Logger.Error("Login exception.", ex);
+            Logger.Error(ex, "Login exception.");
         }
     }
 
@@ -62,7 +62,7 @@
         catch (Exception ex)
         {
             Error.ProcessError(ex);
-            Logger.Error("Logout exception.", ex);
+            Logger.Error(ex, "Logout exception.");
         }
     }
 }

@@ -60,7 +60,14 @@ public static class MauiProgram
             config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
         });
 
-        builder.Services.AddScoped(sp => new HttpClient().EnableIntercept(sp));
+        builder.Services.AddScoped(sp =>
+        {
+            var httpClient = new HttpClient().EnableIntercept(sp);
+
+            httpClient.DefaultRequestHeaders.Add("Client-App-Version", "1.0.0");
+
+            return httpClient;
+        });
 
         builder.Services.AddScoped<AuthenticationProvider>();
         builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetService<AuthenticationProvider>());

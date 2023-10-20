@@ -35,6 +35,12 @@ namespace EuroConnector.ClientApp.Data.Services
             var outbox = new DirectoryInfo(outPath);
             var files = outbox.GetFiles();
 
+            if (files is null || files.Length == 0)
+            {
+                _logger.Information("There are no documents in the outbox path.");
+                return;
+            }
+
             var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
 
             int failed = 0;

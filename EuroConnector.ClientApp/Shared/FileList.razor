@@ -1,4 +1,8 @@
-﻿@inject ILogger Logger;
+﻿@using Blazored.LocalStorage;
+
+@inject ILogger Logger;
+@inject ISnackbar Snackbar;
+@inject ILocalStorageService LocalStorage;
 
 <div style="margin: 5px 0;">
     @if (files is null || files.Count() > 0)
@@ -27,16 +31,26 @@
     [Parameter]
     public string Path { get; set; }
 
+    [Parameter]
+    public string Name { get; set; }
+
     List<FileInfo> files;
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        if (!string.IsNullOrEmpty(Path)) SetFiles();
+        var path = await LocalStorage.GetItemAsync<string>(Path);
+
+        if (!string.IsNullOrEmpty(path)) SetFiles(path);
+        else
+        {
+            Logger.Warning("The path for {Name} is not set.", Name);
+            Snackbar.Add($"The path for {Name} is not set.", Severity.Error);
+        }
     }
 
-    private void SetFiles()
+    private void SetFiles(string path)
     {
-        var directory = new DirectoryInfo(Path);
+        var directory = new DirectoryInfo(path);
         files = directory.GetFiles().ToList();
     }
 
@@ -59,9 +73,10 @@
         return result;
     }
 
-    private void RefreshFiles()
+    private async Task RefreshFiles()
     {
-        Logger.Information("Refresh clicked for path {Path}", Path);
-        SetFiles();
+        var path = await LocalStorage.GetItemAsync<string>(Path);
+        Logger.Information("Refresh clicked for path {Path}", path);
+        SetFiles(path);
     }
 }

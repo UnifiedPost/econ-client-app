@@ -10,6 +10,7 @@
 @inject ILocalStorageService LocalStorage;
 @inject IVersionService VersionService;
 @inject HttpInterceptorService Interceptor;
+@inject IDocumentService DocumentService;
 
 @attribute [Authorize]
 
@@ -22,7 +23,7 @@
 
     <MudText Typo="Typo.h6"><strong>Messages:</strong></MudText>
     <div class="links">
-        <MudLink Href="/inbox">Inbox: @inboxCount</MudLink>
+        <MudLink Href="/inbox">Inbox: @inboxCount (Downloaded: @inboxCountDownloaded)</MudLink>
         <MudLink Href="/outbox">Outbox: @outboxCount</MudLink>
     </div>
 
@@ -42,6 +43,7 @@
     Timer timer;
 
     int inboxCount = 0;
+    int inboxCountDownloaded = 0;
     int outboxCount = 0;
 
     ApiVersion apiVersion;
@@ -50,10 +52,12 @@
     {
         timer = new Timer(Tick, null, 0, 1000);
 
-        inboxCount = await GetFileCount("inboxPath");
-        outboxCount = await GetFileCount("outboxPath");
-
         await GetApiInformation();
+
+        var docList = await DocumentService.ReceiveDocumentList();
+        inboxCount = docList.Documents.Count();
+        inboxCountDownloaded = await GetFileCount("inboxPath");
+        outboxCount = await GetFileCount("outboxPath");
     }
 
     private async Task<int> GetFileCount(string key)
@@ -77,9 +81,9 @@
         {
             Error.ProcessError(ex);
             apiVersion = new()
-                {
-                    Version = "Error",
-                };
+            {
+                Version = "Error",
+            };
         }
     }
 

@@ -32,19 +32,19 @@
         </MudPopover>
     </MudTooltip>
 </div>
-<FileList Path="@settings.OutboxPath"/>
+<FileList Path="outboxPath" Name="Outbox" />
 
-<MudDivider/>
+<MudDivider />
 
 <MudText Typo="Typo.h5" style="margin-top: 10px;">Sent</MudText>
 <MudText>Path: @settings.SentPath</MudText>
-<FileList Path="@settings.SentPath" />
+<FileList Path="sentPath" Name="Sent" />
 
 <MudDivider />
 
 <MudText Typo="Typo.h5" style="margin-top: 10px;">Failed</MudText>
 <MudText>Path: @settings.FailedPath</MudText>
-<FileList Path="@settings.FailedPath" />
+<FileList Path="failedPath" Name="Failed" />
 
 
 @code {

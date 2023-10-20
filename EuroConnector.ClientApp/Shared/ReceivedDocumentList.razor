@@ -82,7 +82,7 @@
         }
         catch (Exception ex)
         {
-            Logger.Error("An error occured while receiving documents.", ex);
+            Logger.Error(ex, "An error occured while receiving documents.");
             Error.ProcessError(ex);
         }
     }
@@ -97,7 +97,7 @@
         }
         catch (Exception ex)
         {
-            Logger.Error("An error occured while downloading document ID {DocumentId}", id, ex);
+            Logger.Error(ex, "An error occured while downloading document ID {DocumentId}", id);
             Error.ProcessError(ex);
         }
     }
@@ -119,7 +119,7 @@
         }
         catch (Exception ex)
         {
-            Logger.Error("An error occured while fetching document ID data {DocumentId}", id, ex);
+            Logger.Error(ex, "An error occured while fetching document ID data {DocumentId}", id);
             Error.ProcessError(ex);
             isMetadataViewOpen = false;
         }
@@ -128,6 +128,8 @@
     private async Task SaveDocument(DownloadedDocument document)
     {
         var inboxPath = await LocalStorage.GetItemAsync<string>("inboxPath");
+        if (string.IsNullOrEmpty(inboxPath)) throw new Exception("Inbox path is not set.");
+
         var filename = $"{document.DocumentId}.xml";
 
         var content = Encoding.UTF8.GetString(document.DocumentContent);

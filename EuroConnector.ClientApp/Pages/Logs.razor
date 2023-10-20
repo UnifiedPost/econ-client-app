@@ -1,5 +1,6 @@
 ﻿@page "/logs"
 @using System.Reflection;
+@using System.Text;
 
 @inject ILogger Logger
 
@@ -16,6 +17,9 @@
     </EconSelect>
     <MudTooltip Text="Reverse Sorting">
         <MudIconButton OnClick="ToggleListReverse" Icon="fa-solid fa-arrow-right-arrow-left" Style="height: 40px; width: 40px; margin: 0 0 5px 5px;"/>
+    </MudTooltip>
+    <MudTooltip Text="Refresh">
+        <MudIconButton OnClick="SetContents" Icon="fa-solid fa-rotate-right" Style="height: 40px; width: 40px; margin: 0 0 5px 5px;" />
     </MudTooltip>
 </div>
 <MudPaper Elevation="4" Style="margin-top: 5px; padding: 10px; height: calc(100vh - 200px); white-space: pre-line; overflow: auto;">
@@ -62,7 +66,7 @@
 
         try
         {
-            contents = ReadFile($"{logPath}\\log-{selectedDate?.ToString("yyyyMMdd")}.txt").ToList();
+            contents = ReadFile($"{logPath}\\log-{selectedDate?.ToString("yyyyMMdd")}.txt").Where(x => !string.IsNullOrEmpty(x)).ToList();
         }
         catch (Exception)
         {
@@ -90,9 +94,21 @@
         using var reader = new StreamReader(stream);
         //return reader.ReadToEnd();
         string line;
+        var builder = new StringBuilder();
         while ((line = reader.ReadLine()) is not null)
         {
-            yield return line;
+            if (line.StartsWith("20"))
+            {
+                var result = builder.ToString();
+                builder.Clear();
+
+                builder.AppendLine(line);
+                yield return result;
+            }
+            else
+            {
+                builder.AppendLine(line);
+            }
         }
     }
 }
