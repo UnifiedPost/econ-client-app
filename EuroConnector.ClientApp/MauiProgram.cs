@@ -17,15 +17,13 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Verbose()
             .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
             .MinimumLevel.Override("MudBlazor", Serilog.Events.LogEventLevel.Warning)
             .MinimumLevel.Override("WindowsAppRuntime", Serilog.Events.LogEventLevel.Fatal)
             .Enrich.FromLogContext()
-            .WriteTo.File(Path.Combine(path, "logs", "log-.txt"), rollingInterval: RollingInterval.Day, shared: true)
+            .WriteTo.File(Path.Combine(AppContext.BaseDirectory, "logs", "log-.txt"), rollingInterval: RollingInterval.Day, shared: true)
             .CreateLogger();
 
         var builder = MauiApp.CreateBuilder();
@@ -37,9 +35,6 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             })
             .Logging.AddSerilog(Log.Logger, dispose: true);
-
-        var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-        builder.Configuration.AddConfiguration(config);
 
         builder.Services.AddMauiBlazorWebView();
 #if DEBUG
@@ -59,6 +54,8 @@ public static class MauiProgram
             config.SnackbarConfiguration.ShowTransitionDuration = 150;
             config.SnackbarConfiguration.HideTransitionDuration = 150;
             config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
+            config.SnackbarConfiguration.ClearAfterNavigation = true;
+            config.SnackbarConfiguration.MaxDisplayedSnackbars = 3;
         });
 
         builder.Services.AddScoped(sp =>

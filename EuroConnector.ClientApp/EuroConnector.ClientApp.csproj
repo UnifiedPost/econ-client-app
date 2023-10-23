@@ -1,90 +1,78 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-    <PropertyGroup>
-        <TargetFrameworks>net7.0;net7.0-maccatalyst</TargetFrameworks>
-        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
-        <!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-        <!-- <TargetFrameworks>$(TargetFrameworks);net6.0-tizen</TargetFrameworks> -->
-        <OutputType Condition="'$(TargetFramework)' != 'net7.0'">Exe</OutputType>
-        <RootNamespace>EuroConnector.ClientApp</RootNamespace>
-        <UseMaui>true</UseMaui>
-        <SingleProject>true</SingleProject>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <EnableDefaultCssItems>false</EnableDefaultCssItems>
-		<SelfContained>true</SelfContained>
-		<PublishSingleFile>true</PublishSingleFile>
-		
-        <!-- Display name -->
-        <ApplicationTitle>EuroConnector</ApplicationTitle>
+	<PropertyGroup>
+		<TargetFrameworks>net7.0;net7.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
+		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
+		<!-- <TargetFrameworks>$(TargetFrameworks);net6.0-tizen</TargetFrameworks> -->
+		<OutputType Condition="'$(TargetFramework)' != 'net7.0'">Exe</OutputType>
+		<RootNamespace>EuroConnector.ClientApp</RootNamespace>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<EnableDefaultCssItems>false</EnableDefaultCssItems>
 
-        <!-- App Identifier -->
-        <ApplicationId>com.unifiedpost.euroconnector.clientapp</ApplicationId>
-        <ApplicationIdGuid>E4DD1232-C118-4E2C-8962-FBDF5003D427</ApplicationIdGuid>
+		<!-- Display name -->
+		<ApplicationTitle>EuroConnector</ApplicationTitle>
 
-        <!-- Versions -->
-        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-        <ApplicationVersion>1</ApplicationVersion>
+		<!-- App Identifier -->
+		<ApplicationId>com.unifiedpost.euroconnector.clientapp</ApplicationId>
+		<ApplicationIdGuid>E4DD1232-C118-4E2C-8962-FBDF5003D427</ApplicationIdGuid>
+
+		<!-- Versions -->
+		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+		<ApplicationVersion>1</ApplicationVersion>
 
 		<WindowsPackageType Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">None</WindowsPackageType>
-		
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
-        <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
-        <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-        <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-        <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
-        <GenerateTestArtifacts>True</GenerateTestArtifacts>
-        <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-    </PropertyGroup>
 
-    <ItemGroup>
-        <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+	</PropertyGroup>
 
-        <!-- Splash Screen -->
-        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+	<ItemGroup>
+		<!-- App Icon -->
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 
-        <!-- Images -->
-        <MauiImage Include="Resources\Images\*" />
-        <MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
+		<!-- Splash Screen -->
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
 
-        <!-- Custom Fonts -->
-        <MauiFont Include="Resources\Fonts\*" />
+		<!-- Images -->
+		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
 
-        <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
-        <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-    </ItemGroup>
+		<!-- Custom Fonts -->
+		<MauiFont Include="Resources\Fonts\*" />
 
-    <ItemGroup>
-      <Content Remove="appsettings.json" />
-    </ItemGroup>
+		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+	</ItemGroup>
 
-    <ItemGroup>
-      <EmbeddedResource Include="appsettings.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </EmbeddedResource>
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Blazored.LocalStorage" Version="4.4.0" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="6.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authorization" Version="7.0.12" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="7.0.12" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="7.0.12" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+		<PackageReference Include="MudBlazor" Version="6.11.0" />
+		<PackageReference Include="Serilog" Version="3.0.1" />
+		<PackageReference Include="Serilog.Extensions.Logging" Version="7.0.0" />
+		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
+		<PackageReference Include="Toolbelt.Blazor.HttpClientInterceptor" Version="10.2.0" />
+	</ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Blazored.LocalStorage" Version="4.4.0" />
-      <PackageReference Include="CommunityToolkit.Maui" Version="6.0.0" />
-      <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="7.0.5" />
-      <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="7.0.5" />
-      <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="7.0.5" />
-      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
-      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
-      <PackageReference Include="MudBlazor" Version="6.11.0" />
-      <PackageReference Include="Serilog" Version="3.0.1" />
-      <PackageReference Include="Serilog.Extensions.Logging" Version="7.0.0" />
-      <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.2" />
-      <PackageReference Include="Toolbelt.Blazor.HttpClientInterceptor" Version="10.2.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="wwwroot\fontawesome\" />
-    </ItemGroup>
+	<ItemGroup>
+		<Folder Include="wwwroot\fontawesome\" />
+	</ItemGroup>
 
 </Project>

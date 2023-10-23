@@ -79,11 +79,9 @@
     private async Task GetReceivedDocuments()
     {
         loading = true;
-        Snackbar.Add("Fetching the list of received documents.", Severity.Info);
         try
         {
             receivedDocuments = await DocumentService.ReceiveDocumentList();
-            Snackbar.Add($"Received a list of {receivedDocuments.Documents.Count()} documents.", Severity.Info);
         }
         catch (Exception ex)
         {

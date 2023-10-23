@@ -9,7 +9,7 @@
 @inject IDocumentService DocumentService;
 @inject TimerProvider Timer;
 
-@attribute [Authorize("Admin, ErpAdmin, User")]
+@attribute [Authorize]
 
 @code {
     [CascadingParameter]

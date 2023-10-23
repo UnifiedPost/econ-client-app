@@ -50,14 +50,28 @@ namespace EuroConnector.ClientApp.Data.Services
 
             var responseData = await response.Content.ReadFromJsonAsync<TokenResponse>();
             await SetTokens(responseData);
+
+            await _localStorage.SetItemAsync("username", properties.UserName);
             await _localStorage.SetItemAsync("apiUrl", properties.ApiUrl);
 
             _authenticationProvider.SignIn(responseData.AccessToken);
         }
 
+        public async Task<LoginSettings> GetLoginSettings()
+        {
+            var username = await _localStorage.GetItemAsync<string>("username");
+            var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+
+            return new()
+            {
+                UserName = username,
+                ApiUrl = apiUrl, 
+            };
+        }
+
         public async Task Logout()
         {
-            await _localStorage.RemoveItemsAsync(new List<string> { "accessToken", "refreshToken", "apiUrl" });
+            await _localStorage.RemoveItemsAsync(new List<string> { "accessToken", "refreshToken", "username" });
             _authenticationProvider.SignOut();
         }
 

@@ -29,9 +29,10 @@
     </div>
 
     <div class="api-info">
-        <MudText id="api-version">API Version: @(apiVersion is null ? "Loading..." : apiVersion.Version)</MudText>
-        <MudText id="api-release-date">Release Date: @(apiVersion is null ? "Loading..." : apiVersion.ReleaseDate?.ToString("d") ?? "Error")</MudText>
-        <MudText id="api-release-date">@(apiVersion is null ? "" : apiVersion.Comment)</MudText>
+        <MudText>API URL: @apiUrl</MudText>
+        <MudText>API Version: @(apiVersion is null ? "Loading..." : apiVersion.Version)</MudText>
+        <MudText>Release Date: @(apiVersion is null ? "Loading..." : apiVersion.ReleaseDate?.ToString("d") ?? "Error")</MudText>
+        <MudText>@(apiVersion is null ? "" : apiVersion.Comment)</MudText>
     </div>
 </AuthorizeView>
 
@@ -46,11 +47,14 @@
     int inboxCount = 0;
     int inboxCountDownloaded = 0;
     int outboxCount = 0;
+    string apiUrl;
 
     ApiVersion apiVersion;
 
     protected override async Task OnInitializedAsync()
     {
+        apiUrl = await LocalStorage.GetItemAsync<string>("apiUrl");
+
         timer = new Timer(Tick, null, 0, 1000);
 
         await GetApiInformation();

@@ -1,7 +1,7 @@
 ﻿@using EuroConnector.ClientApp.Data.Interfaces;
 @using EuroConnector.ClientApp.Data.Models;
 
-@inject ISetupService LoginService
+@inject ISetupService SetupService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject ILogger Logger
@@ -31,13 +31,18 @@
     MudForm form;
     LoginSettings properties = new();
 
+    protected override async Task OnInitializedAsync()
+    {
+        properties = await SetupService.GetLoginSettings();
+    }
+
     private async Task OnSaveClicked()
     {
         Logger.Information("Login save clicked.");
 
         try
         {
-            await LoginService.Login(properties);
+            await SetupService.Login(properties);
             Snackbar.Add("Login settings applied successfully.", Severity.Success);
             Logger.Information("Login settings applied successfully.");
             Navigation.NavigateTo("/");
@@ -55,7 +60,7 @@
 
         try
         {
-            await LoginService.Logout();
+            await SetupService.Logout();
             Snackbar.Add("Logged out successfully.", Severity.Success);
             Logger.Information("Logged out successfully.");
         }
