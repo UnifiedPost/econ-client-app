@@ -70,7 +70,11 @@
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
 		<PackageReference Include="Toolbelt.Blazor.HttpClientInterceptor" Version="10.2.0" />
 	</ItemGroup>
-
+	
+	<ItemGroup Condition="'$(TargetFramework)'=='net7.0-windows10.0.19041.0'">
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.230313.1" />
+	</ItemGroup>
+	
 	<ItemGroup>
 		<Folder Include="wwwroot\fontawesome\" />
 	</ItemGroup>
