@@ -52,7 +52,6 @@ namespace EuroConnector.ClientApp.Data.Services
 
                 var request = new DocumentSendRequest
                 {
-                    DocumentStandard = "BIS3",
                     DocumentContent = Encoding.UTF8.GetBytes(fileContents),
                 };
 
@@ -62,8 +61,16 @@ namespace EuroConnector.ClientApp.Data.Services
 
                 if (response.IsSuccessStatusCode)
                 {
-                    _logger.Information("File {FileName} sent successfully. Moving to {SentPath}.", file.Name, sentPath);
-                    file.SaveMoveTo(Path.Combine(sentPath, file.Name));
+                    var responseJson = await response.Content.ReadAsStringAsync();
+                    var responseData = await response.Content.ReadFromJsonAsync<DocumentSendResponse>();
+                    var document = responseData.Documents.FirstOrDefault();
+                    _logger.Information("Document ID {DocumentID}: File {FileName} sent successfully. Moving to {SentPath}. Response data:\n{ResponseJson}",
+                        document.DocumentId, file.Name, sentPath, responseJson);
+
+                    var metadata = await ViewDocumentMetadata(document.DocumentId);
+                    var docMetadata = metadata.Documents.FirstOrDefault();
+
+                    file.SaveMoveTo(Path.Combine(sentPath, $"{document.DocumentId}-{docMetadata.Status}-{file.Name}"));
                 }
                 else
                 {
@@ -112,8 +119,9 @@ namespace EuroConnector.ClientApp.Data.Services
             }
 
             var downloadedDocument = await response.Content.ReadFromJsonAsync<DownloadedDocument>();
+            var responseJson = await response.Content.ReadAsStringAsync();
 
-            _logger.Information("Document ID {DocumentId} content successfully downloaded.", id);
+            _logger.Information("Document ID {DocumentId} content successfully downloaded. Response data:\n{ResponseJson}", id, responseJson);
             return downloadedDocument;
         }
 
@@ -131,6 +139,10 @@ namespace EuroConnector.ClientApp.Data.Services
             }
 
             var documentMetadata = await response.Content.ReadFromJsonAsync<DocumentMetadataList>();
+            var responseJson = await response.Content.ReadAsStringAsync();
+
+            _logger.Information("Document ID {DocumentId} data:\n{ResponseJson}", id, responseJson);
+
             return documentMetadata;
         }
     }

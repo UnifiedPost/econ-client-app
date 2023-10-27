@@ -16,7 +16,7 @@ namespace EuroConnector.ClientApp.Helpers
 
                 logMessage = $"{(string.IsNullOrEmpty(message) ? message + "\n" : "")}Trace ID: {error.TraceId}\n{error.StatusCode} - {error.Message}";
 
-                logger.Error(logMessage.Replace("\n", " - "));
+                logger.Error(logMessage.Replace("\n", " - ") + "ResponseData:\n{ResponseJson}", json);
             }
             catch (Exception)
             {
