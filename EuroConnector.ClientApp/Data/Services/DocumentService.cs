@@ -57,27 +57,36 @@ namespace EuroConnector.ClientApp.Data.Services
 
                 _logger.Information("Sending document. File {FileName}.", file.Name);
 
-                var response = await _httpClient.PostAsync($"{apiUrl}public/v1/documents/send", JsonContent.Create(request));
-
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    var responseJson = await response.Content.ReadAsStringAsync();
-                    var responseData = await response.Content.ReadFromJsonAsync<DocumentSendResponse>();
-                    var document = responseData.Documents.FirstOrDefault();
-                    _logger.Information("Document ID {DocumentID}: File {FileName} sent successfully. Moving to {SentPath}. Response data:\n{ResponseJson}",
-                        document.DocumentId, file.Name, sentPath, responseJson);
+                    var response = await _httpClient.PostAsync($"{apiUrl}public/v1/documents/send", JsonContent.Create(request));
 
-                    var metadata = await ViewDocumentMetadata(document.DocumentId);
-                    var docMetadata = metadata.Documents.FirstOrDefault();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var responseJson = await response.Content.ReadAsStringAsync();
+                        var responseData = await response.Content.ReadFromJsonAsync<DocumentSendResponse>();
+                        var document = responseData.Documents.FirstOrDefault();
+                        _logger.Information("Document ID {DocumentID}: File {FileName} sent successfully. Moving to {SentPath}. Response data:\n{ResponseJson}",
+                            document.DocumentId, file.Name, sentPath, responseJson);
 
-                    file.SaveMoveTo(Path.Combine(sentPath, $"{document.DocumentId}-{docMetadata.Status}-{file.Name}"));
+                        var metadata = await ViewDocumentMetadata(document.DocumentId);
+                        var docMetadata = metadata.Documents.FirstOrDefault();
+
+                        file.SaveMoveTo(Path.Combine(sentPath, $"{document.DocumentId}-{docMetadata.Status}-{file.Name}"));
+                    }
+                    else
+                    {
+                        _logger.Error("File {FileName} sending failed. Moving to {FailedPath}.", file.Name, failedPath);
+                        file.SaveMoveTo(Path.Combine(failedPath, file.Name));
+
+                        var message = await ResponseHelper.ProcessFailedRequest(response, _logger, $"File {file.Name} sending failed.");
+                        failed++;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    _logger.Error("File {FileName} sending failed. Moving to {FailedPath}.", file.Name, failedPath);
+                    _logger.Error(ex, "File {FileName} sending failed. Moving to {FailedPath}.", file.Name, failedPath);
                     file.SaveMoveTo(Path.Combine(failedPath, file.Name));
-
-                    var message = await ResponseHelper.ProcessFailedRequest(response, _logger, $"File {file.Name} sending failed.");
                     failed++;
                 }
             }
@@ -130,7 +139,7 @@ namespace EuroConnector.ClientApp.Data.Services
             _logger.Information("Fetching the metadata for document ID {DocumentId}", id);
 
             var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
-            var response = await _httpClient.GetAsync($"{apiUrl}/public/v1/documents/{id}");
+            var response = await _httpClient.GetAsync($"{apiUrl}public/v1/documents/{id}");
 
             if (!response.IsSuccessStatusCode)
             {
