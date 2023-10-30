@@ -154,5 +154,23 @@ namespace EuroConnector.ClientApp.Data.Services
 
             return documentMetadata;
         }
+
+        public async Task ChangeReceivedDocumentStatus(Guid id)
+        {
+            _logger.Information("Changing status for document ID {DocumentId}", id);
+
+            var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+            var response = await _httpClient.PutAsync($"{apiUrl}public/v1/documents/{id}/status/Received", null);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var message = await ResponseHelper.ProcessFailedRequest(response, _logger);
+                throw new Exception(message);
+            }
+
+            var responseJson = await response.Content.ReadAsStringAsync();
+
+            _logger.Information("Document ID {DocumentId} status change response:\n{ResponseJson}", id, responseJson);
+        }
     }
 }

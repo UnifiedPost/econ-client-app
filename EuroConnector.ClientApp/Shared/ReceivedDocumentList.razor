@@ -100,6 +100,8 @@
         {
             var document = await DocumentService.DownloadDocument(id);
             await SaveDocument(document);
+
+            await DocumentService.ChangeReceivedDocumentStatus(id);
             Snackbar.Add($"Document ID {id} successfully downloaded and saved in the outbox folder.", Severity.Success);
         }
         catch (Exception ex)
