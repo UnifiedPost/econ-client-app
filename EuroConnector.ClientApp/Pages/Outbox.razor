@@ -32,19 +32,19 @@
         </MudPopover>
     </MudTooltip>
 </div>
-<FileList Path="outboxPath" Name="Outbox" Loading="sending"/>
+<FileList @ref="outbox" Path="outboxPath" Name="Outbox" Loading="sending"/>
 
 <MudDivider />
 
 <MudText Typo="Typo.h5" style="margin-top: 10px;">Sent</MudText>
 <MudText>Path: @settings.SentPath</MudText>
-<FileList Path="sentPath" Name="Sent" />
+<FileList @ref="sent" Path="sentPath" Name="Sent" />
 
 <MudDivider />
 
 <MudText Typo="Typo.h5" style="margin-top: 10px;">Failed</MudText>
 <MudText>Path: @settings.FailedPath</MudText>
-<FileList Path="failedPath" Name="Failed" />
+<FileList @ref="failed" Path="failedPath" Name="Failed" />
 
 
 @code {
@@ -55,6 +55,10 @@
     bool isOutboxSettingsOpen = false;
     bool sending = false;
     int minsBetweenSend = 10;
+
+    FileList outbox;
+    FileList sent;
+    FileList failed;
 
     protected override async Task OnInitializedAsync()
     {
@@ -90,6 +94,10 @@
         finally
         {
             sending = false;
+
+            await outbox.RefreshFiles();
+            await sent.RefreshFiles();
+            await failed.RefreshFiles();
         }
     }
 }

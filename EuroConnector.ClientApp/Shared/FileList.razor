@@ -52,6 +52,13 @@
         }
     }
 
+    public async Task RefreshFiles()
+    {
+        var path = await LocalStorage.GetItemAsync<string>(Path);
+        Logger.Information("Refresh clicked for path {Path}", path);
+        SetFiles(path);
+    }
+
     private void SetFiles(string path)
     {
         var directory = new DirectoryInfo(path);
@@ -75,12 +82,5 @@
         }
 
         return result;
-    }
-
-    private async Task RefreshFiles()
-    {
-        var path = await LocalStorage.GetItemAsync<string>(Path);
-        Logger.Information("Refresh clicked for path {Path}", path);
-        SetFiles(path);
     }
 }
