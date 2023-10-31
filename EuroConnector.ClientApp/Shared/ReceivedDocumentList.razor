@@ -42,7 +42,10 @@
 
     <div style="margin-top: 5px;">
         <MudText>Total Documents: @(receivedDocuments?.Documents.Count() ?? 0)</MudText>
-        <EconButton OnClick="@GetReceivedDocuments" Disabled="loading">Check For New Invoices</EconButton>
+        <div class="button-group">
+            <EconButton OnClick="@GetReceivedDocuments" Disabled="loading">Check For New Invoices</EconButton>
+            <EconButton OnClick="@DownloadAll">Download All Documents</EconButton>
+        </div>
     </div>
 
     <MudDialog OnBackdropClick="CloseMetadataView" @bind-IsVisible="isMetadataViewOpen">
@@ -109,6 +112,20 @@
             Logger.Error(ex, "An error occured while downloading document ID {DocumentId}", id);
             Error.ProcessError(ex);
         }
+    }
+
+    private async Task DownloadAll()
+    {
+        Logger.Information("Downloading all received documents");
+        loading = true;
+
+        foreach (var document in receivedDocuments.Documents)
+        {
+            await DownloadDocument(document.DocumentId);
+        }
+
+        loading = false;
+        Snackbar.Add("Download finished. Check logs for more information.", Severity.Info);
     }
 
     private async Task ViewDocument(Guid id)
