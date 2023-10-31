@@ -27,7 +27,7 @@
                 <TemplateColumn CellStyle="button-cells">
                     <CellTemplate>
                         <MudTooltip Text="Download Document">
-                            <MudIconButton Icon="fa-solid fa-download" OnClick="() => DownloadDocument(context.Item.DocumentId)" Size="Size.Small" />
+                            <MudIconButton Icon="fa-solid fa-download" OnClick="() => Download(context.Item.DocumentId)" Size="Size.Small" />
                         </MudTooltip>
                     </CellTemplate>
                 </TemplateColumn>
@@ -97,14 +97,11 @@
         }
     }
 
-    private async Task DownloadDocument(Guid id)
+    private async Task Download(Guid id)
     {
         try
         {
-            var document = await DocumentService.DownloadDocument(id);
-            await SaveDocument(document);
-
-            await DocumentService.ChangeReceivedDocumentStatus(id);
+            await DownloadDocument(id);
             Snackbar.Add($"Document ID {id} successfully downloaded and saved in the outbox folder.", Severity.Success);
         }
         catch (Exception ex)
@@ -116,16 +113,35 @@
 
     private async Task DownloadAll()
     {
-        Logger.Information("Downloading all received documents");
+        Logger.Information("Downloading all received documents.");
         loading = true;
+        int failed = 0;
 
         foreach (var document in receivedDocuments.Documents)
         {
-            await DownloadDocument(document.DocumentId);
+            try
+            {
+                await DownloadDocument(document.DocumentId);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "An error occured while downloading document ID {DocumentId}", document.DocumentId);
+                failed++;
+            }
         }
 
+        if (failed > 0) Snackbar.Add($"Download finished. {failed} documents failed. Check logs for more information.", Severity.Info);
+        else Snackbar.Add("Download finished.", Severity.Success);
         loading = false;
-        Snackbar.Add("Download finished. Check logs for more information.", Severity.Info);
+        Logger.Information("Finished downloading all documents.");
+    }
+
+    private async Task DownloadDocument(Guid id)
+    {
+        var document = await DocumentService.DownloadDocument(id);
+        await SaveDocument(document);
+
+        await DocumentService.ChangeReceivedDocumentStatus(id);
     }
 
     private async Task ViewDocument(Guid id)
