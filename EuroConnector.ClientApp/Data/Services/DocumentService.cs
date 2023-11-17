@@ -43,6 +43,7 @@ namespace EuroConnector.ClientApp.Data.Services
             }
 
             var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+            var requestUrl = $"{apiUrl}public/v1/documents/send";
 
             int failed = 0;
 
@@ -55,11 +56,13 @@ namespace EuroConnector.ClientApp.Data.Services
                     DocumentContent = Encoding.UTF8.GetBytes(fileContents),
                 };
 
-                _logger.Information("Sending document. File {FileName}.", file.Name);
+                _logger.Information("Sending document. File {FileName}.\nRequest URL: {Url}\nRequest Body: {Body}", file.Name, requestUrl, request.ToJsonString());
 
                 try
                 {
-                    var response = await _httpClient.PostAsync($"{apiUrl}public/v1/documents/send", JsonContent.Create(request));
+                    var response = await _httpClient.PostAsync(requestUrl, JsonContent.Create(request));
+
+                    bool documentFailed = response.IsSuccessStatusCode;
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -69,12 +72,21 @@ namespace EuroConnector.ClientApp.Data.Services
                         _logger.Information("Document ID {DocumentID}: File {FileName} sent successfully. Moving to {SentPath}. Response data:\n{ResponseJson}",
                             document.DocumentId, file.Name, sentPath, responseJson);
 
-                        var metadata = await ViewDocumentMetadata(document.DocumentId);
+                        var metadataResponse = await ViewDocumentMetadata(document.DocumentId);
+                        var metadata = await metadataResponse.Content.ReadFromJsonAsync<DocumentMetadataList>();
+
                         var docMetadata = metadata.Documents.FirstOrDefault();
 
-                        file.SaveMoveTo(Path.Combine(sentPath, $"{document.DocumentId}-{docMetadata.Status}-{file.Name}"));
+                        documentFailed = docMetadata.Status == "Error";
+
+                        if (!documentFailed)
+                        {
+                            file.SaveMoveTo(Path.Combine(sentPath, $"{document.DocumentId}-{docMetadata.Status}-{file.Name}"));
+                            await SaveResponseToFile(Path.Combine(failedPath, $"{Path.GetFileNameWithoutExtension(file.Name)}.txt"), await metadataResponse.Content.ReadAsStringAsync());
+                        }
                     }
-                    else
+
+                    if (documentFailed)
                     {
                         _logger.Error("File {FileName} sending failed. Moving to {FailedPath}.", file.Name, failedPath);
                         file.SaveMoveTo(Path.Combine(failedPath, file.Name));
@@ -97,10 +109,12 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public async Task<ReceivedDocuments> ReceiveDocumentList()
         {
-            _logger.Information("Fetching the list of received documents.");
-
             var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
-            var response = await _httpClient.GetAsync($"{apiUrl}public/v1/documents/received-list");
+            var requestUrl = $"{apiUrl}public/v1/documents/received-list";
+
+            _logger.Information("Fetching the list of received documents.\nRequest URL: {Url}", requestUrl);
+
+            var response = await _httpClient.GetAsync(requestUrl);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -116,10 +130,12 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public async Task<DownloadedDocument> DownloadDocument(Guid id)
         {
-            _logger.Information("Downloading document ID {DocumentId}", id);
-
             var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
-            var response = await _httpClient.GetAsync($"{apiUrl}public/v1/documents/{id}/content");
+            var requestUrl = $"{apiUrl}public/v1/documents/{id}/content";
+
+            _logger.Information("Downloading document ID {DocumentId}\nRequest URL: {Url}", id, requestUrl);
+
+            var response = await _httpClient.GetAsync(requestUrl);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -134,12 +150,14 @@ namespace EuroConnector.ClientApp.Data.Services
             return downloadedDocument;
         }
 
-        public async Task<DocumentMetadataList> ViewDocumentMetadata(Guid id)
+        public async Task<HttpResponseMessage> ViewDocumentMetadata(Guid id)
         {
-            _logger.Information("Fetching the metadata for document ID {DocumentId}", id);
-
             var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
-            var response = await _httpClient.GetAsync($"{apiUrl}public/v1/documents/{id}");
+            var requestUrl = $"{apiUrl}public/v1/documents/{id}";
+
+            _logger.Information("Fetching the metadata for document ID {DocumentId}\nRequest URL: {Url}", id, requestUrl);
+
+            var response = await _httpClient.GetAsync(requestUrl);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -147,20 +165,21 @@ namespace EuroConnector.ClientApp.Data.Services
                 throw new Exception(message);
             }
 
-            var documentMetadata = await response.Content.ReadFromJsonAsync<DocumentMetadataList>();
             var responseJson = await response.Content.ReadAsStringAsync();
 
             _logger.Information("Document ID {DocumentId} data:\n{ResponseJson}", id, responseJson);
 
-            return documentMetadata;
+            return response;
         }
 
         public async Task ChangeReceivedDocumentStatus(Guid id)
         {
-            _logger.Information("Changing status for document ID {DocumentId}", id);
-
             var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
-            var response = await _httpClient.PutAsync($"{apiUrl}public/v1/documents/{id}/status/Received", null);
+            var requestUrl = $"{apiUrl}public/v1/documents/{id}/status/Received";
+
+            _logger.Information("Changing status for document ID {DocumentId}\nRequest URL: {Url}", id, requestUrl);
+
+            var response = await _httpClient.PutAsync(requestUrl, null);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -171,6 +190,11 @@ namespace EuroConnector.ClientApp.Data.Services
             var responseJson = await response.Content.ReadAsStringAsync();
 
             _logger.Information("Document ID {DocumentId} status change response:\n{ResponseJson}", id, responseJson);
+        }
+
+        private async Task SaveResponseToFile(string path, string content)
+        {
+            await File.WriteAllTextAsync(path, content);
         }
     }
 }

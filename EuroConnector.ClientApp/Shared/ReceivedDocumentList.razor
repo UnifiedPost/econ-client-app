@@ -2,6 +2,7 @@
 @using EuroConnector.ClientApp.Data.Interfaces;
 @using EuroConnector.ClientApp.Data.Models;
 @using System.Text;
+@using System.Net.Http.Json;
 
 @inject ILogger Logger;
 @inject ISnackbar Snackbar;
@@ -149,7 +150,8 @@
         try
         {
             isMetadataViewOpen = true;
-            var document = await DocumentService.ViewDocumentMetadata(id);
+            var documentResponse = await DocumentService.ViewDocumentMetadata(id);
+            var document = await documentResponse.Content.ReadFromJsonAsync<DocumentMetadataList>();
             documentMetadata = document.Documents.FirstOrDefault();
 
             if (documentMetadata is null)

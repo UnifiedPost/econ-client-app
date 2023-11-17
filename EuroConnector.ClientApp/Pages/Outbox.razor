@@ -70,6 +70,8 @@
 
     private async Task SaveOutboxDelay()
     {
+        if (minsBetweenSend < 0) minsBetweenSend = 1;
+
         Logger.Information("Setting automatic sending timer to {Minutes} minutes", minsBetweenSend);
 
         await LocalStorage.SetItemAsync("sendDelay", minsBetweenSend);

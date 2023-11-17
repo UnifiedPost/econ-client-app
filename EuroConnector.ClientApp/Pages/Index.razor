@@ -33,6 +33,7 @@
         <MudText>API Version: @(apiVersion is null ? "Loading..." : apiVersion.Version)</MudText>
         <MudText>Release Date: @(apiVersion is null ? "Loading..." : apiVersion.ReleaseDate?.ToString("d") ?? "Error")</MudText>
         <MudText>@(apiVersion is null ? "" : apiVersion.Comment)</MudText>
+        <MudText>App Version: 1.0.8</MudText>
     </div>
 </AuthorizeView>
 

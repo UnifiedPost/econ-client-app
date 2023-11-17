@@ -7,7 +7,7 @@ namespace EuroConnector.ClientApp.Data.Interfaces
         Task SendDocuments();
         Task<ReceivedDocuments> ReceiveDocumentList();
         Task<DownloadedDocument> DownloadDocument(Guid id);
-        Task<DocumentMetadataList> ViewDocumentMetadata(Guid id);
+        Task<HttpResponseMessage> ViewDocumentMetadata(Guid id);
         Task ChangeReceivedDocumentStatus(Guid id);
     }
 }
