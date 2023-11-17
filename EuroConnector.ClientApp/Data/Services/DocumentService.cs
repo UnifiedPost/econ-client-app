@@ -62,7 +62,7 @@ namespace EuroConnector.ClientApp.Data.Services
                 {
                     var response = await _httpClient.PostAsync(requestUrl, JsonContent.Create(request));
 
-                    bool documentFailed = response.IsSuccessStatusCode;
+                    bool documentFailed = !response.IsSuccessStatusCode;
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -79,11 +79,8 @@ namespace EuroConnector.ClientApp.Data.Services
 
                         documentFailed = docMetadata.Status == "Error";
 
-                        if (!documentFailed)
-                        {
-                            file.SaveMoveTo(Path.Combine(sentPath, $"{document.DocumentId}-{docMetadata.Status}-{file.Name}"));
-                            await SaveResponseToFile(Path.Combine(failedPath, $"{Path.GetFileNameWithoutExtension(file.Name)}.txt"), await metadataResponse.Content.ReadAsStringAsync());
-                        }
+                        if (!documentFailed) file.SaveMoveTo(Path.Combine(sentPath, $"{document.DocumentId}-{docMetadata.Status}-{file.Name}"));
+                        else await SaveResponseToFile(Path.Combine(failedPath, $"{Path.GetFileNameWithoutExtension(file.Name)}.txt"), await metadataResponse.Content.ReadAsStringAsync());
                     }
 
                     if (documentFailed)
