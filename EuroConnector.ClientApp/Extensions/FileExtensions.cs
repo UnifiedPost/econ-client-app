@@ -8,22 +8,32 @@ namespace EuroConnector.ClientApp.Extensions
 {
     public static class FileExtensions
     {
-        public static void SaveMoveTo(this FileInfo file, string destination)
+        public static string SafeMoveTo(this FileInfo file, string destination)
         {
+            if (!file.Exists) return string.Empty;
+
             string renamed = RenameIfDuplicate(destination);
             file.MoveTo(renamed);
+
+            return Path.GetFileName(renamed);
         }
 
-        public static void SafeCopyTo(this FileInfo file, string destination)
+        public static string SafeCopyTo(this FileInfo file, string destination)
         {
+            if (!file.Exists) return string.Empty;
+
             string renamed = RenameIfDuplicate(destination);
             file.CopyTo(renamed);
+
+            return Path.GetFileName(renamed);
         }
 
         private static string RenameIfDuplicate(string destination)
         {
             var extension = Path.GetExtension(destination);
             var path = Path.GetDirectoryName(destination);
+            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+
             var filenameWithoutExtension = Path.GetFileNameWithoutExtension(destination);
             var pathWithoutExtension = Path.Combine(path, filenameWithoutExtension);
 

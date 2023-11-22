@@ -1,0 +1,24 @@
+﻿@using EuroConnector.ClientApp.Data.Interfaces
+
+@inject BackgroundProvider BackgroundProvider;
+@inject IDocumentService DocumentService;
+@implements IDisposable
+
+@code {
+    protected override void OnInitialized()
+    {
+        BackgroundProvider.EventExecuted += HandleExecuted;
+
+        BackgroundProvider.StartExecuting();
+    }
+
+    public void Dispose()
+    {
+        BackgroundProvider.EventExecuted -= HandleExecuted;
+    }
+
+    private async void HandleExecuted(object sender, EventArgs e)
+    {
+        await DocumentService.CheckProcessingDocumentStatus();
+    }
+}

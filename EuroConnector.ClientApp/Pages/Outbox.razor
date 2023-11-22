@@ -44,7 +44,7 @@
 
 <MudText Typo="Typo.h5" style="margin-top: 10px;">Failed</MudText>
 <MudText>Path: @settings.FailedPath</MudText>
-<FileList @ref="failed" Path="failedPath" Name="Failed" />
+<FileList @ref="failed" Path="failedPath" Name="Failed" SearchPattern="*.xml"/>
 
 
 @code {
@@ -87,7 +87,7 @@
         try
         {
             await DocumentService.SendDocuments();
-            Snackbar.Add("All documents were sent successfully.", Severity.Success);
+            Snackbar.Add("All documents were put into processing successfully.\nOnce processed, they will be moved into Sent or Failed directory. (will require a manual refresh)", Severity.Info);
         }
         catch (Exception ex)
         {
@@ -98,8 +98,6 @@
             sending = false;
 
             await outbox.RefreshFiles();
-            await sent.RefreshFiles();
-            await failed.RefreshFiles();
         }
     }
 }

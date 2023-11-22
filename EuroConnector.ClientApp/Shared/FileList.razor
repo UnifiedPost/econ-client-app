@@ -28,7 +28,7 @@
     </div>
 </div>
 
-@code {
+    @code {
     [Parameter]
     public string Path { get; set; }
 
@@ -37,6 +37,9 @@
 
     [Parameter]
     public bool Loading { get; set; } = false;
+
+    [Parameter]
+    public string SearchPattern { get; set; }
 
     List<FileInfo> files;
 
@@ -62,6 +65,13 @@
     private void SetFiles(string path)
     {
         var directory = new DirectoryInfo(path);
+
+        if (!string.IsNullOrEmpty(SearchPattern))
+        {
+            files = directory.GetFiles(SearchPattern).ToList();
+            return;
+        }
+
         files = directory.GetFiles().ToList();
     }
 

@@ -28,7 +28,6 @@ namespace EuroConnector.ClientApp.Data.Services
         public async Task SendDocuments()
         {
             var outPath = await _localStorage.GetItemAsync<string>("outboxPath");
-            var sentPath = await _localStorage.GetItemAsync<string>("sentPath");
             var failedPath = await _localStorage.GetItemAsync<string>("failedPath");
 
             _logger.Information("Sending documents in the outbox location. {OutboxPath}", outPath);
@@ -44,6 +43,8 @@ namespace EuroConnector.ClientApp.Data.Services
 
             var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
             var requestUrl = $"{apiUrl}public/v1/documents/send";
+
+            Dictionary<string, Guid> documents = new();
 
             int failed = 0;
 
@@ -69,8 +70,8 @@ namespace EuroConnector.ClientApp.Data.Services
                         var responseJson = await response.Content.ReadAsStringAsync();
                         var responseData = await response.Content.ReadFromJsonAsync<DocumentSendResponse>();
                         var document = responseData.Documents.FirstOrDefault();
-                        _logger.Information("Document ID {DocumentID}: File {FileName} sent successfully. Moving to {SentPath}. Response data:\n{ResponseJson}",
-                            document.DocumentId, file.Name, sentPath, responseJson);
+                        _logger.Information("Document ID {DocumentID}: File {FileName} sent successfully. Moving to {ProcessingPath}. Response data:\n{ResponseJson}",
+                            document.DocumentId, file.Name, Path.Combine(outPath, "processing"), responseJson);
 
                         var metadataResponse = await ViewDocumentMetadata(document.DocumentId);
                         var metadata = await metadataResponse.Content.ReadFromJsonAsync<DocumentMetadataList>();
@@ -79,14 +80,18 @@ namespace EuroConnector.ClientApp.Data.Services
 
                         documentFailed = docMetadata.Status == "Error";
 
-                        if (!documentFailed) file.SaveMoveTo(Path.Combine(sentPath, $"{document.DocumentId}-{docMetadata.Status}-{file.Name}"));
-                        else await SaveResponseToFile(Path.Combine(failedPath, $"{Path.GetFileNameWithoutExtension(file.Name)}.txt"), await metadataResponse.Content.ReadAsStringAsync());
+                        if (!documentFailed)
+                        {
+                            var filename = file.SafeMoveTo(Path.Combine(outPath, "processing", file.Name));
+                            documents.Add(filename, document.DocumentId);
+                        }
+                        else await SaveResponseToFile(Path.Combine(failedPath, $"{Path.GetFileNameWithoutExtension(file.Name)}.json"), await metadataResponse.Content.ReadAsStringAsync());
                     }
 
                     if (documentFailed)
                     {
                         _logger.Error("File {FileName} sending failed. Moving to {FailedPath}.", file.Name, failedPath);
-                        file.SaveMoveTo(Path.Combine(failedPath, file.Name));
+                        file.SafeMoveTo(Path.Combine(failedPath, file.Name));
 
                         var message = await ResponseHelper.ProcessFailedRequest(response, _logger, $"File {file.Name} sending failed.");
                         failed++;
@@ -95,13 +100,88 @@ namespace EuroConnector.ClientApp.Data.Services
                 catch (Exception ex)
                 {
                     _logger.Error(ex, "File {FileName} sending failed. Moving to {FailedPath}.", file.Name, failedPath);
-                    file.SaveMoveTo(Path.Combine(failedPath, file.Name));
+                    file.SafeMoveTo(Path.Combine(failedPath, file.Name));
                     failed++;
                 }
             }
 
             if (failed > 0) throw new Exception($"{failed} documents failed. Check the logs for more information.");
-            _logger.Information("All documents were sent successfully.");
+            _logger.Information("All documents were sent and moved to processing successfully.");
+
+            await _localStorage.SetItemAsync("processingDocuments", documents);
+        }
+
+        public async Task CheckProcessingDocumentStatus()
+        {
+            _logger.Information("Checking for processing documents.");
+
+            var outPath = await _localStorage.GetItemAsync<string>("outboxPath");
+            var sentPath = await _localStorage.GetItemAsync<string>("sentPath");
+            var failedPath = await _localStorage.GetItemAsync<string>("failedPath");
+
+            var documents = await _localStorage.GetItemAsync<Dictionary<string, Guid>>("processingDocuments");
+            var tries = await _localStorage.GetItemAsync<Dictionary<Guid, int>>("processingTries") ?? new Dictionary<Guid, int>();
+
+            tries.ToList().ForEach(x => tries[x.Key]++);
+
+            var processingPath = Path.Combine(outPath, "processing");
+
+            var processingInfo = new DirectoryInfo(processingPath);
+            var files = processingInfo.GetFiles();
+
+            if (files.Length == 0 || documents is null || documents.Count == 0)
+            {
+                _logger.Information("No documents found in processing folder.");
+                await _localStorage.RemoveItemAsync("processingDocuments");
+                return;
+            }
+
+            foreach (var file in files)
+            {
+                var documentId = documents[file.Name];
+                if (!tries.ContainsKey(documentId)) tries.Add(documentId, 1);
+
+                if (!file.Exists)
+                {
+                    documents.Remove(file.Name);
+                    tries.Remove(documentId);
+                }
+
+                var metadataResponse = await ViewDocumentMetadata(documentId);
+                var metadata = await metadataResponse.Content.ReadFromJsonAsync<DocumentMetadataList>();
+
+                var docMetadata = metadata.Documents.FirstOrDefault();
+
+                if (docMetadata.Status == "Error")
+                {
+                    _logger.Error("Document ID {DocumentID}: File {FileName} sending failed. Error status notes: {StatusNotes}. Moving to {FailedPath}.",
+                        documentId, file.Name, docMetadata.StatusNotes, failedPath);
+                    var filename = file.SafeMoveTo(Path.Combine(failedPath, file.Name));
+                    await SaveResponseToFile(Path.Combine(failedPath, $"{Path.GetFileNameWithoutExtension(filename)}.json"), await metadataResponse.Content.ReadAsStringAsync());
+                    documents.Remove(file.Name);
+                    tries.Remove(documentId);
+                }
+                else if (docMetadata.Status == "Delivered")
+                {
+                    _logger.Information("Document ID {DocumentID}: File {FileName} sent successfully. Moving to {SentPath}.", documentId, file.Name, sentPath);
+                    file.SafeMoveTo(Path.Combine(sentPath, $"{documentId}_{docMetadata.Status}_{file.Name}"));
+                    documents.Remove(file.Name);
+                    tries.Remove(documentId);
+                }
+                else if (tries[documentId] >= 10)
+                {
+                    _logger.Error("Document ID {DocumentID}: File {FileName} sending failed. The status was not updated (status was {Status}). Moving to {FailedPath}.",
+                        documentId, file.Name, docMetadata.Status, failedPath);
+                    file.SafeMoveTo(Path.Combine(failedPath, file.Name));
+                    documents.Remove(file.Name);
+                    tries.Remove(documentId);
+                }
+
+                await _localStorage.SetItemAsync("processingDocuments", documents);
+                await _localStorage.SetItemAsync("processingTries", tries);
+
+                _logger.Information("Finished processing the documents.");
+            }
         }
 
         public async Task<ReceivedDocuments> ReceiveDocumentList()

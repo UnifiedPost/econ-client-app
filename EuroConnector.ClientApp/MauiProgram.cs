@@ -74,6 +74,7 @@ public static class MauiProgram
         builder.Services.AddScoped<ThemeProvider>();
 
         builder.Services.AddSingleton<TimerProvider>();
+        builder.Services.AddSingleton<BackgroundProvider>();
 
         builder.Services.AddScoped<IVersionService, VersionService>();
         builder.Services.AddScoped<ISetupService, SetupService>();
