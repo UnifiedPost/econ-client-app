@@ -22,18 +22,12 @@
         <MudText Typo="Typo.h5">@currentTime</MudText>
     </div>
 
-    <MudText Typo="Typo.h6"><strong>Messages:</strong></MudText>
-    <div class="links">
-        <MudLink Href="/inbox">Inbox: @inboxCount (Downloaded: @inboxCountDownloaded)</MudLink>
-        <MudLink Href="/outbox">Outbox: @outboxCount</MudLink>
-    </div>
-
     <div class="api-info">
         <MudText>API URL: @apiUrl</MudText>
         <MudText>API Version: @(apiVersion is null ? "Loading..." : apiVersion.Version)</MudText>
         <MudText>Release Date: @(apiVersion is null ? "Loading..." : apiVersion.ReleaseDate?.ToString("d") ?? "Error")</MudText>
         <MudText>@(apiVersion is null ? "" : apiVersion.Comment)</MudText>
-        <MudText>App Version: 1.1.0</MudText>
+        <MudText>App Version: 1.1.1</MudText>
     </div>
 </AuthorizeView>
 
@@ -45,9 +39,6 @@
     string currentTime;
     Timer timer;
 
-    int inboxCount = 0;
-    int inboxCountDownloaded = 0;
-    int outboxCount = 0;
     string apiUrl;
 
     ApiVersion apiVersion;
@@ -63,24 +54,13 @@
         try
         {
             var docList = await DocumentService.ReceiveDocumentList();
-            inboxCount = docList.Documents.Count();
-            inboxCountDownloaded = await GetFileCount("inboxPath");
-            outboxCount = await GetFileCount("outboxPath");
         }
         catch (Exception ex)
         {
             Logger.Error(ex, "An exception occured.");
         }
     }
-
-    private async Task<int> GetFileCount(string key)
-    {
-        var path = await LocalStorage.GetItemAsync<string>(key);
-        var directory = new DirectoryInfo(path);
-        var files = directory.GetFiles();
-        return files.Count();
-    }
-
+    
     private async Task GetApiInformation()
     {
         Interceptor.RegisterEvent();
