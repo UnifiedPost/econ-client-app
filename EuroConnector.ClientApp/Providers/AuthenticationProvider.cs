@@ -41,7 +41,7 @@ namespace EuroConnector.ClientApp.Providers
 		{
 			var result = Task.FromResult(new AuthenticationState(UserPrincipal));
 			NotifyAuthenticationStateChanged(result);
-			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", accessToken);
+			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 		}
 
 		public void SignOut()

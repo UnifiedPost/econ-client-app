@@ -10,7 +10,6 @@
 @inject ILocalStorageService LocalStorage;
 @inject IVersionService VersionService;
 @inject HttpInterceptorService Interceptor;
-@inject IDocumentService DocumentService;
 @inject ILogger Logger;
 
 @attribute [Authorize]
@@ -50,15 +49,6 @@
         timer = new Timer(Tick, null, 0, 1000);
 
         await GetApiInformation();
-
-        try
-        {
-            var docList = await DocumentService.ReceiveDocumentList();
-        }
-        catch (Exception ex)
-        {
-            Logger.Error(ex, "An exception occured.");
-        }
     }
     
     private async Task GetApiInformation()

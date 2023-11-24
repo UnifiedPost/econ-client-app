@@ -7,8 +7,8 @@ namespace EuroConnector.ClientApp.Data.Interfaces
         Task SendDocuments();
         Task CheckProcessingDocumentStatus();
         Task<ReceivedDocuments> ReceiveDocumentList();
-        Task<DownloadedDocument> DownloadDocument(Guid id);
-        Task<HttpResponseMessage> ViewDocumentMetadata(Guid id);
-        Task ChangeReceivedDocumentStatus(Guid id);
+        Task<DownloadedDocument> DownloadDocument(string id);
+        Task<HttpResponseMessage> ViewDocumentMetadata(string id);
+        Task ChangeReceivedDocumentStatus(string id);
     }
 }

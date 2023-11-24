@@ -98,7 +98,7 @@
         }
     }
 
-    private async Task Download(Guid id)
+    private async Task Download(string id)
     {
         try
         {
@@ -137,7 +137,7 @@
         Logger.Information("Finished downloading all documents.");
     }
 
-    private async Task DownloadDocument(Guid id)
+    private async Task DownloadDocument(string id)
     {
         var document = await DocumentService.DownloadDocument(id);
         await SaveDocument(document);
@@ -145,7 +145,7 @@
         await DocumentService.ChangeReceivedDocumentStatus(id);
     }
 
-    private async Task ViewDocument(Guid id)
+    private async Task ViewDocument(string id)
     {
         try
         {

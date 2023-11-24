@@ -2,7 +2,7 @@
 {
     public class DownloadedDocument
     {
-        public Guid DocumentId { get; set; }
+        public string DocumentId { get; set; }
         public string DocumentStandard { get; set; }
         public byte[] DocumentContent { get; set; }
     }

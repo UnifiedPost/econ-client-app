@@ -44,7 +44,7 @@ namespace EuroConnector.ClientApp.Data.Services
             var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
             var requestUrl = $"{apiUrl}public/v1/documents/send";
 
-            Dictionary<string, Guid> documents = new();
+            Dictionary<string, string> documents = new();
 
             int failed = 0;
 
@@ -119,8 +119,8 @@ namespace EuroConnector.ClientApp.Data.Services
             var sentPath = await _localStorage.GetItemAsync<string>("sentPath");
             var failedPath = await _localStorage.GetItemAsync<string>("failedPath");
 
-            var documents = await _localStorage.GetItemAsync<Dictionary<string, Guid>>("processingDocuments");
-            var tries = await _localStorage.GetItemAsync<Dictionary<Guid, int>>("processingTries") ?? new Dictionary<Guid, int>();
+            var documents = await _localStorage.GetItemAsync<Dictionary<string, string>>("processingDocuments");
+            var tries = await _localStorage.GetItemAsync<Dictionary<string, int>>("processingTries") ?? new Dictionary<string, int>();
 
             tries.ToList().ForEach(x => tries[x.Key]++);
 
@@ -205,7 +205,7 @@ namespace EuroConnector.ClientApp.Data.Services
             return receivedDocuments;
         }
 
-        public async Task<DownloadedDocument> DownloadDocument(Guid id)
+        public async Task<DownloadedDocument> DownloadDocument(string id)
         {
             var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
             var requestUrl = $"{apiUrl}public/v1/documents/{id}/content";
@@ -227,7 +227,7 @@ namespace EuroConnector.ClientApp.Data.Services
             return downloadedDocument;
         }
 
-        public async Task<HttpResponseMessage> ViewDocumentMetadata(Guid id)
+        public async Task<HttpResponseMessage> ViewDocumentMetadata(string id)
         {
             var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
             var requestUrl = $"{apiUrl}public/v1/documents/{id}";
@@ -249,7 +249,7 @@ namespace EuroConnector.ClientApp.Data.Services
             return response;
         }
 
-        public async Task ChangeReceivedDocumentStatus(Guid id)
+        public async Task ChangeReceivedDocumentStatus(string id)
         {
             var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
             var requestUrl = $"{apiUrl}public/v1/documents/{id}/status/Received";

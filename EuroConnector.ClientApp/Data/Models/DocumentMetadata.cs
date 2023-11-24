@@ -2,7 +2,7 @@
 {
     public class DocumentMetadata
     {
-        public Guid DocumentId { get; set; }
+        public string DocumentId { get; set; }
         public string DocumentNo { get; set; }
         public string DocumentStandard { get; set; }
         public string DocumentType { get; set; }
