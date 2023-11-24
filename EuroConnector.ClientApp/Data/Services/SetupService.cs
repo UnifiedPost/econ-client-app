@@ -115,11 +115,15 @@ namespace EuroConnector.ClientApp.Data.Services
             var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
 
             using var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"{apiUrl}public/v1/authorization/token-refresh");
-            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("bearer", refreshToken);
+            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", refreshToken);
 
             var response = await _httpClient.SendAsync(requestMessage);
 
-            if (!response.IsSuccessStatusCode) throw new Exception(response.ReasonPhrase);
+            if (!response.IsSuccessStatusCode)
+            {
+                _authenticationProvider.SignOut();
+                throw new Exception(response.ReasonPhrase);
+            }
 
             var responseData = await response.Content.ReadFromJsonAsync<TokenResponse>();
             await SetTokens(responseData);
@@ -130,9 +134,9 @@ namespace EuroConnector.ClientApp.Data.Services
         private async Task SetTokens(TokenResponse tokenResponse)
         {
             await _localStorage.SetItemAsync("accessToken", tokenResponse.AccessToken);
-            await _localStorage.SetItemAsync("accessExpiration", tokenResponse.AccessTokenExpiresUtc);
+            await _localStorage.SetItemAsync("accessExpiration", tokenResponse.AccessTokenExpiresUtc.ToUniversalTime());
             await _localStorage.SetItemAsync("refreshToken", tokenResponse.RefreshToken);
-            await _localStorage.SetItemAsync("refreshExpiration", tokenResponse.RefreshTokenExpiresUtc);
+            await _localStorage.SetItemAsync("refreshExpiration", tokenResponse.RefreshTokenExpiresUtc.ToUniversalTime());
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", tokenResponse.AccessToken);
         }
     }

@@ -27,7 +27,7 @@
 	{
 		var refreshToken = await LocalStorage.GetItemAsync<string>("refreshToken");
 		var refreshExpiration = await LocalStorage.GetItemAsync<DateTime>("refreshExpiration");
-		if (!string.IsNullOrEmpty(refreshToken) && DateTime.UtcNow > refreshExpiration)
+		if (!string.IsNullOrEmpty(refreshToken) && DateTime.UtcNow > refreshExpiration.ToUniversalTime())
 		{
 			AuthProvider.SignOut();
 			await LocalStorage.RemoveItemsAsync(new List<string> { "accessToken", "accessExpiration", "refreshToken", "refreshExpiration", "apiUrl" });

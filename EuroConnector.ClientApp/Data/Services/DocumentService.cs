@@ -125,6 +125,7 @@ namespace EuroConnector.ClientApp.Data.Services
             tries.ToList().ForEach(x => tries[x.Key]++);
 
             var processingPath = Path.Combine(outPath, "processing");
+            if (!Directory.Exists(processingPath)) return;
 
             var processingInfo = new DirectoryInfo(processingPath);
             var files = processingInfo.GetFiles();
