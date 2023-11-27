@@ -19,7 +19,7 @@
         public string Status { get; set; }
         public string StatusNotes { get; set; }
         public string FolderName { get; set; }
-        public IEnumerable<MetadataField> CustomFields { get; set; }
+        public IEnumerable<MetadataField> CustomFields { get; set; } = new List<MetadataField>();
     }
 
     public class DocumentMetadataList

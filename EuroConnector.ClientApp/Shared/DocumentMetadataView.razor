@@ -4,7 +4,7 @@
     <MudListItem>
         <strong>Document Number: </strong> @DocumentMetadata.DocumentNo
     </MudListItem>
-    <MudListItem>
+    <MudListItem>  
         <strong>Document Standard: </strong> @DocumentMetadata.DocumentStandard
     </MudListItem>
     <MudListItem>
@@ -49,12 +49,13 @@
     <MudListItem>
         <strong>Folder Name: </strong> @DocumentMetadata.FolderName
     </MudListItem>
-    @foreach (var field in DocumentMetadata.CustomFields)
-    {
-        <MudListItem>
-            <strong>@field.Field: </strong> @field.Value
-        </MudListItem>
-    }
+    @if (DocumentMetadata.CustomFields is not null)
+        foreach (var field in DocumentMetadata?.CustomFields)
+        {
+            <MudListItem>
+                <strong>@field.Field: </strong> @field.Value
+            </MudListItem>
+        }
 </MudList>
 
 @code {
