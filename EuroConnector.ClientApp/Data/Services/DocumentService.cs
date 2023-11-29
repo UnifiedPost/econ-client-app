@@ -63,8 +63,6 @@ namespace EuroConnector.ClientApp.Data.Services
                 {
                     var response = await _httpClient.PostAsync(requestUrl, JsonContent.Create(request));
 
-                    bool documentFailed = !response.IsSuccessStatusCode;
-
                     if (response.IsSuccessStatusCode)
                     {
                         var responseJson = await response.Content.ReadAsStringAsync();
@@ -72,23 +70,8 @@ namespace EuroConnector.ClientApp.Data.Services
                         var document = responseData.Documents.FirstOrDefault();
                         _logger.Information("Document ID {DocumentID}: File {FileName} sent successfully. Moving to {ProcessingPath}. Response data:\n{ResponseJson}",
                             document.DocumentId, file.Name, Path.Combine(outPath, "processing"), responseJson);
-
-                        var metadataResponse = await ViewDocumentMetadata(document.DocumentId);
-                        var metadata = await metadataResponse.Content.ReadFromJsonAsync<DocumentMetadataList>();
-
-                        var docMetadata = metadata.Documents.FirstOrDefault();
-
-                        documentFailed = docMetadata.Status == "Error";
-
-                        if (!documentFailed)
-                        {
-                            var filename = file.SafeMoveTo(Path.Combine(outPath, "processing", file.Name));
-                            documents.Add(filename, document.DocumentId);
-                        }
-                        else await SaveResponseToFile(Path.Combine(failedPath, $"{Path.GetFileNameWithoutExtension(file.Name)}.json"), await metadataResponse.Content.ReadAsStringAsync());
                     }
-
-                    if (documentFailed)
+                    else
                     {
                         _logger.Error("File {FileName} sending failed. Moving to {FailedPath}.", file.Name, failedPath);
                         file.SafeMoveTo(Path.Combine(failedPath, file.Name));

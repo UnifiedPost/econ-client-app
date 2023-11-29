@@ -25,6 +25,15 @@
 
     private async void OnTimedEvent(object source, ElapsedEventArgs e)
     {
+        var outPath = await LocalStorage.GetItemAsync<string>("outboxPath");
+        if (!string.IsNullOrEmpty(outPath))
+        {
+            var outDir = new DirectoryInfo(outPath);
+            var files = outDir.GetFiles();
+
+            if (files.Length == 0) return;
+        }
+
         Snackbar.Add("Automatic document sending has started.", Severity.Info);
         Logger.Information("Automatic document sending has started.");
         try
