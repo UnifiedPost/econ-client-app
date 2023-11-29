@@ -70,6 +70,9 @@ namespace EuroConnector.ClientApp.Data.Services
                         var document = responseData.Documents.FirstOrDefault();
                         _logger.Information("Document ID {DocumentID}: File {FileName} sent successfully. Moving to {ProcessingPath}. Response data:\n{ResponseJson}",
                             document.DocumentId, file.Name, Path.Combine(outPath, "processing"), responseJson);
+)
+                        var filename = file.SafeMoveTo(Path.Combine(outPath, "processing", file.Name));
+                        documents.Add(filename, document.DocumentId);
                     }
                     else
                     {
