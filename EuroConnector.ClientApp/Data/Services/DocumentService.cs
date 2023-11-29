@@ -63,6 +63,8 @@ namespace EuroConnector.ClientApp.Data.Services
                 {
                     var response = await _httpClient.PostAsync(requestUrl, JsonContent.Create(request));
 
+                    bool documentFailed = !response.IsSuccessStatusCode;
+
                     if (response.IsSuccessStatusCode)
                     {
                         var responseJson = await response.Content.ReadAsStringAsync();
