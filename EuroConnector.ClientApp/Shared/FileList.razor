@@ -65,6 +65,7 @@
     private void SetFiles(string path)
     {
         var directory = new DirectoryInfo(path);
+        if (!directory.Exists) directory.Create();
 
         if (!string.IsNullOrEmpty(SearchPattern))
         {

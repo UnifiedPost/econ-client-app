@@ -31,6 +31,9 @@
 </div>
 
 @code {
+    [CascadingParameter]
+    public EuroConnector.ClientApp.Shared.Error Error { get; set; }
+
     MudForm form;
     bool success;
     OutboxSettings settings = new();
@@ -83,7 +86,15 @@
     private async Task OnSaveClicked()
     {
         Logger.Information("Outbox save clicked.");
-        await SetupService.ApplyOutboxSettings(settings);
+
+        try
+        {
+            await SetupService.ApplyOutboxSettings(settings);
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
 
         Snackbar.Add("Outbox settings applied successfully.", Severity.Success);
         Logger.Information("Outbox settings applied successfully.");

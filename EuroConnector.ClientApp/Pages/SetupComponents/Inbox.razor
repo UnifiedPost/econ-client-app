@@ -26,6 +26,9 @@
 </div>
 
 @code {
+    [CascadingParameter]
+    public EuroConnector.ClientApp.Shared.Error Error { get; set; }
+
     MudForm form;
     bool success;
     string inboxPath;
@@ -45,7 +48,15 @@
     private async Task OnSaveClicked()
     {
         Logger.Information("Inbox save clicked.");
-        await LocalStorage.SetItemAsync("inboxPath", inboxPath);
+
+        try
+        {
+            await SetupService.ApplyInboxSettings(inboxPath);
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
 
         Snackbar.Add("Inbox settings applied successfully.", Severity.Success);
         Logger.Information("Inbox settings applied successfully.");

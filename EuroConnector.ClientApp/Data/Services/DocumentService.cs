@@ -70,7 +70,7 @@ namespace EuroConnector.ClientApp.Data.Services
                         var responseJson = await response.Content.ReadAsStringAsync();
                         var responseData = await response.Content.ReadFromJsonAsync<DocumentSendResponse>();
                         var document = responseData.Documents.FirstOrDefault();
-                        _logger.Information("Document ID {DocumentID}: File {FileName} sent successfully. Moving to {ProcessingPath}. Response data:\n{ResponseJson}",
+                        _logger.Information("Document ID {DocumentID}: File {FileName} submitted successfully. Moving to {ProcessingPath}. Response data:\n{ResponseJson}",
                             document.DocumentId, file.Name, Path.Combine(outPath, "processing"), responseJson);
 
                         var filename = file.SafeMoveTo(Path.Combine(outPath, "processing", file.Name));

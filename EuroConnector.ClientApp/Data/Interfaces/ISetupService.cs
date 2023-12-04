@@ -8,6 +8,7 @@ namespace EuroConnector.ClientApp.Data.Interfaces
         Task Logout();
         Task<LoginSettings> GetLoginSettings();
         Task ApplyOutboxSettings(OutboxSettings settings);
+        Task ApplyInboxSettings(string path);
         Task<OutboxSettings> GetOutboxSettings();
         Task ClearSettings(IEnumerable<string> keysToClear);
         Task RefreshToken();

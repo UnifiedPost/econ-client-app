@@ -1,6 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Data.Models;
+using EuroConnector.ClientApp.Extensions;
 using EuroConnector.ClientApp.Helpers;
 using EuroConnector.ClientApp.Providers;
 using Serilog;
@@ -90,9 +91,26 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public async Task ApplyOutboxSettings(OutboxSettings settings)
         {
-            await _localStorage.SetItemAsync("outboxPath", settings.OutboxPath);
-            await _localStorage.SetItemAsync("sentPath", settings.SentPath);
-            await _localStorage.SetItemAsync("failedPath", settings.FailedPath);
+            var success = true;
+
+            success = success && await SetPath(settings.OutboxPath, "outboxPath");
+            success = success && await SetPath(settings.SentPath, "sentPath");
+            success = success && await SetPath(settings.FailedPath, "failedPath");
+
+            if (!success)
+                throw new Exception("At least one path was invalid. Check logs for more information.");
+
+            var processingPath = Path.Combine(settings.OutboxPath, "processing");
+            var processingDir = new DirectoryInfo(processingPath);
+            if (!processingDir.Exists) processingDir.Create();
+        }
+
+        public async Task ApplyInboxSettings(string path)
+        {
+            var success = await SetPath(path, "inboxPath");
+
+            if (!success)
+                throw new Exception("At least one path was invalid. Check logs for more information.");
         }
 
         public async Task<OutboxSettings> GetOutboxSettings()
@@ -138,6 +156,22 @@ namespace EuroConnector.ClientApp.Data.Services
             await _localStorage.SetItemAsync("refreshToken", tokenResponse.RefreshToken);
             await _localStorage.SetItemAsync("refreshExpiration", tokenResponse.RefreshTokenExpiresUtc.ToUniversalTime());
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", tokenResponse.AccessToken);
+        }
+
+        private async Task<bool> SetPath(string path, string localStorageVariable)
+        {
+            if (path.IsValidPath())
+            {
+                var dir = new DirectoryInfo(path);
+                if (!dir.Exists) dir.Create(); 
+
+                await _localStorage.SetItemAsync(localStorageVariable, path);
+
+                return true;
+            }
+
+            _logger.Warning("Could not set {Variable} because the path {Path} is invalid.", localStorageVariable, path);
+            return false;
         }
     }
 }
