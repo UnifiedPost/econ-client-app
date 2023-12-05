@@ -1,4 +1,7 @@
 ﻿@page "/setup"
+@using EuroConnector.ClientApp.Data.Interfaces
+
+@inject ISetupService SetupService
 
 <div>
     <MudText Typo="Typo.h3">Setup</MudText>
@@ -9,3 +12,11 @@
         <EuroConnector.ClientApp.Pages.SetupComponents.Outbox/>
     </div>
 </div>
+
+@code
+{
+    protected override async Task OnInitializedAsync()
+    {
+        await SetupService.SetDefaultDirectories();
+    }
+}

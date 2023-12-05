@@ -12,5 +12,6 @@ namespace EuroConnector.ClientApp.Data.Interfaces
         Task<OutboxSettings> GetOutboxSettings();
         Task ClearSettings(IEnumerable<string> keysToClear);
         Task RefreshToken();
+        Task SetDefaultDirectories();
     }
 }

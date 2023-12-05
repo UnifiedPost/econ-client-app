@@ -101,8 +101,6 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public async Task CheckProcessingDocumentStatus()
         {
-            _logger.Information("Checking for processing documents.");
-
             var outPath = await _localStorage.GetItemAsync<string>("outboxPath");
             var sentPath = await _localStorage.GetItemAsync<string>("sentPath");
             var failedPath = await _localStorage.GetItemAsync<string>("failedPath");
@@ -120,10 +118,11 @@ namespace EuroConnector.ClientApp.Data.Services
 
             if (files.Length == 0 || documents is null || documents.Count == 0)
             {
-                _logger.Information("No documents found in processing folder.");
                 await _localStorage.RemoveItemAsync("processingDocuments");
                 return;
             }
+
+            _logger.Information("Starting processing documents submitted for sending.");
 
             foreach (var file in files)
             {

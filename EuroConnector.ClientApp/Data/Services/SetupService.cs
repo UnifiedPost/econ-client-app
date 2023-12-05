@@ -66,7 +66,7 @@ namespace EuroConnector.ClientApp.Data.Services
             return new()
             {
                 UserName = username,
-                ApiUrl = apiUrl, 
+                ApiUrl = apiUrl,
             };
         }
 
@@ -121,9 +121,9 @@ namespace EuroConnector.ClientApp.Data.Services
 
             return new()
             {
-                OutboxPath = outboxPath,
-                SentPath = sentPath,
-                FailedPath = failedPath,
+                OutboxPath = outboxPath ?? "C:\\EuroConnector\\Outbox",
+                SentPath = sentPath ?? "C:\\EuroConnector\\Sent",
+                FailedPath = failedPath ?? "C:\\EuroConnector\\Failed",
             };
         }
 
@@ -149,6 +149,14 @@ namespace EuroConnector.ClientApp.Data.Services
             _authenticationProvider.SignIn(responseData.AccessToken);
         }
 
+        public async Task SetDefaultDirectories()
+        {
+            await SetDefaultDirectory("outboxPath", "C:\\EuroConnector\\Outbox");
+            await SetDefaultDirectory("sentPath", "C:\\EuroConnector\\Sent");
+            await SetDefaultDirectory("failedPath", "C:\\EuroConnector\\Failed");
+            await SetDefaultDirectory("inboxPath", "C:\\EuroConnector\\Inbox");
+        }
+
         private async Task SetTokens(TokenResponse tokenResponse)
         {
             await _localStorage.SetItemAsync("accessToken", tokenResponse.AccessToken);
@@ -163,7 +171,7 @@ namespace EuroConnector.ClientApp.Data.Services
             if (path.IsValidPath())
             {
                 var dir = new DirectoryInfo(path);
-                if (!dir.Exists) dir.Create(); 
+                if (!dir.Exists) dir.Create();
 
                 await _localStorage.SetItemAsync(localStorageVariable, path);
 
@@ -172,6 +180,16 @@ namespace EuroConnector.ClientApp.Data.Services
 
             _logger.Warning("Could not set {Variable} because the path {Path} is invalid.", localStorageVariable, path);
             return false;
+        }
+
+        private async Task SetDefaultDirectory(string localStorageVariable, string defaultPath)
+        {
+            var path = await _localStorage.GetItemAsync<string>(localStorageVariable);
+            if (!string.IsNullOrEmpty(path)) return;
+
+            var dir = new DirectoryInfo(defaultPath);
+            if (!dir.Exists) dir.Create();
+            await _localStorage.SetItemAsync(localStorageVariable, defaultPath);
         }
     }
 }

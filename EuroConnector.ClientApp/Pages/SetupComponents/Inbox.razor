@@ -36,6 +36,7 @@
     protected override async Task OnInitializedAsync()
     {
         inboxPath = await LocalStorage.GetItemAsync<string>("inboxPath");
+        if (string.IsNullOrEmpty(inboxPath)) inboxPath = "C:\\EuroConnector\\Inbox";
     }
 
     private async Task BrowseClicked()
