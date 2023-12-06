@@ -21,6 +21,7 @@
 
         private static string RenameIfDuplicate(string filename)
         {
+            var path = Path.GetDirectoryName(filename);
             int index = 0;
             while (File.Exists(filename))
             {
@@ -29,11 +30,11 @@
                 if (filenameWithoutExtension.Contains('('))
                 {
                     int underscoreIndex = filenameWithoutExtension.LastIndexOf('(');
-                    filenameWithoutExtension = filenameWithoutExtension.Substring(0, underscoreIndex);
+                    filenameWithoutExtension = filenameWithoutExtension[..underscoreIndex];
                 }
                 index++;
 
-                filename = $"{filenameWithoutExtension}({index}){Path.GetExtension(filename)}";
+                filename = Path.Combine(path, $"{filenameWithoutExtension}({index}){Path.GetExtension(filename)}");
             }
 
             return filename;

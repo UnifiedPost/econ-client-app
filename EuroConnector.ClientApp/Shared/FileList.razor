@@ -5,9 +5,9 @@
 @inject ILocalStorageService LocalStorage;
 
 <div style="margin: 5px 0;">
-    @if (files is null || files.Count() > 0)
+    @if (Files is null || Files.Count() > 0)
     {
-        <MudDataGrid Items="@files" Dense="true" ReadOnly="true" Elevation="4" HeaderClass="grid-header"
+        <MudDataGrid Items="@Files" Dense="true" ReadOnly="true" Elevation="4" HeaderClass="grid-header"
                     RowsPerPage="10" Loading="Loading" LoadingProgressColor="Color.Secondary">
             <Columns>
                 <PropertyColumn Property="x => x.Name" Title="Filename"/>
@@ -23,7 +23,7 @@
     }
 
     <div style ="margin-top: 5px;">
-        <MudText>Total Files: @files?.Count()</MudText>
+        <MudText>Total Files: @Files?.Count()</MudText>
         <EconButton OnClick="@RefreshFiles">Refresh File List</EconButton>
     </div>
 </div>
@@ -41,7 +41,7 @@
     [Parameter]
     public string SearchPattern { get; set; }
 
-    List<FileInfo> files;
+    public List<FileInfo> Files { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -60,6 +60,7 @@
         var path = await LocalStorage.GetItemAsync<string>(Path);
         Logger.Information("Refresh clicked for path {Path}", path);
         SetFiles(path);
+        StateHasChanged();
     }
 
     private void SetFiles(string path)
@@ -69,11 +70,12 @@
 
         if (!string.IsNullOrEmpty(SearchPattern))
         {
-            files = directory.GetFiles(SearchPattern).ToList();
+            Files = directory.EnumerateFiles(SearchPattern, SearchOption.TopDirectoryOnly).ToList();
             return;
         }
 
-        files = directory.GetFiles().ToList();
+        // files = directory.GetFiles().ToList();
+        Files = directory.EnumerateFiles("*", SearchOption.TopDirectoryOnly).ToList();
     }
 
     private string FileSizeDisplay(long length)

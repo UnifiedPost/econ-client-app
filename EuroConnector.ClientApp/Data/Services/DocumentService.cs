@@ -114,9 +114,9 @@ namespace EuroConnector.ClientApp.Data.Services
             if (!Directory.Exists(processingPath)) return;
 
             var processingInfo = new DirectoryInfo(processingPath);
-            var files = processingInfo.GetFiles();
+            var files = processingInfo.EnumerateFiles();
 
-            if (files.Length == 0 || documents is null || documents.Count == 0)
+            if (!files.Any() || documents is null || documents.Count == 0)
             {
                 await _localStorage.RemoveItemAsync("processingDocuments");
                 return;
@@ -126,12 +126,14 @@ namespace EuroConnector.ClientApp.Data.Services
 
             foreach (var file in files)
             {
-                var documentId = documents[file.Name];
+                var filename = Path.GetFileName(file.FullName);
+
+                var documentId = documents[filename];
                 if (!tries.ContainsKey(documentId)) tries.Add(documentId, 1);
 
                 if (!file.Exists)
                 {
-                    documents.Remove(file.Name);
+                    documents.Remove(filename);
                     tries.Remove(documentId);
                 }
 
@@ -144,16 +146,16 @@ namespace EuroConnector.ClientApp.Data.Services
                 {
                     _logger.Error("Document ID {DocumentID}: File {FileName} sending failed. Error status notes: {StatusNotes}. Moving to {FailedPath}.",
                         documentId, file.Name, docMetadata.StatusNotes, failedPath);
-                    var filename = file.SafeMoveTo(Path.Combine(failedPath, file.Name));
-                    await SaveResponseToFile(Path.Combine(failedPath, $"{Path.GetFileNameWithoutExtension(filename)}.json"), await metadataResponse.Content.ReadAsStringAsync());
-                    documents.Remove(file.Name);
+                    var filenameAfterMoving = file.SafeMoveTo(Path.Combine(failedPath, file.Name));
+                    await SaveResponseToFile(Path.Combine(failedPath, $"{Path.GetFileNameWithoutExtension(filenameAfterMoving)}.json"), await metadataResponse.Content.ReadAsStringAsync());
+                    documents.Remove(filename);
                     tries.Remove(documentId);
                 }
                 else if (docMetadata.Status == "Delivered")
                 {
                     _logger.Information("Document ID {DocumentID}: File {FileName} sent successfully. Moving to {SentPath}.", documentId, file.Name, sentPath);
                     file.SafeMoveTo(Path.Combine(sentPath, $"{documentId}_{docMetadata.Status}_{file.Name}"));
-                    documents.Remove(file.Name);
+                    documents.Remove(filename);
                     tries.Remove(documentId);
                 }
                 else if (tries[documentId] >= 10)
@@ -161,7 +163,7 @@ namespace EuroConnector.ClientApp.Data.Services
                     _logger.Error("Document ID {DocumentID}: File {FileName} sending failed. The status was not updated (status was {Status}). Moving to {FailedPath}.",
                         documentId, file.Name, docMetadata.Status, failedPath);
                     file.SafeMoveTo(Path.Combine(failedPath, file.Name));
-                    documents.Remove(file.Name);
+                    documents.Remove(filename);
                     tries.Remove(documentId);
                 }
 

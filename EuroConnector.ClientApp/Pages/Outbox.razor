@@ -17,7 +17,10 @@
 <MudText Typo="Typo.h5">Outbox Spool</MudText>
 <MudText>Path: @settings.OutboxPath</MudText>
 <div class="outbox-spool-buttons">
-    <EconButton OnClick="@SendDocuments" Disabled="sending">Send Documents</EconButton>
+    <div class="button-group">
+        <EconButton OnClick="@AddDocuments" Disabled="sending">Add Documents</EconButton>
+        <EconButton OnClick="@SendDocuments" Disabled="sending">Send Documents</EconButton>
+    </div>
     <MudTooltip Text="Outbox Settings">
         <MudIconButton OnClick="@ToggleOutboxSettingsOpen" Icon="fa-solid fa-cog" Size="Size.Medium"></MudIconButton>
         <MudPopover Open="@isOutboxSettingsOpen" AnchorOrigin="Origin.BottomLeft">
@@ -47,7 +50,7 @@
 <FileList @ref="failed" Path="failedPath" Name="Failed" SearchPattern="*.xml"/>
 
 
-@code {
+    @code {
     [CascadingParameter]
     public Shared.Error Error { get; set; }
 
@@ -79,6 +82,8 @@
 
         Logger.Information("Automatic sending timer set to {Minutes} minutes.", minsBetweenSend);
         Snackbar.Add($"Automatic sending timer set to {minsBetweenSend} minutes.", Severity.Success);
+
+        isOutboxSettingsOpen = false;
     }
 
     private async Task SendDocuments()
@@ -99,5 +104,20 @@
 
             await outbox.RefreshFiles();
         }
+    }
+
+    private async Task AddDocuments()
+    {
+        var outboxPath = await LocalStorage.GetItemAsync<string>("outboxPath");
+        var outboxDir = new DirectoryInfo(outboxPath);
+        var filePickerResults = await FilePicker.PickMultipleAsync();
+
+        foreach (var fileResult in filePickerResults)
+        {
+            var file = new FileInfo(fileResult.FullPath);
+            FileHelper.SafeCopy(outboxDir, file);
+        }
+
+        await outbox.RefreshFiles();
     }
 }
