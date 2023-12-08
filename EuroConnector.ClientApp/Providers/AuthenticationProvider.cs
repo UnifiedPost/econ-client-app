@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Security.Claims;
 
 namespace EuroConnector.ClientApp.Providers
@@ -50,7 +51,7 @@ namespace EuroConnector.ClientApp.Providers
 
         private ClaimsPrincipal CurrentUser()
         {
-            var accessToken = Preferences.Get("accessToken", string.Empty);
+            var accessToken = Preferences.Get("accessToken", string.Empty, Assembly.GetExecutingAssembly().Location);
             if (string.IsNullOrEmpty(accessToken)) return AnonymousUser;
 
             return UserPrincipal;

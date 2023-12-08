@@ -6,6 +6,7 @@ using EuroConnector.ClientApp.Providers;
 using Serilog;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Reflection;
 
 namespace EuroConnector.ClientApp.Data.Services
 {
@@ -48,16 +49,16 @@ namespace EuroConnector.ClientApp.Data.Services
             var responseData = await response.Content.ReadFromJsonAsync<TokenResponse>();
             SetTokens(responseData);
 
-            Preferences.Set("username", properties.UserName);
-            Preferences.Set("apiUrl", properties.ApiUrl);
+            Preferences.Set("username", properties.UserName, Assembly.GetExecutingAssembly().Location);
+            Preferences.Set("apiUrl", properties.ApiUrl, Assembly.GetExecutingAssembly().Location);
 
             _authenticationProvider.SignIn(responseData.AccessToken);
         }
 
         public LoginSettings GetLoginSettings()
         {
-            var username = Preferences.Get("username", string.Empty);
-            var apiUrl = Preferences.Get("apiUrl", string.Empty);
+            var username = Preferences.Get("username", string.Empty, Assembly.GetExecutingAssembly().Location);
+            var apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
 
             return new()
             {
@@ -76,7 +77,7 @@ namespace EuroConnector.ClientApp.Data.Services
         {
             if (keysToClear is null)
             {
-                Preferences.Clear();
+                Preferences.Clear(Assembly.GetExecutingAssembly().Location);
                 _authenticationProvider.SignOut();
 
                 return;
@@ -84,7 +85,7 @@ namespace EuroConnector.ClientApp.Data.Services
 
             foreach (var key in keysToClear)
             {
-                Preferences.Remove(key);
+                Preferences.Remove(key, Assembly.GetExecutingAssembly().Location);
             }
         }
 
@@ -114,9 +115,9 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public OutboxSettings GetOutboxSettings()
         {
-            var outboxPath = Preferences.Get("outboxPath", "C:\\EuroConnector\\Outbox");
-            var sentPath = Preferences.Get("sentPath", "C:\\EuroConnector\\Sent");
-            var failedPath = Preferences.Get("failedPath", "C:\\EuroConnector\\Failed");
+            var outboxPath = Preferences.Get("outboxPath", "C:\\EuroConnector\\Outbox", Assembly.GetExecutingAssembly().Location);
+            var sentPath = Preferences.Get("sentPath", "C:\\EuroConnector\\Sent", Assembly.GetExecutingAssembly().Location);
+            var failedPath = Preferences.Get("failedPath", "C:\\EuroConnector\\Failed", Assembly.GetExecutingAssembly().Location);
 
             return new()
             {
@@ -130,8 +131,8 @@ namespace EuroConnector.ClientApp.Data.Services
         {
             //var refreshToken = await _localStorage.GetItemAsync<string>("refreshToken");
             //var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
-            var refreshToken = Preferences.Get("refreshToken", string.Empty);
-            var apiUrl = Preferences.Get("apiUrl", string.Empty);
+            var refreshToken = Preferences.Get("refreshToken", string.Empty, Assembly.GetExecutingAssembly().Location);
+            var apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
 
             using var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"{apiUrl}public/v1/authorization/token-refresh");
             requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", refreshToken);
@@ -160,10 +161,10 @@ namespace EuroConnector.ClientApp.Data.Services
 
         private void SetTokens(TokenResponse tokenResponse)
         {
-            Preferences.Set("accessToken", tokenResponse.AccessToken);
-            Preferences.Set("accessExpiration", tokenResponse.AccessTokenExpiresUtc.ToUniversalTime());
-            Preferences.Set("refreshToken", tokenResponse.RefreshToken);
-            Preferences.Set("refreshExpiration", tokenResponse.RefreshTokenExpiresUtc.ToUniversalTime());
+            Preferences.Set("accessToken", tokenResponse.AccessToken, Assembly.GetExecutingAssembly().Location);
+            Preferences.Set("accessExpiration", tokenResponse.AccessTokenExpiresUtc.ToUniversalTime(), Assembly.GetExecutingAssembly().Location);
+            Preferences.Set("refreshToken", tokenResponse.RefreshToken, Assembly.GetExecutingAssembly().Location);
+            Preferences.Set("refreshExpiration", tokenResponse.RefreshTokenExpiresUtc.ToUniversalTime(), Assembly.GetExecutingAssembly().Location);
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", tokenResponse.AccessToken);
         }
@@ -175,7 +176,7 @@ namespace EuroConnector.ClientApp.Data.Services
                 var dir = new DirectoryInfo(path);
                 if (!dir.Exists) dir.Create();
 
-                Preferences.Set(localStorageVariable, path);
+                Preferences.Set(localStorageVariable, path, Assembly.GetExecutingAssembly().Location);
 
                 return true;
             }
@@ -187,13 +188,13 @@ namespace EuroConnector.ClientApp.Data.Services
         private void SetDefaultDirectory(string localStorageVariable, string defaultPath)
         {
             //var path = await _localStorage.GetItemAsync<string>(localStorageVariable);
-            var path = Preferences.Get(localStorageVariable, string.Empty);
+            var path = Preferences.Get(localStorageVariable, string.Empty, Assembly.GetExecutingAssembly().Location);
             if (!string.IsNullOrEmpty(path)) return;
 
             var dir = new DirectoryInfo(defaultPath);
             if (!dir.Exists) dir.Create();
             //await _localStorage.SetItemAsync(localStorageVariable, defaultPath);
-            Preferences.Set(localStorageVariable, defaultPath);
+            Preferences.Set(localStorageVariable, defaultPath, Assembly.GetExecutingAssembly().Location);
         }
     }
 }

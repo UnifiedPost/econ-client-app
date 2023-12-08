@@ -1,4 +1,5 @@
 ﻿@page "/inbox"
+@using System.Reflection
 
 @attribute [Authorize]
 
@@ -12,6 +13,6 @@
 
     protected override void OnInitialized()
     {
-        path = Preferences.Get("inboxPath", string.Empty);
+        path = Preferences.Get("inboxPath", string.Empty, Assembly.GetExecutingAssembly().Location);
     }
 }

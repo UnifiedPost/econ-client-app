@@ -3,6 +3,7 @@
 @using EuroConnector.ClientApp.Data.Interfaces;
 @using EuroConnector.ClientApp.Data.Models;
 @using EuroConnector.ClientApp.Data.Services;
+@using System.Reflection
 
 @implements IDisposable
 
@@ -24,7 +25,7 @@
         <MudText>API Version: @(apiVersion is null ? "Loading..." : apiVersion.Version)</MudText>
         <MudText>Release Date: @(apiVersion is null ? "Loading..." : apiVersion.ReleaseDate?.ToString("d") ?? "Error")</MudText>
         <MudText>@(apiVersion is null ? "" : apiVersion.Comment)</MudText>
-        <MudText>App Version: 1.2.0</MudText>
+        <MudText>App Version: 1.2.1</MudText>
     </div>
 </AuthorizeView>
 
@@ -42,7 +43,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        apiUrl = Preferences.Get("apiUrl", string.Empty);
+        apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
 
         timer = new Timer(Tick, null, 0, 1000);
 

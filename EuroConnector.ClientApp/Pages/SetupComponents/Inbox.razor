@@ -1,5 +1,6 @@
 ﻿@using CommunityToolkit.Maui.Storage;
 @using EuroConnector.ClientApp.Data.Interfaces;
+@using System.Reflection
 
 @inject ISetupService SetupService;
 @inject ISnackbar Snackbar;
@@ -33,7 +34,7 @@
 
     protected override void OnInitialized()
     {
-        inboxPath = Preferences.Get("inboxPath", "C:\\EuroConnector\\Inbox");
+        inboxPath = Preferences.Get("inboxPath", "C:\\EuroConnector\\Inbox", Assembly.GetExecutingAssembly().Location);
     }
 
     private async Task BrowseClicked()

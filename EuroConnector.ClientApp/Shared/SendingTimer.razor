@@ -1,5 +1,6 @@
 ﻿@using System.Timers;
 @using EuroConnector.ClientApp.Data.Interfaces;
+@using System.Reflection
 @implements IDisposable
 
 @inject ISnackbar Snackbar;
@@ -15,7 +16,7 @@
 
     protected override void OnInitialized()
     {
-        var sendDelay = Preferences.Get("sendDelay", 10);
+        var sendDelay = Preferences.Get("sendDelay", 10, Assembly.GetExecutingAssembly().Location);
 
         Timer.SetTimer(sendDelay);
         Timer.Timer.Elapsed += OnTimedEvent;
@@ -23,7 +24,7 @@
 
     private async void OnTimedEvent(object source, ElapsedEventArgs e)
     {
-        var outPath = Preferences.Get("outboxPath", string.Empty);
+        var outPath = Preferences.Get("outboxPath", string.Empty, Assembly.GetExecutingAssembly().Location);
         if (!string.IsNullOrEmpty(outPath))
         {
             var outDir = new DirectoryInfo(outPath);

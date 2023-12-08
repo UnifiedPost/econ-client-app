@@ -1,6 +1,7 @@
 ﻿using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Data.Models;
 using System.Net.Http.Json;
+using System.Reflection;
 
 namespace EuroConnector.ClientApp.Data.Services
 {
@@ -15,7 +16,7 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public async Task<ApiVersion> GetApiVersion()
         {
-            var apiUrl = Preferences.Get("apiUrl", string.Empty);
+            var apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
             if (string.IsNullOrEmpty(apiUrl)) return new ApiVersion
             {
                 Version = "Error",

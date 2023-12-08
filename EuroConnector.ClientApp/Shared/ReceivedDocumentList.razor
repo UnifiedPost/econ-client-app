@@ -2,6 +2,7 @@
 @using EuroConnector.ClientApp.Data.Models;
 @using System.Text;
 @using System.Net.Http.Json;
+@using System.Reflection
 
 @inject ILogger Logger;
 @inject ISnackbar Snackbar;
@@ -169,7 +170,7 @@
 
     private async Task SaveDocument(DownloadedDocument document)
     {
-        var inboxPath = Preferences.Get("inboxPath", string.Empty);
+        var inboxPath = Preferences.Get("inboxPath", string.Empty, Assembly.GetExecutingAssembly().Location);
         if (string.IsNullOrEmpty(inboxPath)) throw new Exception("Inbox path is not set.");
 
         var inboxDir = new DirectoryInfo(inboxPath);

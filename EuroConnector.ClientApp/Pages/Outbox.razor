@@ -1,6 +1,7 @@
 ﻿@page "/outbox"
 @using EuroConnector.ClientApp.Data.Interfaces;
 @using EuroConnector.ClientApp.Data.Models;
+@using System.Reflection
 
 @inject ISetupService SetupService;
 @inject IDocumentService DocumentService;
@@ -64,7 +65,7 @@
     protected override void OnInitialized()
     {
         settings = SetupService.GetOutboxSettings();
-        minsBetweenSend = Preferences.Get("sendDelay", 10);
+        minsBetweenSend = Preferences.Get("sendDelay", 10, Assembly.GetExecutingAssembly().Location);
     }
 
     private void ToggleOutboxSettingsOpen() => isOutboxSettingsOpen ^= true; // invert the value
@@ -75,7 +76,7 @@
 
         Logger.Information("Setting automatic sending timer to {Minutes} minutes", minsBetweenSend);
 
-        Preferences.Set("sendDelay", minsBetweenSend);
+        Preferences.Set("sendDelay", minsBetweenSend, Assembly.GetExecutingAssembly().Location);
         Timer.SetTimer(minsBetweenSend);
 
         Logger.Information("Automatic sending timer set to {Minutes} minutes.", minsBetweenSend);
@@ -106,7 +107,7 @@
 
     private async Task AddDocuments()
     {
-        var outboxPath = Preferences.Get("outboxPath", string.Empty);
+        var outboxPath = Preferences.Get("outboxPath", string.Empty, Assembly.GetExecutingAssembly().Location);
         var outboxDir = new DirectoryInfo(outboxPath);
         var filePickerResults = await FilePicker.PickMultipleAsync();
 

@@ -1,4 +1,5 @@
 ﻿@using EuroConnector.ClientApp.Data.Interfaces
+@using System.Reflection
 
 @inject AuthenticationProvider AuthProvider
 @inject ISetupService SetupService
@@ -25,7 +26,7 @@
 {
 	protected override void OnInitialized()
 	{
-		var refreshToken = Preferences.Get("refreshToken", string.Empty);
+		var refreshToken = Preferences.Get("refreshToken", string.Empty, Assembly.GetExecutingAssembly().Location);
 		var refreshExpiration = Preferences.Get("refreshExpiration", new DateTime());
 		if (!string.IsNullOrEmpty(refreshToken) && DateTime.UtcNow > refreshExpiration.ToUniversalTime())
 		{
@@ -33,7 +34,7 @@
 			SetupService.ClearSettings(new[] { "accessToken", "accessExpiration", "refreshToken", "refreshExpiration", "apiUrl" });
 		}
 
-		var accessToken = Preferences.Get("accessToken", string.Empty);
+		var accessToken = Preferences.Get("accessToken", string.Empty, Assembly.GetExecutingAssembly().Location);
 		if (!string.IsNullOrEmpty(accessToken)) AuthProvider.SignIn(accessToken);
 	}
 }

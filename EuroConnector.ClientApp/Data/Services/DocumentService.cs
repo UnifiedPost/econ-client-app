@@ -4,6 +4,7 @@ using EuroConnector.ClientApp.Extensions;
 using EuroConnector.ClientApp.Helpers;
 using Serilog;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
@@ -26,8 +27,8 @@ namespace EuroConnector.ClientApp.Data.Services
         {
             //var outPath = await _localStorage.GetItemAsync<string>("outboxPath");
             //var failedPath = await _localStorage.GetItemAsync<string>("failedPath");
-            var outPath = Preferences.Get("outboxPath", string.Empty);
-            var failedPath = Preferences.Get("failedPath", string.Empty);
+            var outPath = Preferences.Get("outboxPath", string.Empty, Assembly.GetExecutingAssembly().Location);
+            var failedPath = Preferences.Get("failedPath", string.Empty, Assembly.GetExecutingAssembly().Location);
 
             _logger.Information("Sending documents in the outbox location. {OutboxPath}", outPath);
 
@@ -41,7 +42,7 @@ namespace EuroConnector.ClientApp.Data.Services
             }
 
             //var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
-            var apiUrl = Preferences.Get("apiUrl", string.Empty);
+            var apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
             var requestUrl = $"{apiUrl}public/v1/documents/send";
 
             Dictionary<string, string> documents = new();
@@ -96,22 +97,22 @@ namespace EuroConnector.ClientApp.Data.Services
             if (failed > 0) throw new Exception($"{failed} documents failed. Check the logs for more information.");
             _logger.Information("All documents were sent and moved to processing successfully.");
 
-            Preferences.Set("processingDocuments", JsonSerializer.Serialize(documents));
+            Preferences.Set("processingDocuments", JsonSerializer.Serialize(documents), Assembly.GetExecutingAssembly().Location);
         }
 
         public async Task CheckProcessingDocumentStatus()
         {
-            var outPath = Preferences.Get("outboxPath", string.Empty);
-            var sentPath = Preferences.Get("sentPath", string.Empty);
-            var failedPath = Preferences.Get("failedPath", string.Empty);
+            var outPath = Preferences.Get("outboxPath", string.Empty, Assembly.GetExecutingAssembly().Location);
+            var sentPath = Preferences.Get("sentPath", string.Empty, Assembly.GetExecutingAssembly().Location);
+            var failedPath = Preferences.Get("failedPath", string.Empty, Assembly.GetExecutingAssembly().Location);
 
             Dictionary<string, string> documents = new();
             Dictionary<string, int> tries = new();
 
-            var documentsStr = Preferences.Get("processingDocuments", string.Empty);
+            var documentsStr = Preferences.Get("processingDocuments", string.Empty, Assembly.GetExecutingAssembly().Location);
             if (!string.IsNullOrEmpty(documentsStr)) documents = JsonSerializer.Deserialize<Dictionary<string, string>>(documentsStr);
 
-            var triesStr = Preferences.Get("processingTries", string.Empty);
+            var triesStr = Preferences.Get("processingTries", string.Empty, Assembly.GetExecutingAssembly().Location);
             if (!string.IsNullOrEmpty(triesStr)) tries = JsonSerializer.Deserialize<Dictionary<string, int>>(triesStr);
 
             tries.ToList().ForEach(x => tries[x.Key]++);
@@ -124,7 +125,7 @@ namespace EuroConnector.ClientApp.Data.Services
 
             if (!files.Any() || documents.Count == 0)
             {
-                Preferences.Remove("processingDocuments");
+                Preferences.Remove("processingDocuments", Assembly.GetExecutingAssembly().Location);
                 return;
             }
 
@@ -182,8 +183,8 @@ namespace EuroConnector.ClientApp.Data.Services
                     _logger.Warning(ex, "{Filename} processing failed.", filename);
                 }
 
-                Preferences.Set("processingDocuments", JsonSerializer.Serialize(documents));
-                Preferences.Set("processingTries", JsonSerializer.Serialize(tries));
+                Preferences.Set("processingDocuments", JsonSerializer.Serialize(documents), Assembly.GetExecutingAssembly().Location);
+                Preferences.Set("processingTries", JsonSerializer.Serialize(tries), Assembly.GetExecutingAssembly().Location);
 
             }
             _logger.Information("Finished processing the documents.");
@@ -191,7 +192,7 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public async Task<ReceivedDocuments> ReceiveDocumentList()
         {
-            var apiUrl = Preferences.Get("apiUrl", string.Empty);
+            var apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
             var requestUrl = $"{apiUrl}public/v1/documents/received-list";
 
             _logger.Information("Fetching the list of received documents.\nRequest URL: {Url}", requestUrl);
@@ -206,13 +207,13 @@ namespace EuroConnector.ClientApp.Data.Services
 
             var receivedDocuments = await response.Content.ReadFromJsonAsync<ReceivedDocuments>();
 
-            _logger.Information("Received {NumberOfDocuments} documents.", receivedDocuments.Documents.Count());
+            _logger.Information("Received {NumberOfDocuments} documents.", receivedDocuments.Documents.Count);
             return receivedDocuments;
         }
 
         public async Task<DownloadedDocument> DownloadDocument(string id)
         {
-            var apiUrl = Preferences.Get("apiUrl", string.Empty);
+            var apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
             var requestUrl = $"{apiUrl}public/v1/documents/{id}/content";
 
             _logger.Information("Downloading document ID {DocumentId}\nRequest URL: {Url}", id, requestUrl);
@@ -234,7 +235,7 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public async Task<HttpResponseMessage> ViewDocumentMetadata(string id)
         {
-            var apiUrl = Preferences.Get("apiUrl", string.Empty);
+            var apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
             var requestUrl = $"{apiUrl}public/v1/documents/{id}";
 
             _logger.Information("Fetching the metadata for document ID {DocumentId}\nRequest URL: {Url}", id, requestUrl);
@@ -256,7 +257,7 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public async Task ChangeReceivedDocumentStatus(string id)
         {
-            var apiUrl = Preferences.Get("apiUrl", string.Empty);
+            var apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
             var requestUrl = $"{apiUrl}public/v1/documents/{id}/status/Received";
 
             _logger.Information("Changing status for document ID {DocumentId}\nRequest URL: {Url}", id, requestUrl);
