@@ -1,10 +1,8 @@
 ﻿@page "/outbox"
-@using Blazored.LocalStorage;
 @using EuroConnector.ClientApp.Data.Interfaces;
 @using EuroConnector.ClientApp.Data.Models;
 
 @inject ISetupService SetupService;
-@inject ILocalStorageService LocalStorage;
 @inject IDocumentService DocumentService;
 @inject ISnackbar Snackbar;
 @inject ILogger Logger;
@@ -63,21 +61,21 @@
     FileList sent;
     FileList failed;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        settings = await SetupService.GetOutboxSettings();
-        minsBetweenSend = await LocalStorage.GetItemAsync<int?>("sendDelay") ?? 10;
+        settings = SetupService.GetOutboxSettings();
+        minsBetweenSend = Preferences.Get("sendDelay", 10);
     }
 
     private void ToggleOutboxSettingsOpen() => isOutboxSettingsOpen ^= true; // invert the value
 
-    private async Task SaveOutboxDelay()
+    private void SaveOutboxDelay()
     {
         if (minsBetweenSend < 0) minsBetweenSend = 1;
 
         Logger.Information("Setting automatic sending timer to {Minutes} minutes", minsBetweenSend);
 
-        await LocalStorage.SetItemAsync("sendDelay", minsBetweenSend);
+        Preferences.Set("sendDelay", minsBetweenSend);
         Timer.SetTimer(minsBetweenSend);
 
         Logger.Information("Automatic sending timer set to {Minutes} minutes.", minsBetweenSend);
@@ -102,13 +100,13 @@
         {
             sending = false;
 
-            await outbox.RefreshFiles();
+            outbox.RefreshFiles();
         }
     }
 
     private async Task AddDocuments()
     {
-        var outboxPath = await LocalStorage.GetItemAsync<string>("outboxPath");
+        var outboxPath = Preferences.Get("outboxPath", string.Empty);
         var outboxDir = new DirectoryInfo(outboxPath);
         var filePickerResults = await FilePicker.PickMultipleAsync();
 
@@ -118,6 +116,6 @@
             FileHelper.SafeCopy(outboxDir, file);
         }
 
-        await outbox.RefreshFiles();
+        outbox.RefreshFiles();
     }
 }

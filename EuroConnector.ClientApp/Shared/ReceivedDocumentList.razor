@@ -1,12 +1,10 @@
-﻿@using Blazored.LocalStorage;
-@using EuroConnector.ClientApp.Data.Interfaces;
+﻿@using EuroConnector.ClientApp.Data.Interfaces;
 @using EuroConnector.ClientApp.Data.Models;
 @using System.Text;
 @using System.Net.Http.Json;
 
 @inject ILogger Logger;
 @inject ISnackbar Snackbar;
-@inject ILocalStorageService LocalStorage;
 @inject IDocumentService DocumentService;
 
 <div style="margin: 5px 0;">
@@ -171,7 +169,7 @@
 
     private async Task SaveDocument(DownloadedDocument document)
     {
-        var inboxPath = await LocalStorage.GetItemAsync<string>("inboxPath");
+        var inboxPath = Preferences.Get("inboxPath", string.Empty);
         if (string.IsNullOrEmpty(inboxPath)) throw new Exception("Inbox path is not set.");
 
         var inboxDir = new DirectoryInfo(inboxPath);

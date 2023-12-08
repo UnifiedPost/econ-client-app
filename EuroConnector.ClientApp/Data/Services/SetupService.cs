@@ -1,5 +1,4 @@
-﻿using Blazored.LocalStorage;
-using EuroConnector.ClientApp.Data.Interfaces;
+﻿using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Data.Models;
 using EuroConnector.ClientApp.Extensions;
 using EuroConnector.ClientApp.Helpers;
@@ -14,18 +13,15 @@ namespace EuroConnector.ClientApp.Data.Services
     {
         private readonly AuthenticationProvider _authenticationProvider;
         private readonly HttpClient _httpClient;
-        private readonly ILocalStorageService _localStorage;
         private readonly ILogger _logger;
 
         public SetupService(
             AuthenticationProvider authenticationProvider,
             HttpClient httpClient,
-            ILocalStorageService localStorage,
             ILogger logger)
         {
             _authenticationProvider = authenticationProvider;
             _httpClient = httpClient;
-            _localStorage = localStorage;
             _logger = logger;
         }
 
@@ -50,18 +46,18 @@ namespace EuroConnector.ClientApp.Data.Services
             }
 
             var responseData = await response.Content.ReadFromJsonAsync<TokenResponse>();
-            await SetTokens(responseData);
+            SetTokens(responseData);
 
-            await _localStorage.SetItemAsync("username", properties.UserName);
-            await _localStorage.SetItemAsync("apiUrl", properties.ApiUrl);
+            Preferences.Set("username", properties.UserName);
+            Preferences.Set("apiUrl", properties.ApiUrl);
 
             _authenticationProvider.SignIn(responseData.AccessToken);
         }
 
-        public async Task<LoginSettings> GetLoginSettings()
+        public LoginSettings GetLoginSettings()
         {
-            var username = await _localStorage.GetItemAsync<string>("username");
-            var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+            var username = Preferences.Get("username", string.Empty);
+            var apiUrl = Preferences.Get("apiUrl", string.Empty);
 
             return new()
             {
@@ -70,32 +66,35 @@ namespace EuroConnector.ClientApp.Data.Services
             };
         }
 
-        public async Task Logout()
+        public void Logout()
         {
-            await _localStorage.RemoveItemsAsync(new List<string> { "accessToken", "refreshToken", "username" });
+            ClearSettings(new[] { "accessToken", "refreshToken", "username" });
             _authenticationProvider.SignOut();
         }
 
-        public async Task ClearSettings(IEnumerable<string> keysToClear)
+        public void ClearSettings(IEnumerable<string> keysToClear)
         {
             if (keysToClear is null)
             {
-                await _localStorage.ClearAsync();
+                Preferences.Clear();
                 _authenticationProvider.SignOut();
 
                 return;
             }
 
-            await _localStorage.RemoveItemsAsync(keysToClear);
+            foreach (var key in keysToClear)
+            {
+                Preferences.Remove(key);
+            }
         }
 
-        public async Task ApplyOutboxSettings(OutboxSettings settings)
+        public void ApplyOutboxSettings(OutboxSettings settings)
         {
             var success = true;
 
-            success = success && await SetPath(settings.OutboxPath, "outboxPath");
-            success = success && await SetPath(settings.SentPath, "sentPath");
-            success = success && await SetPath(settings.FailedPath, "failedPath");
+            success = success && SetPath(settings.OutboxPath, "outboxPath");
+            success = success && SetPath(settings.SentPath, "sentPath");
+            success = success && SetPath(settings.FailedPath, "failedPath");
 
             if (!success)
                 throw new Exception("At least one path was invalid. Check logs for more information.");
@@ -105,32 +104,34 @@ namespace EuroConnector.ClientApp.Data.Services
             if (!processingDir.Exists) processingDir.Create();
         }
 
-        public async Task ApplyInboxSettings(string path)
+        public void ApplyInboxSettings(string path)
         {
-            var success = await SetPath(path, "inboxPath");
+            var success = SetPath(path, "inboxPath");
 
             if (!success)
                 throw new Exception("At least one path was invalid. Check logs for more information.");
         }
 
-        public async Task<OutboxSettings> GetOutboxSettings()
+        public OutboxSettings GetOutboxSettings()
         {
-            var outboxPath = await _localStorage.GetItemAsync<string>("outboxPath");
-            var sentPath = await _localStorage.GetItemAsync<string>("sentPath");
-            var failedPath = await _localStorage.GetItemAsync<string>("failedPath");
+            var outboxPath = Preferences.Get("outboxPath", "C:\\EuroConnector\\Outbox");
+            var sentPath = Preferences.Get("sentPath", "C:\\EuroConnector\\Sent");
+            var failedPath = Preferences.Get("failedPath", "C:\\EuroConnector\\Failed");
 
             return new()
             {
-                OutboxPath = outboxPath ?? "C:\\EuroConnector\\Outbox",
-                SentPath = sentPath ?? "C:\\EuroConnector\\Sent",
-                FailedPath = failedPath ?? "C:\\EuroConnector\\Failed",
+                OutboxPath = outboxPath,
+                SentPath = sentPath,
+                FailedPath = failedPath,
             };
         }
 
         public async Task RefreshToken()
         {
-            var refreshToken = await _localStorage.GetItemAsync<string>("refreshToken");
-            var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+            //var refreshToken = await _localStorage.GetItemAsync<string>("refreshToken");
+            //var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+            var refreshToken = Preferences.Get("refreshToken", string.Empty);
+            var apiUrl = Preferences.Get("apiUrl", string.Empty);
 
             using var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"{apiUrl}public/v1/authorization/token-refresh");
             requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", refreshToken);
@@ -144,36 +145,37 @@ namespace EuroConnector.ClientApp.Data.Services
             }
 
             var responseData = await response.Content.ReadFromJsonAsync<TokenResponse>();
-            await SetTokens(responseData);
+            SetTokens(responseData);
 
             _authenticationProvider.SignIn(responseData.AccessToken);
         }
 
-        public async Task SetDefaultDirectories()
+        public void SetDefaultDirectories()
         {
-            await SetDefaultDirectory("outboxPath", "C:\\EuroConnector\\Outbox");
-            await SetDefaultDirectory("sentPath", "C:\\EuroConnector\\Sent");
-            await SetDefaultDirectory("failedPath", "C:\\EuroConnector\\Failed");
-            await SetDefaultDirectory("inboxPath", "C:\\EuroConnector\\Inbox");
+            SetDefaultDirectory("outboxPath", "C:\\EuroConnector\\Outbox");
+            SetDefaultDirectory("sentPath", "C:\\EuroConnector\\Sent");
+            SetDefaultDirectory("failedPath", "C:\\EuroConnector\\Failed");
+            SetDefaultDirectory("inboxPath", "C:\\EuroConnector\\Inbox");
         }
 
-        private async Task SetTokens(TokenResponse tokenResponse)
+        private void SetTokens(TokenResponse tokenResponse)
         {
-            await _localStorage.SetItemAsync("accessToken", tokenResponse.AccessToken);
-            await _localStorage.SetItemAsync("accessExpiration", tokenResponse.AccessTokenExpiresUtc.ToUniversalTime());
-            await _localStorage.SetItemAsync("refreshToken", tokenResponse.RefreshToken);
-            await _localStorage.SetItemAsync("refreshExpiration", tokenResponse.RefreshTokenExpiresUtc.ToUniversalTime());
+            Preferences.Set("accessToken", tokenResponse.AccessToken);
+            Preferences.Set("accessExpiration", tokenResponse.AccessTokenExpiresUtc.ToUniversalTime());
+            Preferences.Set("refreshToken", tokenResponse.RefreshToken);
+            Preferences.Set("refreshExpiration", tokenResponse.RefreshTokenExpiresUtc.ToUniversalTime());
+
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", tokenResponse.AccessToken);
         }
 
-        private async Task<bool> SetPath(string path, string localStorageVariable)
+        private bool SetPath(string path, string localStorageVariable)
         {
             if (path.IsValidPath())
             {
                 var dir = new DirectoryInfo(path);
                 if (!dir.Exists) dir.Create();
 
-                await _localStorage.SetItemAsync(localStorageVariable, path);
+                Preferences.Set(localStorageVariable, path);
 
                 return true;
             }
@@ -182,14 +184,16 @@ namespace EuroConnector.ClientApp.Data.Services
             return false;
         }
 
-        private async Task SetDefaultDirectory(string localStorageVariable, string defaultPath)
+        private void SetDefaultDirectory(string localStorageVariable, string defaultPath)
         {
-            var path = await _localStorage.GetItemAsync<string>(localStorageVariable);
+            //var path = await _localStorage.GetItemAsync<string>(localStorageVariable);
+            var path = Preferences.Get(localStorageVariable, string.Empty);
             if (!string.IsNullOrEmpty(path)) return;
 
             var dir = new DirectoryInfo(defaultPath);
             if (!dir.Exists) dir.Create();
-            await _localStorage.SetItemAsync(localStorageVariable, defaultPath);
+            //await _localStorage.SetItemAsync(localStorageVariable, defaultPath);
+            Preferences.Set(localStorageVariable, defaultPath);
         }
     }
 }

@@ -5,6 +5,8 @@
 @implements IDisposable
 
 @code {
+    bool isRunning = false;
+
     protected override void OnInitialized()
     {
         BackgroundProvider.EventExecuted += HandleExecuted;
@@ -19,6 +21,13 @@
 
     private async void HandleExecuted(object sender, EventArgs e)
     {
-        await DocumentService.CheckProcessingDocumentStatus();
+        if (!isRunning)
+        {
+            isRunning = true;
+
+            await DocumentService.CheckProcessingDocumentStatus();
+
+            isRunning = false;
+        }
     }
 }

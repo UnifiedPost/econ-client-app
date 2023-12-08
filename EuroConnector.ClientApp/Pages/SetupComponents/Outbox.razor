@@ -38,9 +38,9 @@
     bool success;
     OutboxSettings settings = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        settings = await SetupService.GetOutboxSettings();
+        settings = SetupService.GetOutboxSettings();
     }
 
     private async Task BrowseClicked(string field)
@@ -83,13 +83,13 @@
         }
     }
 
-    private async Task OnSaveClicked()
+    private void OnSaveClicked()
     {
         Logger.Information("Outbox save clicked.");
 
         try
         {
-            await SetupService.ApplyOutboxSettings(settings);
+            SetupService.ApplyOutboxSettings(settings);
         }
         catch (Exception ex)
         {
@@ -100,10 +100,10 @@
         Logger.Information("Outbox settings applied successfully.");
     }
 
-    private async Task OnClearClicked()
+    private void OnClearClicked()
     {
         Logger.Information("Outbox clear clicked.");
-        await SetupService.ClearSettings(new List<string> { "outboxPath", "sentPath", "failedPath" });
+        SetupService.ClearSettings(new List<string> { "outboxPath", "sentPath", "failedPath" });
         settings = new();
 
         Snackbar.Add("Settings cleared successfully.", Severity.Success);

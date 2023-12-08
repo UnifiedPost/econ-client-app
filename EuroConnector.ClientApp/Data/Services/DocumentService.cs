@@ -1,34 +1,33 @@
-﻿using Blazored.LocalStorage;
-using EuroConnector.ClientApp.Data.Interfaces;
+﻿using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Data.Models;
 using EuroConnector.ClientApp.Extensions;
 using EuroConnector.ClientApp.Helpers;
 using Serilog;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 
 namespace EuroConnector.ClientApp.Data.Services
 {
     public class DocumentService : IDocumentService
     {
         private readonly HttpClient _httpClient;
-        private readonly ILocalStorageService _localStorage;
         private readonly ILogger _logger;
 
         public DocumentService(
             HttpClient httpClient,
-            ILocalStorageService localStorage,
             ILogger logger)
         {
             _httpClient = httpClient;
-            _localStorage = localStorage;
             _logger = logger;
         }
 
         public async Task SendDocuments()
         {
-            var outPath = await _localStorage.GetItemAsync<string>("outboxPath");
-            var failedPath = await _localStorage.GetItemAsync<string>("failedPath");
+            //var outPath = await _localStorage.GetItemAsync<string>("outboxPath");
+            //var failedPath = await _localStorage.GetItemAsync<string>("failedPath");
+            var outPath = Preferences.Get("outboxPath", string.Empty);
+            var failedPath = Preferences.Get("failedPath", string.Empty);
 
             _logger.Information("Sending documents in the outbox location. {OutboxPath}", outPath);
 
@@ -41,7 +40,8 @@ namespace EuroConnector.ClientApp.Data.Services
                 return;
             }
 
-            var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+            //var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+            var apiUrl = Preferences.Get("apiUrl", string.Empty);
             var requestUrl = $"{apiUrl}public/v1/documents/send";
 
             Dictionary<string, string> documents = new();
@@ -96,17 +96,23 @@ namespace EuroConnector.ClientApp.Data.Services
             if (failed > 0) throw new Exception($"{failed} documents failed. Check the logs for more information.");
             _logger.Information("All documents were sent and moved to processing successfully.");
 
-            await _localStorage.SetItemAsync("processingDocuments", documents);
+            Preferences.Set("processingDocuments", JsonSerializer.Serialize(documents));
         }
 
         public async Task CheckProcessingDocumentStatus()
         {
-            var outPath = await _localStorage.GetItemAsync<string>("outboxPath");
-            var sentPath = await _localStorage.GetItemAsync<string>("sentPath");
-            var failedPath = await _localStorage.GetItemAsync<string>("failedPath");
+            var outPath = Preferences.Get("outboxPath", string.Empty);
+            var sentPath = Preferences.Get("sentPath", string.Empty);
+            var failedPath = Preferences.Get("failedPath", string.Empty);
 
-            var documents = await _localStorage.GetItemAsync<Dictionary<string, string>>("processingDocuments");
-            var tries = await _localStorage.GetItemAsync<Dictionary<string, int>>("processingTries") ?? new Dictionary<string, int>();
+            Dictionary<string, string> documents = new();
+            Dictionary<string, int> tries = new();
+
+            var documentsStr = Preferences.Get("processingDocuments", string.Empty);
+            if (!string.IsNullOrEmpty(documentsStr)) documents = JsonSerializer.Deserialize<Dictionary<string, string>>(documentsStr);
+
+            var triesStr = Preferences.Get("processingTries", string.Empty);
+            if (!string.IsNullOrEmpty(triesStr)) tries = JsonSerializer.Deserialize<Dictionary<string, int>>(triesStr);
 
             tries.ToList().ForEach(x => tries[x.Key]++);
 
@@ -116,9 +122,9 @@ namespace EuroConnector.ClientApp.Data.Services
             var processingInfo = new DirectoryInfo(processingPath);
             var files = processingInfo.EnumerateFiles();
 
-            if (!files.Any() || documents is null || documents.Count == 0)
+            if (!files.Any() || documents.Count == 0)
             {
-                await _localStorage.RemoveItemAsync("processingDocuments");
+                Preferences.Remove("processingDocuments");
                 return;
             }
 
@@ -128,55 +134,64 @@ namespace EuroConnector.ClientApp.Data.Services
             {
                 var filename = Path.GetFileName(file.FullName);
 
-                var documentId = documents[filename];
-                if (!tries.ContainsKey(documentId)) tries.Add(documentId, 1);
-
-                if (!file.Exists)
+                try
                 {
-                    documents.Remove(filename);
-                    tries.Remove(documentId);
+                    var dictSuccess = documents.TryGetValue(filename, out var documentId);
+                    if (!dictSuccess) continue;
+
+                    if (!tries.ContainsKey(documentId)) tries.Add(documentId, 1);
+
+                    if (!file.Exists)
+                    {
+                        documents.Remove(filename);
+                        tries.Remove(documentId);
+                    }
+
+                    var metadataResponse = await ViewDocumentMetadata(documentId);
+                    var metadata = await metadataResponse.Content.ReadFromJsonAsync<DocumentMetadataList>();
+
+                    var docMetadata = metadata.Documents.FirstOrDefault();
+
+                    if (docMetadata.Status == "Error")
+                    {
+                        _logger.Error("Document ID {DocumentID}: File {FileName} sending failed. Error status notes: {StatusNotes}. Moving to {FailedPath}.",
+                            documentId, file.Name, docMetadata.StatusNotes, failedPath);
+                        var filenameAfterMoving = file.SafeMoveTo(Path.Combine(failedPath, file.Name));
+                        await SaveResponseToFile(Path.Combine(failedPath, $"{Path.GetFileNameWithoutExtension(filenameAfterMoving)}.json"), await metadataResponse.Content.ReadAsStringAsync());
+                        documents.Remove(filename);
+                        tries.Remove(documentId);
+                    }
+                    else if (docMetadata.Status == "Delivered")
+                    {
+                        _logger.Information("Document ID {DocumentID}: File {FileName} sent successfully. Moving to {SentPath}.", documentId, file.Name, sentPath);
+                        file.SafeMoveTo(Path.Combine(sentPath, $"{documentId}_{docMetadata.Status}_{file.Name}"));
+                        documents.Remove(filename);
+                        tries.Remove(documentId);
+                    }
+                    else if (tries[documentId] >= 10)
+                    {
+                        _logger.Error("Document ID {DocumentID}: File {FileName} sending failed. The status was not updated (status was {Status}). Moving to {FailedPath}.",
+                            documentId, file.Name, docMetadata.Status, failedPath);
+                        file.SafeMoveTo(Path.Combine(failedPath, file.Name));
+                        documents.Remove(filename);
+                        tries.Remove(documentId);
+                    }
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    _logger.Warning(ex, "{Filename} processing failed.", filename);
                 }
 
-                var metadataResponse = await ViewDocumentMetadata(documentId);
-                var metadata = await metadataResponse.Content.ReadFromJsonAsync<DocumentMetadataList>();
+                Preferences.Set("processingDocuments", JsonSerializer.Serialize(documents));
+                Preferences.Set("processingTries", JsonSerializer.Serialize(tries));
 
-                var docMetadata = metadata.Documents.FirstOrDefault();
-
-                if (docMetadata.Status == "Error")
-                {
-                    _logger.Error("Document ID {DocumentID}: File {FileName} sending failed. Error status notes: {StatusNotes}. Moving to {FailedPath}.",
-                        documentId, file.Name, docMetadata.StatusNotes, failedPath);
-                    var filenameAfterMoving = file.SafeMoveTo(Path.Combine(failedPath, file.Name));
-                    await SaveResponseToFile(Path.Combine(failedPath, $"{Path.GetFileNameWithoutExtension(filenameAfterMoving)}.json"), await metadataResponse.Content.ReadAsStringAsync());
-                    documents.Remove(filename);
-                    tries.Remove(documentId);
-                }
-                else if (docMetadata.Status == "Delivered")
-                {
-                    _logger.Information("Document ID {DocumentID}: File {FileName} sent successfully. Moving to {SentPath}.", documentId, file.Name, sentPath);
-                    file.SafeMoveTo(Path.Combine(sentPath, $"{documentId}_{docMetadata.Status}_{file.Name}"));
-                    documents.Remove(filename);
-                    tries.Remove(documentId);
-                }
-                else if (tries[documentId] >= 10)
-                {
-                    _logger.Error("Document ID {DocumentID}: File {FileName} sending failed. The status was not updated (status was {Status}). Moving to {FailedPath}.",
-                        documentId, file.Name, docMetadata.Status, failedPath);
-                    file.SafeMoveTo(Path.Combine(failedPath, file.Name));
-                    documents.Remove(filename);
-                    tries.Remove(documentId);
-                }
-
-                await _localStorage.SetItemAsync("processingDocuments", documents);
-                await _localStorage.SetItemAsync("processingTries", tries);
-
-                _logger.Information("Finished processing the documents.");
             }
+            _logger.Information("Finished processing the documents.");
         }
 
         public async Task<ReceivedDocuments> ReceiveDocumentList()
         {
-            var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+            var apiUrl = Preferences.Get("apiUrl", string.Empty);
             var requestUrl = $"{apiUrl}public/v1/documents/received-list";
 
             _logger.Information("Fetching the list of received documents.\nRequest URL: {Url}", requestUrl);
@@ -197,7 +212,7 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public async Task<DownloadedDocument> DownloadDocument(string id)
         {
-            var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+            var apiUrl = Preferences.Get("apiUrl", string.Empty);
             var requestUrl = $"{apiUrl}public/v1/documents/{id}/content";
 
             _logger.Information("Downloading document ID {DocumentId}\nRequest URL: {Url}", id, requestUrl);
@@ -219,7 +234,7 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public async Task<HttpResponseMessage> ViewDocumentMetadata(string id)
         {
-            var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+            var apiUrl = Preferences.Get("apiUrl", string.Empty);
             var requestUrl = $"{apiUrl}public/v1/documents/{id}";
 
             _logger.Information("Fetching the metadata for document ID {DocumentId}\nRequest URL: {Url}", id, requestUrl);
@@ -241,7 +256,7 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public async Task ChangeReceivedDocumentStatus(string id)
         {
-            var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
+            var apiUrl = Preferences.Get("apiUrl", string.Empty);
             var requestUrl = $"{apiUrl}public/v1/documents/{id}/status/Received";
 
             _logger.Information("Changing status for document ID {DocumentId}\nRequest URL: {Url}", id, requestUrl);

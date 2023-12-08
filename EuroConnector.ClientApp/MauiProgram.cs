@@ -1,14 +1,11 @@
-﻿using Blazored.LocalStorage;
-using CommunityToolkit.Maui;
+﻿using CommunityToolkit.Maui;
 using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Data.Services;
 using EuroConnector.ClientApp.Providers;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.Extensions.Configuration;
 using MudBlazor;
 using MudBlazor.Services;
 using Serilog;
-using System.Reflection;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
 
 namespace EuroConnector.ClientApp;
@@ -19,9 +16,8 @@ public static class MauiProgram
     {
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Verbose()
-            .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+            .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Fatal)
             .MinimumLevel.Override("MudBlazor", Serilog.Events.LogEventLevel.Warning)
-            .MinimumLevel.Override("WindowsAppRuntime", Serilog.Events.LogEventLevel.Fatal)
             .Enrich.FromLogContext()
             .WriteTo.File(Path.Combine(AppContext.BaseDirectory, "logs", "log-.txt"), rollingInterval: RollingInterval.Day, shared: true)
             .CreateLogger();
@@ -40,8 +36,6 @@ public static class MauiProgram
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
-
-        builder.Services.AddBlazoredLocalStorage();
 
         builder.Services.AddMudServices(config =>
         {
@@ -62,7 +56,7 @@ public static class MauiProgram
         {
             var httpClient = new HttpClient().EnableIntercept(sp);
 
-            httpClient.DefaultRequestHeaders.Add("Client-App-Version", "1.0.0");
+            httpClient.DefaultRequestHeaders.Add("Client-App-Version", "1.2.0");
 
             return httpClient;
         });

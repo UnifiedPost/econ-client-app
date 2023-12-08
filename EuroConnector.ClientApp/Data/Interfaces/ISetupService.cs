@@ -5,13 +5,13 @@ namespace EuroConnector.ClientApp.Data.Interfaces
     public interface ISetupService
     {
         Task Login(LoginSettings properties);
-        Task Logout();
-        Task<LoginSettings> GetLoginSettings();
-        Task ApplyOutboxSettings(OutboxSettings settings);
-        Task ApplyInboxSettings(string path);
-        Task<OutboxSettings> GetOutboxSettings();
-        Task ClearSettings(IEnumerable<string> keysToClear);
+        void Logout();
+        LoginSettings GetLoginSettings();
+        void ApplyOutboxSettings(OutboxSettings settings);
+        void ApplyInboxSettings(string path);
+        OutboxSettings GetOutboxSettings();
+        void ClearSettings(IEnumerable<string> keysToClear);
         Task RefreshToken();
-        Task SetDefaultDirectories();
+        void SetDefaultDirectories();
     }
 }

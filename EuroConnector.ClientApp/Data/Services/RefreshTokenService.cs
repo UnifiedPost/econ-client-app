@@ -1,19 +1,15 @@
-﻿using Blazored.LocalStorage;
-using EuroConnector.ClientApp.Data.Interfaces;
-using EuroConnector.ClientApp.Helpers;
+﻿using EuroConnector.ClientApp.Data.Interfaces;
 using Serilog;
 
 namespace EuroConnector.ClientApp.Data.Services
 {
     public class RefreshTokenService : IRefreshTokenService
     {
-        private readonly ILocalStorageService _localStorage;
         private readonly ISetupService _setupService;
         private readonly ILogger _logger;
 
-        public RefreshTokenService(ILocalStorageService localStorage, ISetupService setupService, ILogger logger)
+        public RefreshTokenService(ISetupService setupService, ILogger logger)
         {
-            _localStorage = localStorage;
             _setupService = setupService;
             _logger = logger;
         }
@@ -22,14 +18,14 @@ namespace EuroConnector.ClientApp.Data.Services
         {
             try
             {
-                var expTime = await _localStorage.GetItemAsync<DateTime>("accessExpiration");
+                var expTime = Preferences.Get("accessExpiration", new DateTime());
 
                 var diff = expTime.ToUniversalTime() - DateTime.UtcNow;
                 if (diff.TotalMinutes <= 2) await _setupService.RefreshToken();
             }
             catch (Exception)
             {
-                await _setupService.ClearSettings(new[] { "accessToken", "accessExpiration", "refreshToken", "refreshExpiration" });
+                _setupService.ClearSettings(new[] { "accessToken", "accessExpiration", "refreshToken", "refreshExpiration" });
             }
         }
     }

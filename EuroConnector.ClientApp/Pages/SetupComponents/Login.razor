@@ -31,9 +31,9 @@
     MudForm form;
     LoginSettings properties = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        properties = await SetupService.GetLoginSettings();
+        properties = SetupService.GetLoginSettings();
     }
 
     private async Task OnSaveClicked()
@@ -54,13 +54,13 @@
         }
     }
 
-    private async Task OnClearClicked()
+    private void OnClearClicked()
     {
         Logger.Information("Logout clicked.");
 
         try
         {
-            await SetupService.Logout();
+            SetupService.Logout();
             Snackbar.Add("Logged out successfully.", Severity.Success);
             Logger.Information("Logged out successfully.");
         }

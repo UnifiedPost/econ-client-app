@@ -1,8 +1,5 @@
-﻿@using Blazored.LocalStorage;
-
-@inject ILogger Logger;
+﻿@inject ILogger Logger;
 @inject ISnackbar Snackbar;
-@inject ILocalStorageService LocalStorage;
 
 <div style="margin: 5px 0;">
     @if (Files is null || Files.Count() > 0)
@@ -43,9 +40,9 @@
 
     public List<FileInfo> Files { get; set; }
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
-        var path = await LocalStorage.GetItemAsync<string>(Path);
+        var path = Preferences.Get(Path, string.Empty);
 
         if (!string.IsNullOrEmpty(path)) SetFiles(path);
         else
@@ -55,9 +52,9 @@
         }
     }
 
-    public async Task RefreshFiles()
+    public void RefreshFiles()
     {
-        var path = await LocalStorage.GetItemAsync<string>(Path);
+        var path = Preferences.Get(Path, string.Empty);
         Logger.Information("Refresh clicked for path {Path}", path);
         SetFiles(path);
         StateHasChanged();
@@ -74,7 +71,6 @@
             return;
         }
 
-        // files = directory.GetFiles().ToList();
         Files = directory.EnumerateFiles("*", SearchOption.TopDirectoryOnly).ToList();
     }
 

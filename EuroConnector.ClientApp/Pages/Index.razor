@@ -1,13 +1,11 @@
 ﻿@page "/"
 @using System.Globalization;
-@using Blazored.LocalStorage;
 @using EuroConnector.ClientApp.Data.Interfaces;
 @using EuroConnector.ClientApp.Data.Models;
 @using EuroConnector.ClientApp.Data.Services;
 
 @implements IDisposable
 
-@inject ILocalStorageService LocalStorage;
 @inject IVersionService VersionService;
 @inject HttpInterceptorService Interceptor;
 @inject ILogger Logger;
@@ -26,7 +24,7 @@
         <MudText>API Version: @(apiVersion is null ? "Loading..." : apiVersion.Version)</MudText>
         <MudText>Release Date: @(apiVersion is null ? "Loading..." : apiVersion.ReleaseDate?.ToString("d") ?? "Error")</MudText>
         <MudText>@(apiVersion is null ? "" : apiVersion.Comment)</MudText>
-        <MudText>App Version: 1.1.8</MudText>
+        <MudText>App Version: 1.2.0</MudText>
     </div>
 </AuthorizeView>
 
@@ -44,7 +42,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        apiUrl = await LocalStorage.GetItemAsync<string>("apiUrl");
+        apiUrl = Preferences.Get("apiUrl", string.Empty);
 
         timer = new Timer(Tick, null, 0, 1000);
 

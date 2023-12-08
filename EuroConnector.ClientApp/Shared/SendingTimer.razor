@@ -1,9 +1,7 @@
-﻿@using Blazored.LocalStorage;
-@using System.Timers;
+﻿@using System.Timers;
 @using EuroConnector.ClientApp.Data.Interfaces;
 @implements IDisposable
 
-@inject ILocalStorageService LocalStorage;
 @inject ISnackbar Snackbar;
 @inject ILogger Logger;
 @inject IDocumentService DocumentService;
@@ -15,9 +13,9 @@
     [CascadingParameter]
     public Error Error { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        var sendDelay = await LocalStorage.GetItemAsync<int?>("sendDelay") ?? 10;
+        var sendDelay = Preferences.Get("sendDelay", 10);
 
         Timer.SetTimer(sendDelay);
         Timer.Timer.Elapsed += OnTimedEvent;
@@ -25,7 +23,7 @@
 
     private async void OnTimedEvent(object source, ElapsedEventArgs e)
     {
-        var outPath = await LocalStorage.GetItemAsync<string>("outboxPath");
+        var outPath = Preferences.Get("outboxPath", string.Empty);
         if (!string.IsNullOrEmpty(outPath))
         {
             var outDir = new DirectoryInfo(outPath);

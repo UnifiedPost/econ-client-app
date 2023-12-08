@@ -1,7 +1,4 @@
 ﻿@page "/inbox"
-@using Blazored.LocalStorage;
-
-@inject ILocalStorageService LocalStorage;
 
 @attribute [Authorize]
 
@@ -10,11 +7,11 @@
 <MudText>Documents will be downloaded to: @path</MudText>
 <ReceivedDocumentList/>
 
-@code {
+    @code {
     string path;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        path = await LocalStorage.GetItemAsync<string>("inboxPath");
+        path = Preferences.Get("inboxPath", string.Empty);
     }
 }

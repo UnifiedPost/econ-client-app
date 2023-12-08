@@ -1,7 +1,7 @@
-﻿@using Blazored.LocalStorage;
+﻿@using EuroConnector.ClientApp.Data.Interfaces
 
-@inject ILocalStorageService LocalStorage
 @inject AuthenticationProvider AuthProvider
+@inject ISetupService SetupService
 
 <Error>
 	<Router AppAssembly="@typeof(Main).Assembly">
@@ -23,17 +23,17 @@
 
 @code
 {
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
-		var refreshToken = await LocalStorage.GetItemAsync<string>("refreshToken");
-		var refreshExpiration = await LocalStorage.GetItemAsync<DateTime>("refreshExpiration");
+		var refreshToken = Preferences.Get("refreshToken", string.Empty);
+		var refreshExpiration = Preferences.Get("refreshExpiration", new DateTime());
 		if (!string.IsNullOrEmpty(refreshToken) && DateTime.UtcNow > refreshExpiration.ToUniversalTime())
 		{
 			AuthProvider.SignOut();
-			await LocalStorage.RemoveItemsAsync(new List<string> { "accessToken", "accessExpiration", "refreshToken", "refreshExpiration", "apiUrl" });
+			SetupService.ClearSettings(new[] { "accessToken", "accessExpiration", "refreshToken", "refreshExpiration", "apiUrl" });
 		}
 
-		var accessToken = await LocalStorage.GetItemAsync<string>("accessToken");
+		var accessToken = Preferences.Get("accessToken", string.Empty);
 		if (!string.IsNullOrEmpty(accessToken)) AuthProvider.SignIn(accessToken);
 	}
 }

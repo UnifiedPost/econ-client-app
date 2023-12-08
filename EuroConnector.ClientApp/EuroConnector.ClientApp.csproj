@@ -79,7 +79,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Blazored.LocalStorage" Version="4.4.0" />
 		<PackageReference Include="CommunityToolkit.Maui" Version="6.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authorization" Version="7.0.12" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="7.0.12" />

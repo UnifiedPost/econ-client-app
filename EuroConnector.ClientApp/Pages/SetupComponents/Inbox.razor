@@ -1,9 +1,7 @@
-﻿@using Blazored.LocalStorage;
-@using CommunityToolkit.Maui.Storage;
+﻿@using CommunityToolkit.Maui.Storage;
 @using EuroConnector.ClientApp.Data.Interfaces;
 
 @inject ISetupService SetupService;
-@inject ILocalStorageService LocalStorage;
 @inject ISnackbar Snackbar;
 @inject ILogger Logger;
 
@@ -33,10 +31,9 @@
     bool success;
     string inboxPath;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        inboxPath = await LocalStorage.GetItemAsync<string>("inboxPath");
-        if (string.IsNullOrEmpty(inboxPath)) inboxPath = "C:\\EuroConnector\\Inbox";
+        inboxPath = Preferences.Get("inboxPath", "C:\\EuroConnector\\Inbox");
     }
 
     private async Task BrowseClicked()
@@ -46,13 +43,13 @@
         if (folderPickerResult.IsSuccessful) inboxPath = folderPickerResult.Folder.Path;
     }
 
-    private async Task OnSaveClicked()
+    private void OnSaveClicked()
     {
         Logger.Information("Inbox save clicked.");
 
         try
         {
-            await SetupService.ApplyInboxSettings(inboxPath);
+            SetupService.ApplyInboxSettings(inboxPath);
         }
         catch (Exception ex)
         {
@@ -63,10 +60,10 @@
         Logger.Information("Inbox settings applied successfully.");
     }
 
-    private async Task OnClearClicked()
+    private void OnClearClicked()
     {
         Logger.Information("Inbox clear clicked.");
-        await SetupService.ClearSettings(new List<string> { "inboxPath" });
+        SetupService.ClearSettings(new[] { "inboxPath" });
         inboxPath = string.Empty;
 
         Snackbar.Add("Settings cleared successfully.", Severity.Success);
