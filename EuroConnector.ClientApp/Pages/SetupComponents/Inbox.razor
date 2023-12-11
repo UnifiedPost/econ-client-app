@@ -34,7 +34,7 @@
 
     protected override void OnInitialized()
     {
-        inboxPath = Preferences.Get("inboxPath", "C:\\EuroConnector\\Inbox", Assembly.GetExecutingAssembly().Location);
+        inboxPath = Preferences.Get("inboxPath", "C:\\Data\\EuroConnector\\Inbox", Assembly.GetExecutingAssembly().Location);
     }
 
     private async Task BrowseClicked()

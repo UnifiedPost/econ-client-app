@@ -115,9 +115,9 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public OutboxSettings GetOutboxSettings()
         {
-            var outboxPath = Preferences.Get("outboxPath", "C:\\EuroConnector\\Outbox", Assembly.GetExecutingAssembly().Location);
-            var sentPath = Preferences.Get("sentPath", "C:\\EuroConnector\\Sent", Assembly.GetExecutingAssembly().Location);
-            var failedPath = Preferences.Get("failedPath", "C:\\EuroConnector\\Failed", Assembly.GetExecutingAssembly().Location);
+            var outboxPath = Preferences.Get("outboxPath", "C:\\Data\\EuroConnector\\Outbox", Assembly.GetExecutingAssembly().Location);
+            var sentPath = Preferences.Get("sentPath", "C:\\Data\\EuroConnector\\Sent", Assembly.GetExecutingAssembly().Location);
+            var failedPath = Preferences.Get("failedPath", "C:\\Data\\EuroConnector\\Failed", Assembly.GetExecutingAssembly().Location);
 
             return new()
             {
@@ -153,10 +153,10 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public void SetDefaultDirectories()
         {
-            SetDefaultDirectory("outboxPath", "C:\\EuroConnector\\Outbox");
-            SetDefaultDirectory("sentPath", "C:\\EuroConnector\\Sent");
-            SetDefaultDirectory("failedPath", "C:\\EuroConnector\\Failed");
-            SetDefaultDirectory("inboxPath", "C:\\EuroConnector\\Inbox");
+            SetDefaultDirectory("outboxPath", "C:\\Data\\EuroConnector\\Outbox");
+            SetDefaultDirectory("sentPath", "C:\\Data\\EuroConnector\\Sent");
+            SetDefaultDirectory("failedPath", "C:\\Data\\EuroConnector\\Failed");
+            SetDefaultDirectory("inboxPath", "C:\\Data\\EuroConnector\\Inbox");
         }
 
         private void SetTokens(TokenResponse tokenResponse)
