@@ -129,8 +129,6 @@ namespace EuroConnector.ClientApp.Data.Services
 
         public async Task RefreshToken()
         {
-            //var refreshToken = await _localStorage.GetItemAsync<string>("refreshToken");
-            //var apiUrl = await _localStorage.GetItemAsync<string>("apiUrl");
             var refreshToken = Preferences.Get("refreshToken", string.Empty, Assembly.GetExecutingAssembly().Location);
             var apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
 

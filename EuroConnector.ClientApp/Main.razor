@@ -31,7 +31,7 @@
 		if (!string.IsNullOrEmpty(refreshToken) && DateTime.UtcNow > refreshExpiration.ToUniversalTime())
 		{
 			AuthProvider.SignOut();
-			SetupService.ClearSettings(new[] { "accessToken", "accessExpiration", "refreshToken", "refreshExpiration", "apiUrl" });
+			SetupService.ClearSettings(new[] { "accessToken", "accessExpiration", "refreshToken", "refreshExpiration" });
 		}
 
 		var accessToken = Preferences.Get("accessToken", string.Empty, Assembly.GetExecutingAssembly().Location);
