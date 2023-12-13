@@ -12,15 +12,11 @@ namespace EuroConnector.ClientApp.Helpers
             try
             {
                 var json = await response.Content.ReadAsStringAsync();
-                var options = new JsonSerializerOptions()
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
-                var error = JsonSerializer.Deserialize<Error>(json, options);
+                var error = JsonSerializer.Deserialize<Error>(json);
 
                 logMessage = $"{(string.IsNullOrEmpty(message) ? message + "\n" : "")}Trace ID: {error.TraceId}\n{error.StatusCode} - {error.Message}";
 
-                logger.Error(logMessage.Replace("\n", " - ") + "ResponseData:\n{ResponseJson}", json);
+                logger.Error(logMessage.Replace("\n", " - ") + "\nResponseData:\n{ResponseJson}", json);
             }
             catch (Exception)
             {

@@ -58,7 +58,8 @@ namespace EuroConnector.ClientApp.Data.Services
                     DocumentContent = Encoding.UTF8.GetBytes(fileContents),
                 };
 
-                _logger.Information("Sending document. File {FileName}.\nRequest URL: {Url}\nRequest Body: {Body}", file.Name, requestUrl, request.ToJsonString());
+                _logger.Information("Sending document. File {FileName}.", file.Name);
+                _logger.Information("POST {Url}\n{Body}", requestUrl, request.ToJsonString());
 
                 try
                 {
@@ -79,7 +80,9 @@ namespace EuroConnector.ClientApp.Data.Services
                     }
                     else
                     {
-                        _logger.Error("File {FileName} sending failed. Moving to {FailedPath}.", file.Name, failedPath);
+                        var error = await response.Content.ReadAsStringAsync();
+
+                        _logger.Error("File {FileName} sending failed. Moving to {FailedPath}.\nResponse data: {ResponseJson}", file.Name, failedPath, error);
                         file.SafeMoveTo(Path.Combine(failedPath, file.Name));
 
                         var message = await ResponseHelper.ProcessFailedRequest(response, _logger, $"File {file.Name} sending failed.");
@@ -88,7 +91,7 @@ namespace EuroConnector.ClientApp.Data.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, "File {FileName} sending failed. Moving to {FailedPath}.", file.Name, failedPath);
+                    _logger.Error(ex, "File {FileName} sending failed. Moving to {FailedPath}. {Message}", file.Name, failedPath, ex.Message);
                     file.SafeMoveTo(Path.Combine(failedPath, file.Name));
                     failed++;
                 }
@@ -195,7 +198,8 @@ namespace EuroConnector.ClientApp.Data.Services
             var apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
             var requestUrl = $"{apiUrl}public/v1/documents/received-list";
 
-            _logger.Information("Fetching the list of received documents.\nRequest URL: {Url}", requestUrl);
+            _logger.Information("Fetching the list of received documents.");
+            _logger.Information("GET {Url}", requestUrl);
 
             var response = await _httpClient.GetAsync(requestUrl);
 
@@ -216,7 +220,8 @@ namespace EuroConnector.ClientApp.Data.Services
             var apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
             var requestUrl = $"{apiUrl}public/v1/documents/{id}/content";
 
-            _logger.Information("Downloading document ID {DocumentId}\nRequest URL: {Url}", id, requestUrl);
+            _logger.Information("Downloading document ID {DocumentId}", id);
+            _logger.Information("GET {Url}", requestUrl);
 
             var response = await _httpClient.GetAsync(requestUrl);
 
@@ -238,7 +243,8 @@ namespace EuroConnector.ClientApp.Data.Services
             var apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
             var requestUrl = $"{apiUrl}public/v1/documents/{id}";
 
-            _logger.Information("Fetching the metadata for document ID {DocumentId}\nRequest URL: {Url}", id, requestUrl);
+            _logger.Information("Fetching the metadata for document ID {DocumentId}", id);
+            _logger.Information("GET {Url}", requestUrl);
 
             var response = await _httpClient.GetAsync(requestUrl);
 
@@ -260,7 +266,8 @@ namespace EuroConnector.ClientApp.Data.Services
             var apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
             var requestUrl = $"{apiUrl}public/v1/documents/{id}/status/Received";
 
-            _logger.Information("Changing status for document ID {DocumentId}\nRequest URL: {Url}", id, requestUrl);
+            _logger.Information("Changing status for document ID {DocumentId}", id);
+            _logger.Information("PUT {Url}", requestUrl);
 
             var response = await _httpClient.PutAsync(requestUrl, null);
 

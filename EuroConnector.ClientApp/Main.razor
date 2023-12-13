@@ -27,7 +27,7 @@
 	protected override void OnInitialized()
 	{
 		var refreshToken = Preferences.Get("refreshToken", string.Empty, Assembly.GetExecutingAssembly().Location);
-		var refreshExpiration = Preferences.Get("refreshExpiration", new DateTime());
+		var refreshExpiration = Preferences.Get("refreshExpiration", new DateTime(), Assembly.GetExecutingAssembly().Location);
 		if (!string.IsNullOrEmpty(refreshToken) && DateTime.UtcNow > refreshExpiration.ToUniversalTime())
 		{
 			AuthProvider.SignOut();
