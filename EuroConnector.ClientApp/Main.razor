@@ -3,6 +3,7 @@
 
 @inject AuthenticationProvider AuthProvider
 @inject ISetupService SetupService
+@inject ILogger Logger;
 
 <Error>
 	<Router AppAssembly="@typeof(Main).Assembly">
@@ -30,11 +31,13 @@
 		var refreshExpiration = Preferences.Get("refreshExpiration", new DateTime(), Assembly.GetExecutingAssembly().Location);
 		if (!string.IsNullOrEmpty(refreshToken) && DateTime.UtcNow > refreshExpiration.ToUniversalTime())
 		{
+			Logger.Information("Refresh token is expired.");
 			AuthProvider.SignOut();
 			SetupService.ClearSettings(new[] { "accessToken", "accessExpiration", "refreshToken", "refreshExpiration" });
 		}
 
 		var accessToken = Preferences.Get("accessToken", string.Empty, Assembly.GetExecutingAssembly().Location);
 		if (!string.IsNullOrEmpty(accessToken)) AuthProvider.SignIn(accessToken);
+		else SetupService.RefreshToken();
 	}
 }
