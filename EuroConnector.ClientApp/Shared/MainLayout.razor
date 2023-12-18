@@ -1,20 +1,42 @@
 ﻿@inherits LayoutComponentBase
 
 @inject ThemeProvider Theme;
+@inject ILogger Logger;
 
 <MudThemeProvider Theme="@Theme.Theme" IsDarkMode="false" />
 <MudDialogProvider />
 <MudSnackbarProvider Style="white-space: pre-line;"/>
 
-<AuthorizeView>
-	<SendingTimer />
-	<SendStatusCheck />
-</AuthorizeView>
+<ErrorBoundary @ref="errorBoundary">
+	<ChildContent>
+		<AuthorizeView>
+			<SendingTimer />
+			<SendStatusCheck />
+		</AuthorizeView>
 
-<MudDrawerContainer Class="page">
-	<NavMenu />
+		<MudDrawerContainer Class="page">
+			<NavMenu />
 
-	<MudMainContent Style="padding: 35px 20px 25px 30px">
-		@Body
-	</MudMainContent>
-</MudDrawerContainer>
+			<MudMainContent Style="padding: 35px 20px 25px 30px">
+				@Body
+			</MudMainContent>
+		</MudDrawerContainer>
+	</ChildContent>
+	<ErrorContent Context="ex">
+		@{ Logger.Error(ex, "An unhandled error has occured"); }
+		<div class="error">
+			<MudText Typo="Typo.h5">An unhandled error has occured. Check logs for more information.</MudText>
+			<EconButton OnClick="ResetError">Reload</EconButton>
+		</div>
+	</ErrorContent>
+</ErrorBoundary>
+
+@code
+{
+	ErrorBoundary errorBoundary;
+
+	void ResetError()
+	{
+		errorBoundary?.Recover();
+	}
+}
