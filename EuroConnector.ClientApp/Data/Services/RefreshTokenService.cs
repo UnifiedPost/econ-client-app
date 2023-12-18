@@ -19,7 +19,7 @@ namespace EuroConnector.ClientApp.Data.Services
             {
                 var expTime = Preferences.Get("accessExpiration", new DateTime(), Assembly.GetExecutingAssembly().Location);
 
-                var diff = expTime.ToUniversalTime() - DateTime.UtcNow;
+                var diff = expTime - DateTime.UtcNow;
                 if (diff.TotalMinutes <= 2) await _setupService.RefreshToken();
             }
             catch (Exception)

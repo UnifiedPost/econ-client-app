@@ -29,7 +29,7 @@
 	{
 		var refreshToken = Preferences.Get("refreshToken", string.Empty, Assembly.GetExecutingAssembly().Location);
 		var refreshExpiration = Preferences.Get("refreshExpiration", new DateTime(), Assembly.GetExecutingAssembly().Location);
-		if (!string.IsNullOrEmpty(refreshToken) && DateTime.UtcNow > refreshExpiration.ToUniversalTime())
+		if (!string.IsNullOrEmpty(refreshToken) && DateTime.UtcNow > refreshExpiration)
 		{
 			Logger.Information("Refresh token is expired.");
 			AuthProvider.SignOut();
