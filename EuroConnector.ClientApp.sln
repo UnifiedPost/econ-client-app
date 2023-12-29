@@ -4,6 +4,8 @@ VisualStudioVersion = 17.0.31611.283
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EuroConnector.ClientApp", "EuroConnector.ClientApp\EuroConnector.ClientApp.csproj", "{03662269-761D-4263-9A01-BE067B783EBB}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XsltTransformer", "XsltTransformer\XsltTransformer.csproj", "{90161384-373B-41A9-BA3A-C106DD0C21D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -16,6 +18,10 @@ Global
 		{03662269-761D-4263-9A01-BE067B783EBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03662269-761D-4263-9A01-BE067B783EBB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{03662269-761D-4263-9A01-BE067B783EBB}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{90161384-373B-41A9-BA3A-C106DD0C21D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90161384-373B-41A9-BA3A-C106DD0C21D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90161384-373B-41A9-BA3A-C106DD0C21D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90161384-373B-41A9-BA3A-C106DD0C21D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

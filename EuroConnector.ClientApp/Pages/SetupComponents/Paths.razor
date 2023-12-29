@@ -1,4 +1,4 @@
-﻿@using CommunityToolkit.Maui.Storage;
+@using CommunityToolkit.Maui.Storage;
 @using EuroConnector.ClientApp.Data.Interfaces;
 @using EuroConnector.ClientApp.Data.Models;
 
@@ -7,20 +7,24 @@
 @inject ILogger Logger;
 
 <div>
-    <MudText Typo="Typo.h5">Outbox Settings</MudText>
+    <MudText Typo="Typo.h5">Paths</MudText>
 
     <MudForm @ref="form" @bind-IsValid="success">
         <div class="browse">
-            <EconTextField T="string" @bind-Value="@settings.OutboxPath" Label="Outbox Spool Folder" Class="path-field" />
+            <EconTextField T="string" @bind-Value="@settings.OutboxPath" Label="Outbox Spool Directory" Class="path-field" />
             <EconButton OnClick='async () => await BrowseClicked("outbox")' Class="browse-button">Browse</EconButton>
         </div>
         <div class="browse">
-            <EconTextField T="string" @bind-Value="@settings.SentPath" Label="Sent Folder" Class="path-field" />
+            <EconTextField T="string" @bind-Value="@settings.SentPath" Label="Sent Directory" Class="path-field" />
             <EconButton OnClick='async () => await BrowseClicked("sent")' Class="browse-button">Browse</EconButton>
         </div>
         <div class="browse">
-            <EconTextField T="string" @bind-Value="@settings.FailedPath" Label="Failed Folder" Class="path-field" />
+            <EconTextField T="string" @bind-Value="@settings.FailedPath" Label="Failed Directory" Class="path-field" />
             <EconButton OnClick='async () => await BrowseClicked("failed")' Class="browse-button">Browse</EconButton>
+        </div>
+        <div class="browse">
+            <EconTextField T="string" @bind-Value="@settings.InboxPath" Label="Inbox Directory" Class="path-field" />
+            <EconButton OnClick='async () => await BrowseClicked("inbox")' Class="browse-button">Browse</EconButton>
         </div>
     </MudForm>
 
@@ -36,11 +40,11 @@
 
     MudForm form;
     bool success;
-    OutboxSettings settings = new();
+    PathsSettings settings = new();
 
     protected override void OnInitialized()
     {
-        settings = SetupService.GetOutboxSettings();
+        settings = SetupService.GetPathsSettings();
     }
 
     private async Task BrowseClicked(string field)
@@ -52,7 +56,7 @@
 
     private string GetPath(string field)
     {
-        switch(field)
+        switch (field)
         {
             case "outbox":
                 return settings.OutboxPath;
@@ -60,6 +64,8 @@
                 return settings.SentPath;
             case "failed":
                 return settings.FailedPath;
+            case "inbox":
+                return settings.InboxPath;
             default:
                 return "";
         }
@@ -78,6 +84,9 @@
             case "failed":
                 settings.FailedPath = path;
                 break;
+            case "inbox":
+                settings.InboxPath = path;
+                break;
             default:
                 break;
         }
@@ -89,24 +98,24 @@
 
         try
         {
-            SetupService.ApplyOutboxSettings(settings);
+            SetupService.ApplyPathsSettings(settings);
         }
         catch (Exception ex)
         {
             Error.ProcessError(ex);
         }
 
-        Snackbar.Add("Outbox settings applied successfully.", Severity.Success);
-        Logger.Information("Outbox settings applied successfully.");
+        Snackbar.Add("Settings applied successfully.", Severity.Success);
+        Logger.Information("Settings applied successfully.");
     }
 
     private void OnClearClicked()
     {
-        Logger.Information("Outbox clear clicked.");
-        SetupService.ClearSettings(new List<string> { "outboxPath", "sentPath", "failedPath" });
+        Logger.Information("Settings clear clicked.");
+        SetupService.ClearSettings(new List<string> { "outboxPath", "sentPath", "failedPath", "inboxPath" });
         settings = new();
 
         Snackbar.Add("Settings cleared successfully.", Severity.Success);
-        Logger.Information("Outbox settings cleared successfully.");
+        Logger.Information("Settings cleared successfully.");
     }
 }

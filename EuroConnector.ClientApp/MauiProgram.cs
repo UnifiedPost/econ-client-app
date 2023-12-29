@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
 using MudBlazor.Services;
 using Serilog;
+using System.Reflection;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
+using XsltTransformer;
 
 namespace EuroConnector.ClientApp;
 
@@ -14,12 +16,14 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        var appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Verbose()
             .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Fatal)
             .MinimumLevel.Override("MudBlazor", Serilog.Events.LogEventLevel.Warning)
             .Enrich.FromLogContext()
-            .WriteTo.File(Path.Combine(AppContext.BaseDirectory, "logs", "log-.txt"), rollingInterval: RollingInterval.Day, shared: true)
+            .WriteTo.File(Path.Combine(appPath, "logs", "log-.txt"), rollingInterval: RollingInterval.Day, shared: true)
             .CreateLogger();
 
         var builder = MauiApp.CreateBuilder();
@@ -68,12 +72,15 @@ public static class MauiProgram
         builder.Services.AddScoped<ThemeProvider>();
 
         builder.Services.AddSingleton<TimerProvider>();
+        builder.Services.AddSingleton<TransformationsTimerProvider>();
         builder.Services.AddSingleton<BackgroundProvider>();
 
         builder.Services.AddScoped<IVersionService, VersionService>();
         builder.Services.AddScoped<ISetupService, SetupService>();
         builder.Services.AddScoped<IDocumentService, DocumentService>();
+        builder.Services.AddScoped<ITransformationService, TransformationService>();
         builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        builder.Services.AddScoped<IXsltTransformer, XsltTransformer.XsltTransformer>();
         builder.Services.AddScoped<HttpInterceptorService>();
 
         builder.Services.AddSingleton(Log.Logger);

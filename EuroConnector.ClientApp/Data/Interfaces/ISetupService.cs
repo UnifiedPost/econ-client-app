@@ -7,9 +7,8 @@ namespace EuroConnector.ClientApp.Data.Interfaces
         Task Login(LoginSettings properties);
         void Logout();
         LoginSettings GetLoginSettings();
-        void ApplyOutboxSettings(OutboxSettings settings);
-        void ApplyInboxSettings(string path);
-        OutboxSettings GetOutboxSettings();
+        void ApplyPathsSettings(PathsSettings settings);
+        PathsSettings GetPathsSettings();
         void ClearSettings(IEnumerable<string> keysToClear);
         Task RefreshToken();
         void SetDefaultDirectories();

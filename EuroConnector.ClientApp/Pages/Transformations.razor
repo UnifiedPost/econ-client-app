@@ -1,0 +1,224 @@
+﻿@page "/transformations"
+@using CommunityToolkit.Maui.Storage
+@using EuroConnector.ClientApp.Data.Interfaces
+@using EuroConnector.ClientApp.Data.Models
+@using System.Reflection
+@using System.Text.Json
+
+@inject ILogger Logger;
+@inject ISnackbar Snackbar;
+@inject ITransformationService TransformationService;
+@inject TransformationsTimerProvider Timer;
+
+<div>
+    <MudText Typo="Typo.h3">Transformations</MudText>
+
+    <div class="margin: 5px 0;">
+        <div class="header-buttons">
+            <div class="button-group">
+                <EconButton OnClick="() => OpenForm()">Create</EconButton>
+            </div>
+            <MudTooltip Text="Settings">
+                <MudIconButton OnClick="@ToggleSettingsOpen" Icon="fa-solid fa-cog" Size="Size.Medium"></MudIconButton>
+                <MudPopover Open="@isSettingsOpen" AnchorOrigin="Origin.BottomLeft">
+                    <div style="padding: 5px;">
+                        <EconTextField T="int" InputType="InputType.Number" Style="width: 300px;"
+                                        Label="Time between transformations (mins)" @bind-Value="minsBetweenTransformations" />
+                        <div style="display: flex; flex-direction: row; gap: 5px;">
+                            <EconButton OnClick="SaveDelay">Save</EconButton>
+                            <EconButton OnClick="ToggleSettingsOpen">Close</EconButton>
+                        </div>
+                    </div>
+                </MudPopover>
+            </MudTooltip>
+        </div>
+    </div>
+    @if (transformations.Count() > 0)
+    {
+        <MudDataGrid Items="@transformations" Dense="true" ReadOnly="true" Elevation="4" HeaderClass="grid-header"
+                        RowsPerPage="10">
+            <Columns>
+                <PropertyColumn Property="x => x.XsltName" Title="XSLT Name" />
+                <PropertyColumn Property="x => x.SourcePath" Title="Source Path" />
+                <PropertyColumn Property="x => x.DestinationPath" Title="Destination Path" />
+                <TemplateColumn CellClass="button-cells">
+                    <CellTemplate>
+                        <MudTooltip Text="Edit">
+                            <MudIconButton Icon="fa-solid fa-edit" OnClick="() => OpenForm(context.Item)" Size="Size.Small" />
+                        </MudTooltip>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn CellStyle="button-cells">
+                    <CellTemplate>
+                        <MudTooltip Text="Delete">
+                            <MudIconButton Icon="fa-solid fa-trash" OnClick="() => DeleteTransformation(context.Item)" Size="Size.Small" />
+                        </MudTooltip>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+            <PagerContent>
+                <div class="grid-footer">
+                    <MudDataGridPager PageSizeOptions="@(new int[] {5, 10, 25} )" />
+                </div>
+            </PagerContent>
+        </MudDataGrid>
+    }
+    <div style="margin-top: 5px;">
+        <MudText>Total Transformations: @(transformations.Count())</MudText>
+        <div class="button-group">
+            <EconButton OnClick="@Transform">Transform</EconButton>
+        </div>
+    </div>
+
+    <MudDialog @bind-IsVisible="isFormOpen">
+        <DialogContent>
+            <EconSelect T="string" @bind-Value="formValues.XsltName" Label="XSLT Name" AnchorOrigin="Origin.BottomCenter">
+                @foreach (var file in xsltFiles)
+                {
+                    <MudSelectItem Value="@file.Name"/>
+                }
+            </EconSelect>
+            <div class="browse">
+                <EconTextField T="string" @bind-Value="@formValues.SourcePath" Label="Source Directory" Class="path-field" />
+                <EconButton OnClick='async () => await BrowseClicked("src")' Class="browse-button">Browse</EconButton>
+            </div>
+            <div class="browse">
+                <EconTextField T="string" @bind-Value="@formValues.DestinationPath" Label="Destination Directory" Class="path-field" />
+                <EconButton OnClick='async () => await BrowseClicked("dest")' Class="browse-button">Browse</EconButton>
+            </div>
+        </DialogContent>
+        <DialogActions>
+            <EconButton OnClick="SaveTransformation">Save</EconButton>
+            <EconButton OnClick="CloseForm">Close</EconButton>
+        </DialogActions>
+    </MudDialog>
+</div>
+
+@code {
+    List<Transformation> transformations = new();
+    bool isSettingsOpen = false;
+    bool isFormOpen = false;
+    int minsBetweenTransformations = 10;
+    Transformation formValues;
+    IEnumerable<FileInfo> xsltFiles;
+
+    protected override void OnInitialized()
+    {
+        LoadTransformations();
+
+        minsBetweenTransformations = Preferences.Get("transformationDelay", 10, Assembly.GetExecutingAssembly().Location);
+
+        var xsltDirectory = new DirectoryInfo("Transformations");
+        xsltFiles = xsltDirectory.EnumerateFiles();
+    }
+
+    private void LoadTransformations()
+    {
+        var transformationsStr = Preferences.Get("transformations", string.Empty, Assembly.GetExecutingAssembly().Location);
+        if (!string.IsNullOrEmpty(transformationsStr)) transformations = JsonSerializer.Deserialize<List<Transformation>>(transformationsStr);        
+    }
+
+    private void ToggleSettingsOpen() => isSettingsOpen ^= true; // invert the value
+
+    private void SaveDelay()
+    {
+        if (minsBetweenTransformations < 0) minsBetweenTransformations = 1;
+
+        Logger.Information("Setting automatic transformations timer to {Minutes} minutes", minsBetweenTransformations);
+
+        Preferences.Set("transformationDelay", minsBetweenTransformations, Assembly.GetExecutingAssembly().Location);
+        Timer.SetTimer(minsBetweenTransformations);
+
+        Logger.Information("Automatic transformations timer set to {Minutes} minutes.", minsBetweenTransformations);
+        Snackbar.Add($"Automatic transformations timer set to {minsBetweenTransformations} minutes.", Severity.Success);
+
+        isSettingsOpen = false;
+    }
+
+    private void OpenForm(Transformation transformation = null)
+    {
+        formValues = (Transformation)transformation?.Clone() ?? new();
+        isFormOpen = true;
+    }
+
+    private void CloseForm()
+    {
+        isFormOpen = false;
+        LoadTransformations();
+    }
+
+    private void Transform() => TransformationService.Transform();
+
+    private async Task BrowseClicked(string field)
+    {
+        var folderPickerResult = await FolderPicker.PickAsync(GetPath(field), CancellationToken.None);
+
+        if (folderPickerResult.IsSuccessful) SetPath(field, folderPickerResult.Folder.Path);
+    }
+
+    private string GetPath(string field)
+    {
+        switch (field)
+        {
+            case "src":
+                return formValues.SourcePath;
+            case "dest":
+                return formValues.DestinationPath;
+            default:
+                return "";
+        }
+    }
+
+    private void SetPath(string field, string path)
+    {
+        switch (field)
+        {
+            case "src":
+                formValues.SourcePath = path;
+                break;
+            case "dest":
+                formValues.DestinationPath = path;
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void SaveTransformation()
+    {
+        if (formValues.Id == 0)
+        {
+            if (transformations.Count() == 0)
+            {
+                formValues.Id = 1;
+            }
+            else
+            {
+                var item = transformations.MaxBy(x => x.Id);
+                formValues.Id = item.Id + 1;
+            }
+            transformations.Add(formValues);
+        }
+        else
+        {
+            var id = transformations.FindIndex(x => x.Id == formValues.Id);
+            transformations[id] = formValues;
+        }
+
+        SaveTransformations();
+        isFormOpen = false;
+    }
+
+    private void DeleteTransformation(Transformation transformation)
+    {
+        transformations.Remove(transformation);
+
+        SaveTransformations();
+    }
+
+    private void SaveTransformations()
+    {
+        var serialized = JsonSerializer.Serialize(transformations);
+        Preferences.Set("transformations", serialized, Assembly.GetExecutingAssembly().Location);
+    }
+}

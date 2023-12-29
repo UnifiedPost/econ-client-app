@@ -1,0 +1,45 @@
+﻿@using System.Timers;
+@using EuroConnector.ClientApp.Data.Interfaces;
+@using System.Reflection
+@implements IDisposable
+
+@inject ISnackbar Snackbar;
+@inject ILogger Logger;
+@inject ITransformationService TransformationService;
+@inject TransformationsTimerProvider Timer;
+
+@code {
+    [CascadingParameter]
+    public Error Error { get; set; }
+
+    protected override void OnInitialized()
+    {
+        var transformationDelay = Preferences.Get("transformationDelay", 10, Assembly.GetExecutingAssembly().Location);
+
+        Timer.SetTimer(transformationDelay);
+        Timer.Timer.Elapsed += OnTimedEvent;
+    }
+
+    private void OnTimedEvent(object source, ElapsedEventArgs e)
+    {
+        var transformations = Preferences.Get("transformations", string.Empty, Assembly.GetExecutingAssembly().Location);
+        if (string.IsNullOrEmpty(transformations)) return;
+
+        Snackbar.Add("Automatic transformation has started.", Severity.Info);
+        Logger.Information("Automatic transformation has started.");
+        try
+        {
+            TransformationService.Transform();
+            Logger.Information("Automatic transformation has finished.");
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    public void Dispose()
+    {
+        Timer.DisposeTimer();
+    }
+}

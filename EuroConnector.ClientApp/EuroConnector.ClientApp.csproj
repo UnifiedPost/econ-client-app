@@ -84,4 +84,15 @@
   <ItemGroup>
     <Folder Include="wwwroot\fontawesome\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XsltTransformer\XsltTransformer.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Transformations\BIS3-to-E_Invoice.xsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Transformations\E_Invoice-to-BIS3.xsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

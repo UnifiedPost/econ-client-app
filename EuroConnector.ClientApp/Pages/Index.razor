@@ -20,12 +20,15 @@
         <MudText Typo="Typo.h5">@currentTime</MudText>
     </div>
 
-    <div class="api-info">
-        <MudText>API URL: @apiUrl</MudText>
-        <MudText>API Version: @(apiVersion is null ? "Loading..." : apiVersion.Version)</MudText>
+    <div class="info">
+        <MudText><strong>App Version: 1.3.0</strong></MudText>
+    </div>
+
+    <div class="info">
+        <MudText><strong>Connected to Access Point API: @apiUrl</strong> </MudText>
+        <MudText>Version: @(apiVersion is null ? "Loading..." : apiVersion.Version)</MudText>
         <MudText>Release Date: @(apiVersion is null ? "Loading..." : apiVersion.ReleaseDate?.ToString("d") ?? "Error")</MudText>
         <MudText>@(apiVersion is null ? "" : apiVersion.Comment)</MudText>
-        <MudText>App Version: 1.3.0</MudText>
     </div>
 </AuthorizeView>
 

@@ -53,7 +53,7 @@
     [CascadingParameter]
     public Shared.Error Error { get; set; }
 
-    OutboxSettings settings = new();
+    PathsSettings settings = new();
     bool isOutboxSettingsOpen = false;
     bool sending = false;
     int minsBetweenSend = 10;
@@ -64,7 +64,7 @@
 
     protected override void OnInitialized()
     {
-        settings = SetupService.GetOutboxSettings();
+        settings = SetupService.GetPathsSettings();
         minsBetweenSend = Preferences.Get("sendDelay", 10, Assembly.GetExecutingAssembly().Location);
     }
 

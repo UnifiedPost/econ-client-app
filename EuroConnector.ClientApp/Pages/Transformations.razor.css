@@ -1,0 +1,50 @@
+﻿.header-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.path-field {
+    width: 340px;
+}
+
+.browse {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.browse-button {
+    height: 40px;
+    width: 100px;
+    margin-top: -4px;
+}
+
+::deep .grid-header {
+    background: var(--mud-palette-primary) !important;
+}
+
+.grid-footer {
+    background: var(--mud-palette-primary);
+    color: var(--mud-palette-primary-text);
+}
+::deep .mud-sort-index {
+    display: none;
+}
+
+::deep th.mud-table-cell, ::deep .mud-icon-root, ::deep .mud-input {
+    color: var(--mud-palette-primary-text) !important;
+}
+
+::deep .mud-table {
+    overflow: hidden;
+}
+
+.button-cells {
+    width: 25px;
+}
+
+::deep .mud-tooltip-root .mud-icon-root {
+    color: var(--mud-palette-action-default) !important;
+}

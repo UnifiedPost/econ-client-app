@@ -89,13 +89,14 @@ namespace EuroConnector.ClientApp.Data.Services
             }
         }
 
-        public void ApplyOutboxSettings(OutboxSettings settings)
+        public void ApplyPathsSettings(PathsSettings settings)
         {
             var success = true;
 
             success = success && SetPath(settings.OutboxPath, "outboxPath");
             success = success && SetPath(settings.SentPath, "sentPath");
             success = success && SetPath(settings.FailedPath, "failedPath");
+            success = success && SetPath(settings.InboxPath, "inboxPath");
 
             if (!success)
                 throw new Exception("At least one path was invalid. Check logs for more information.");
@@ -105,25 +106,19 @@ namespace EuroConnector.ClientApp.Data.Services
             if (!processingDir.Exists) processingDir.Create();
         }
 
-        public void ApplyInboxSettings(string path)
-        {
-            var success = SetPath(path, "inboxPath");
-
-            if (!success)
-                throw new Exception("At least one path was invalid. Check logs for more information.");
-        }
-
-        public OutboxSettings GetOutboxSettings()
+        public PathsSettings GetPathsSettings()
         {
             var outboxPath = Preferences.Get("outboxPath", "C:\\Data\\EuroConnector\\Outbox", Assembly.GetExecutingAssembly().Location);
             var sentPath = Preferences.Get("sentPath", "C:\\Data\\EuroConnector\\Sent", Assembly.GetExecutingAssembly().Location);
             var failedPath = Preferences.Get("failedPath", "C:\\Data\\EuroConnector\\Failed", Assembly.GetExecutingAssembly().Location);
+            var inboxPath = Preferences.Get("inboxPath", "C:\\Data\\EuroConnector\\Inbox", Assembly.GetExecutingAssembly().Location);
 
             return new()
             {
                 OutboxPath = outboxPath,
                 SentPath = sentPath,
                 FailedPath = failedPath,
+                InboxPath = inboxPath,
             };
         }
 

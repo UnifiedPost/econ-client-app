@@ -1,5 +1,7 @@
 ﻿@page "/setup"
 @using EuroConnector.ClientApp.Data.Interfaces
+@using EuroConnector.ClientApp.Pages.SetupComponents
+@using XsltTransformer
 
 @inject ISetupService SetupService
 
@@ -7,16 +9,12 @@
     <MudText Typo="Typo.h3">Setup</MudText>
 
     <div class="field-groups">
-        <EuroConnector.ClientApp.Pages.SetupComponents.Login/>
-        <EuroConnector.ClientApp.Pages.SetupComponents.Inbox/>
-        <EuroConnector.ClientApp.Pages.SetupComponents.Outbox/>
+        <Login/>
+        <Paths/>
     </div>
 </div>
 
 @code
 {
-    protected override void OnInitialized()
-    {
-        SetupService.SetDefaultDirectories();
-    }
+    protected override void OnInitialized() => SetupService.SetDefaultDirectories();
 }
