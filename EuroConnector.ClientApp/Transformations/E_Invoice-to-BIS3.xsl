@@ -650,12 +650,12 @@
 				<xsl:when test="normalize-space(InvoiceParties/BuyerParty/UniqueCode)='14069679' or normalize-space(InvoiceParties/BuyerParty/RegNumber)='14069679' or normalize-space(emk_BLOKK/emk_OwnerIK)='14069679' or normalize-space(InvoiceParties/BuyerParty/VATRegNumber)='14069679'"/>
 				<xsl:when test="emk_BLOKK/emk_AdrInx='9999FI' or emk_BLOKK/emk_AdrInx='tEAb'">
 					<xsl:choose>
-						<xsl:when test="normalize-space(InvoiceInformation/PaymentReferenceNumber) and fitek:ValidateReferenceNo(InvoiceInformation/PaymentReferenceNumber,InvoiceParties/SellerParty/AccountInfo[1]/AccountNumber)">
+						<xsl:when test="normalize-space(InvoiceInformation/PaymentReferenceNumber)">
 							<cbc:PaymentID>
 								<xsl:value-of select="InvoiceInformation/PaymentReferenceNumber"/>
 							</cbc:PaymentID>
 						</xsl:when>
-						<xsl:when test="normalize-space(PaymentInfo/PaymentRefId) and fitek:ValidateReferenceNo(PaymentInfo/PaymentRefId,InvoiceParties/SellerParty/AccountInfo[1]/AccountNumber)">
+						<xsl:when test="normalize-space(PaymentInfo/PaymentRefId)">
 							<cbc:PaymentID>
 								<xsl:value-of select="PaymentInfo/PaymentRefId"/>
 							</cbc:PaymentID>

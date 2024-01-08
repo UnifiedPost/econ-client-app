@@ -661,14 +661,10 @@
 			<xsl:variable name="refno">
 				<xsl:choose>
 					<xsl:when test="cac:PaymentMeans[1]/cbc:PaymentID">
-						<xsl:if test="fitek:ValidateReferenceNo(cac:PaymentMeans[1]/cbc:PaymentID,cac:PaymentMeans[1]/cac:PayeeFinancialAccount/cbc:id)">
-							<xsl:value-of select="cac:PaymentMeans[1]/cbc:PaymentID"/>
-						</xsl:if>
+						<xsl:value-of select="cac:PaymentMeans[1]/cbc:PaymentID"/>
 					</xsl:when>
 					<xsl:when test="cac:PaymentMeans[1]/cbc:InstructionID">
-						<xsl:if test="fitek:ValidateReferenceNo(cac:PaymentMeans[1]/cbc:InstructionID,cac:PaymentMeans[1]/cac:PayeeFinancialAccount/cbc:id)">
-							<xsl:value-of select="cac:PaymentMeans[1]/cbc:InstructionID"/>
-						</xsl:if>
+						<xsl:value-of select="cac:PaymentMeans[1]/cbc:InstructionID"/>
 					</xsl:when>
 				</xsl:choose>
 			</xsl:variable>
@@ -1094,14 +1090,10 @@
 			<xsl:variable name="refno">
 				<xsl:choose>
 					<xsl:when test="cac:PaymentMeans[1]/cbc:PaymentID">
-						<xsl:if test="fitek:ValidateReferenceNo(cac:PaymentMeans[1]/cbc:PaymentID,cac:PaymentMeans[1]/cac:PayeeFinancialAccount/cbc:ID)">
-							<xsl:value-of select="cac:PaymentMeans[1]/cbc:PaymentID"/>
-						</xsl:if>
+						<xsl:value-of select="cac:PaymentMeans[1]/cbc:PaymentID"/>
 					</xsl:when>
 					<xsl:when test="cac:PaymentMeans[1]/cbc:InstructionID">
-						<xsl:if test="fitek:ValidateReferenceNo(cac:PaymentMeans[1]/cbc:InstructionID,cac:PaymentMeans[1]/cac:PayeeFinancialAccount/cbc:ID)">
-							<xsl:value-of select="cac:PaymentMeans[1]/cbc:InstructionID"/>
-						</xsl:if>
+						<xsl:value-of select="cac:PaymentMeans[1]/cbc:InstructionID"/>
 					</xsl:when>
 				</xsl:choose>
 			</xsl:variable>

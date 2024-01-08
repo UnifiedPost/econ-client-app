@@ -1,5 +1,6 @@
 ﻿using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Data.Models;
+using EuroConnector.ClientApp.Extensions;
 using Serilog;
 using System.Reflection;
 using System.Text.Json;
@@ -12,14 +13,16 @@ namespace EuroConnector.ClientApp.Data.Services
         private readonly IXsltTransformer _xsltTransformer;
         private readonly ILogger _logger;
 
-        public TransformationService(IXsltTransformer xsltTransformer)
+        public TransformationService(IXsltTransformer xsltTransformer, ILogger logger)
         {
             _xsltTransformer = xsltTransformer;
+            _logger = logger;
         }
 
         public void Transform()
         {
             var transformationsStr = Preferences.Get("transformations", string.Empty, Assembly.GetExecutingAssembly().Location);
+            var failedPath = Preferences.Get("failedPath", "C:\\Data\\EuroConnector\\Failed", Assembly.GetExecutingAssembly().Location);
 
             if (string.IsNullOrEmpty(transformationsStr)) return;
 
@@ -35,7 +38,7 @@ namespace EuroConnector.ClientApp.Data.Services
 
                 foreach (var file in files)
                 {
-                    _logger.Information("Transforming file {Filename}", file.Name);
+                    _logger.Information("Transforming file {Filename}", file.FullName);
 
                     try
                     {
@@ -47,6 +50,8 @@ namespace EuroConnector.ClientApp.Data.Services
                     catch (Exception ex)
                     {
                         _logger.Error(ex, "An error occured while transforming {Filename} with {Xslt}", file.Name, transformation.XsltName);
+                        file.SafeMoveTo(Path.Combine(failedPath, file.Name));
+                        File.WriteAllText(Path.Combine(failedPath, $"{file.Name}.txt"), ex.Message);
                     }
                 }
             }
