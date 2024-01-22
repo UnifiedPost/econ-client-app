@@ -1,6 +1,7 @@
 ﻿using EuroConnector.ClientApp.Data.Interfaces;
 using EuroConnector.ClientApp.Data.Models;
 using EuroConnector.ClientApp.Extensions;
+using EuroConnector.ClientApp.Helpers;
 using Serilog;
 using System.Reflection;
 using System.Text.Json;
@@ -43,9 +44,12 @@ namespace EuroConnector.ClientApp.Data.Services
                     try
                     {
                         var xml = File.ReadAllText(file.FullName);
+
+                        if (!xml.IsXmlContent()) xml = $"<Invoice>{xml}</Invoice>";
+
                         var result = _xsltTransformer.Transform(xslt, xml);
 
-                        File.WriteAllText(Path.Combine(transformation.DestinationPath, file.Name), result);
+                        File.WriteAllText(Path.Combine(transformation.DestinationPath, $"{Path.GetFileNameWithoutExtension(file.Name)}.xml"), result);
                     }
                     catch (Exception ex)
                     {
