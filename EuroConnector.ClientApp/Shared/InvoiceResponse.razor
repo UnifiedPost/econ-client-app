@@ -36,6 +36,12 @@
     private async Task Send()
     {
         message = string.Empty;
+        if (string.IsNullOrEmpty(responseCode))
+        {
+            message = "Response Code is required.";
+            return;
+        }
+
         if ((responseCode == "UQ" || responseCode == "CA" || responseCode == "AP") && string.IsNullOrEmpty(description))
         {
             message = "Description is required with the selected response code.";

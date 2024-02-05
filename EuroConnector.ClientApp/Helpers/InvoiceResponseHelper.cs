@@ -1,4 +1,5 @@
 ﻿using EuroConnector.ClientApp.Data.Models;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace EuroConnector.ClientApp.Helpers
@@ -63,9 +64,9 @@ namespace EuroConnector.ClientApp.Helpers
             var ns = new XmlSerializerNamespaces();
             ns.Add("cac", "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2");
             ns.Add("cbc", "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2");
-            var serializer = new XmlSerializer(typeof(ApplicationResponse));
+            var serializer = new XmlSerializer(typeof(ApplicationResponse), "urn:oasis:names:specification:ubl:schema:xsd:ApplicationResponse-2");
 
-            using var textWriter = new StringWriter();
+            using var textWriter = new Utf8StringWriter();
             serializer.Serialize(textWriter, invoiceResponse, ns);
 
             return textWriter.ToString();
