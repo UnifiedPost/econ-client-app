@@ -2,6 +2,6 @@
 {
 	public interface IXsltTransformer
 	{
-		string Transform(string xsl, string xml);
+		string Transform(string xsl, string xml, Dictionary<string, string>? parameters = null);
 	}
 }

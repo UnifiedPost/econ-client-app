@@ -5,10 +5,9 @@
 
 <MudText Typo="Typo.h3">Inbox</MudText>
 
-<MudText>Documents will be downloaded to: @path</MudText>
-<ReceivedDocumentList/>
+<DocumentSearchList FolderName="inbox" LocalPath="@path"/>
 
-    @code {
+ @code {
     string path;
 
     protected override void OnInitialized()

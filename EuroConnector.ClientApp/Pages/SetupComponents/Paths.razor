@@ -11,20 +11,20 @@
 
     <MudForm @ref="form" @bind-IsValid="success">
         <div class="browse">
-            <EconTextField T="string" @bind-Value="@settings.OutboxPath" Label="Outbox Spool Directory" Class="path-field" />
+            <EconTextField T="string" @bind-Value="@settings.OutboxSpoolPath" Label="Outbox Spool Directory" Class="path-field" />
+            <EconButton OnClick='async () => await BrowseClicked("outboxSpool")' Class="browse-button">Browse</EconButton>
+        </div>
+        <div class="browse">
+            <EconTextField T="string" @bind-Value="@settings.OutboxPath" Label="Outbox Directory" Class="path-field" />
             <EconButton OnClick='async () => await BrowseClicked("outbox")' Class="browse-button">Browse</EconButton>
-        </div>
-        <div class="browse">
-            <EconTextField T="string" @bind-Value="@settings.SentPath" Label="Sent Directory" Class="path-field" />
-            <EconButton OnClick='async () => await BrowseClicked("sent")' Class="browse-button">Browse</EconButton>
-        </div>
-        <div class="browse">
-            <EconTextField T="string" @bind-Value="@settings.FailedPath" Label="Failed Directory" Class="path-field" />
-            <EconButton OnClick='async () => await BrowseClicked("failed")' Class="browse-button">Browse</EconButton>
         </div>
         <div class="browse">
             <EconTextField T="string" @bind-Value="@settings.InboxPath" Label="Inbox Directory" Class="path-field" />
             <EconButton OnClick='async () => await BrowseClicked("inbox")' Class="browse-button">Browse</EconButton>
+        </div>
+        <div class="browse">
+            <EconTextField T="string" @bind-Value="@settings.FailedPath" Label="Failed Directory" Class="path-field" />
+            <EconButton OnClick='async () => await BrowseClicked("failed")' Class="browse-button">Browse</EconButton>
         </div>
     </MudForm>
 
@@ -60,12 +60,12 @@
         {
             case "outbox":
                 return settings.OutboxPath;
-            case "sent":
-                return settings.SentPath;
-            case "failed":
-                return settings.FailedPath;
+            case "outboxSpool":
+                return settings.OutboxSpoolPath;
             case "inbox":
                 return settings.InboxPath;
+            case "failed":
+                return settings.FailedPath;
             default:
                 return "";
         }
@@ -78,14 +78,14 @@
             case "outbox":
                 settings.OutboxPath = path;
                 break;
-            case "sent":
-                settings.SentPath = path;
-                break;
-            case "failed":
-                settings.FailedPath = path;
+            case "outboxSpool":
+                settings.OutboxSpoolPath = path;
                 break;
             case "inbox":
                 settings.InboxPath = path;
+                break;
+            case "failed":
+                settings.FailedPath = path;
                 break;
             default:
                 break;
@@ -112,7 +112,7 @@
     private void OnClearClicked()
     {
         Logger.Information("Settings clear clicked.");
-        SetupService.ClearSettings(new List<string> { "outboxPath", "sentPath", "failedPath", "inboxPath" });
+        SetupService.ClearSettings(new List<string> { "outboxSpoolPath", "outboxPath", "inboxPath" });
         settings = new();
 
         Snackbar.Add("Settings cleared successfully.", Severity.Success);

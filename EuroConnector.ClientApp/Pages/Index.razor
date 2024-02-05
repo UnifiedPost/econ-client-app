@@ -21,14 +21,15 @@
     </div>
 
     <div class="info">
-        <MudText><strong>App Version: 2.0.0</strong></MudText>
+        <MudText><strong>App Version: 2.0.0-dev</strong></MudText>
     </div>
 
     <div class="info">
-        <MudText><strong>Connected to Access Point API: @apiUrl</strong> </MudText>
+        <MudText><strong>Connected to the Access Point API:</strong> </MudText>
+        <MudText>URL: @apiUrl</MudText>
         <MudText>Version: @(apiVersion is null ? "Loading..." : apiVersion.Version)</MudText>
         <MudText>Release Date: @(apiVersion is null ? "Loading..." : apiVersion.ReleaseDate?.ToString("d") ?? "Error")</MudText>
-        <MudText>@(apiVersion is null ? "" : apiVersion.Comment)</MudText>
+        <MudText>Comment: @(apiVersion is null ? "" : apiVersion.Comment)</MudText>
     </div>
 </AuthorizeView>
 

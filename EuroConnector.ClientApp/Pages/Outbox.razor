@@ -1,122 +1,17 @@
 ﻿@page "/outbox"
-@using EuroConnector.ClientApp.Data.Interfaces;
-@using EuroConnector.ClientApp.Data.Models;
 @using System.Reflection
-
-@inject ISetupService SetupService;
-@inject IDocumentService DocumentService;
-@inject ISnackbar Snackbar;
-@inject ILogger Logger;
-@inject TimerProvider Timer;
 
 @attribute [Authorize]
 
 <MudText Typo="Typo.h3">Outbox</MudText>
 
-<MudText Typo="Typo.h5">Outbox Spool</MudText>
-<MudText>Path: @settings.OutboxPath</MudText>
-<div class="outbox-spool-buttons">
-    <div class="button-group">
-        <EconButton OnClick="@AddDocuments" Disabled="sending">Add Documents</EconButton>
-        <EconButton OnClick="@SendDocuments" Disabled="sending">Send Documents</EconButton>
-    </div>
-    <MudTooltip Text="Outbox Settings">
-        <MudIconButton OnClick="@ToggleOutboxSettingsOpen" Icon="fa-solid fa-cog" Size="Size.Medium"></MudIconButton>
-        <MudPopover Open="@isOutboxSettingsOpen" AnchorOrigin="Origin.BottomLeft">
-            <div style="padding: 5px;">
-                <EconTextField T="int" InputType="InputType.Number" Style="width: 300px;"
-                    Label="Minutes between sending documents" @bind-Value="minsBetweenSend"/>
-                <div style="display: flex; flex-direction: row; gap: 5px;">
-                    <EconButton OnClick="SaveOutboxDelay">Save</EconButton>
-                    <EconButton OnClick="ToggleOutboxSettingsOpen">Close</EconButton>
-                </div>
-            </div>
-        </MudPopover>
-    </MudTooltip>
-</div>
-<FileList @ref="outbox" Path="outboxPath" Name="Outbox" Loading="sending"/>
+<DocumentSearchList FolderName="outbox" LocalPath="@path"/>
 
-<MudDivider />
-
-<MudText Typo="Typo.h5" style="margin-top: 10px;">Sent</MudText>
-<MudText>Path: @settings.SentPath</MudText>
-<FileList @ref="sent" Path="sentPath" Name="Sent" />
-
-<MudDivider />
-
-<MudText Typo="Typo.h5" style="margin-top: 10px;">Failed</MudText>
-<MudText>Path: @settings.FailedPath</MudText>
-<FileList @ref="failed" Path="failedPath" Name="Failed" SearchPattern="*.xml"/>
-
-
-    @code {
-    [CascadingParameter]
-    public Shared.Error Error { get; set; }
-
-    PathsSettings settings = new();
-    bool isOutboxSettingsOpen = false;
-    bool sending = false;
-    int minsBetweenSend = 10;
-
-    FileList outbox;
-    FileList sent;
-    FileList failed;
+@code {
+    string path;
 
     protected override void OnInitialized()
     {
-        settings = SetupService.GetPathsSettings();
-        minsBetweenSend = Preferences.Get("sendDelay", 10, Assembly.GetExecutingAssembly().Location);
-    }
-
-    private void ToggleOutboxSettingsOpen() => isOutboxSettingsOpen ^= true; // invert the value
-
-    private void SaveOutboxDelay()
-    {
-        if (minsBetweenSend < 0) minsBetweenSend = 1;
-
-        Logger.Information("Setting automatic sending timer to {Minutes} minutes", minsBetweenSend);
-
-        Preferences.Set("sendDelay", minsBetweenSend, Assembly.GetExecutingAssembly().Location);
-        Timer.SetTimer(minsBetweenSend);
-
-        Logger.Information("Automatic sending timer set to {Minutes} minutes.", minsBetweenSend);
-        Snackbar.Add($"Automatic sending timer set to {minsBetweenSend} minutes.", Severity.Success);
-
-        isOutboxSettingsOpen = false;
-    }
-
-    private async Task SendDocuments()
-    {
-        sending = true;
-        try
-        {
-            await DocumentService.SendDocuments();
-            Snackbar.Add("All documents were put into processing successfully.\nOnce processed, they will be moved into Sent or Failed directory. (will require a manual refresh)", Severity.Info);
-        }
-        catch (Exception ex)
-        {
-            Error.ProcessError(ex);
-        }
-        finally
-        {
-            sending = false;
-
-            outbox.RefreshFiles();
-        }
-    }
-
-    private async Task AddDocuments()
-    {
-        var outboxPath = Preferences.Get("outboxPath", string.Empty, Assembly.GetExecutingAssembly().Location);
-        var outboxDir = new DirectoryInfo(outboxPath);
-        var filePickerResults = await FilePicker.PickMultipleAsync();
-
-        foreach (var fileResult in filePickerResults)
-        {
-            var file = new FileInfo(fileResult.FullPath);
-            FileHelper.SafeCopy(outboxDir, file);
-        }
-
-        outbox.RefreshFiles();
+        path = Preferences.Get("outboxPath", string.Empty, Assembly.GetExecutingAssembly().Location);
     }
 }

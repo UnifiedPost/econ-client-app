@@ -5,6 +5,7 @@ using EuroConnector.ClientApp.Helpers;
 using Serilog;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using XsltTransformer;
 
 namespace EuroConnector.ClientApp.Data.Services
@@ -23,7 +24,7 @@ namespace EuroConnector.ClientApp.Data.Services
         public void Transform()
         {
             var transformationsStr = Preferences.Get("transformations", string.Empty, Assembly.GetExecutingAssembly().Location);
-            var failedPath = Preferences.Get("failedPath", "C:\\Data\\EuroConnector\\Failed", Assembly.GetExecutingAssembly().Location);
+            var failedPath = Preferences.Get("failedPath", string.Empty, Assembly.GetExecutingAssembly().Location);
 
             if (string.IsNullOrEmpty(transformationsStr)) return;
 
@@ -45,17 +46,23 @@ namespace EuroConnector.ClientApp.Data.Services
                     {
                         var xml = File.ReadAllText(file.FullName);
 
-                        if (!xml.IsXmlContent()) xml = $"<Invoice>{xml}</Invoice>";
+                        if (!xml.IsXmlContent()) xml = $"<root>{xml}</root>";
 
-                        var result = _xsltTransformer.Transform(xslt, xml);
+                        var parameters = new Dictionary<string, string>();
+                        if (transformation.XsltName == "CSV_to_BIS3.XSL" || file.FullName.EndsWith("csv"))
+                        {
+                            parameters.Add("csv-uri", $"file:///{file.FullName.Replace(@"\", "/")}");
+                        }
+
+                        var result = _xsltTransformer.Transform(xslt, xml, parameters);
 
                         File.WriteAllText(Path.Combine(transformation.DestinationPath, $"{Path.GetFileNameWithoutExtension(file.Name)}.xml"), result);
+                        file.Delete();
                     }
                     catch (Exception ex)
                     {
                         _logger.Error(ex, "An error occured while transforming {Filename} with {Xslt}", file.Name, transformation.XsltName);
                         file.SafeMoveTo(Path.Combine(failedPath, file.Name));
-                        File.WriteAllText(Path.Combine(failedPath, $"{file.Name}.txt"), ex.Message);
                     }
                 }
             }

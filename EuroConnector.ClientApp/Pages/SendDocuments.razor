@@ -1,0 +1,115 @@
+﻿@page "/send-documents"
+@using EuroConnector.ClientApp.Data.Interfaces;
+@using EuroConnector.ClientApp.Data.Models;
+@using System.Reflection
+
+@inject ISetupService SetupService;
+@inject IDocumentService DocumentService;
+@inject ISnackbar Snackbar;
+@inject ILogger Logger;
+@inject TimerProvider Timer;
+
+@attribute [Authorize]
+
+<MudText Typo="Typo.h3">Send Documents</MudText>
+
+<MudText Typo="Typo.h5">Outbox Spool</MudText>
+<MudText>Path: @settings.OutboxSpoolPath</MudText>
+<div class="outbox-spool-buttons">
+    <div class="button-group">
+        <EconButton OnClick="@AddDocumentsToSpool">Add Documents</EconButton>
+        <EconButton OnClick="@SendDocumentsFromSpool">Send Documents</EconButton>
+    </div>
+    <MudTooltip Text="Outbox Settings">
+        <MudIconButton OnClick="@ToggleOutboxSettingsOpen" Icon="fa-solid fa-cog" Size="Size.Medium"></MudIconButton>
+        <MudPopover Open="@isOutboxSettingsOpen" AnchorOrigin="Origin.BottomLeft">
+            <div style="padding: 5px;">
+                <EconTextField T="int" InputType="InputType.Number" Style="width: 300px;"
+                    Label="Minutes between sending documents" @bind-Value="minsBetweenSend"/>
+                <div style="display: flex; flex-direction: row; gap: 5px;">
+                    <EconButton OnClick="SaveOutboxDelay">Save</EconButton>
+                    <EconButton OnClick="ToggleOutboxSettingsOpen">Close</EconButton>
+                </div>
+            </div>
+        </MudPopover>
+    </MudTooltip>
+</div>
+<FileList @ref="outboxSpool" Path="outboxSpoolPath" Name="Outbox Spool"/>
+
+<MudDivider />
+
+<MudText Typo="Typo.h5" style="margin-top: 10px;">Outbox</MudText>
+<MudText>Path: @settings.OutboxPath</MudText>
+<FileList @ref="outbox" Path="outboxPath" Name="Outbox" />
+
+@code {
+    [CascadingParameter]
+    public Shared.Error Error { get; set; }
+
+    PathsSettings settings = new();
+    bool isOutboxSettingsOpen = false;
+    // bool sending = false;
+    int minsBetweenSend = 10;
+
+    FileList outbox;
+    FileList outboxSpool;
+
+    protected override void OnInitialized()
+    {
+        settings = SetupService.GetPathsSettings();
+        minsBetweenSend = Preferences.Get("sendDelay", 10, Assembly.GetExecutingAssembly().Location);
+    }
+
+    private void ToggleOutboxSettingsOpen() => isOutboxSettingsOpen ^= true; // invert the value
+
+    private void SaveOutboxDelay()
+    {
+        if (minsBetweenSend < 0) minsBetweenSend = 1;
+
+        Logger.Information("Setting automatic sending timer to {Minutes} minutes", minsBetweenSend);
+
+        Preferences.Set("sendDelay", minsBetweenSend, Assembly.GetExecutingAssembly().Location);
+        Timer.SetTimer(minsBetweenSend);
+
+        Logger.Information("Automatic sending timer set to {Minutes} minutes.", minsBetweenSend);
+        Snackbar.Add($"Automatic sending timer set to {minsBetweenSend} minutes.", Severity.Success);
+
+        isOutboxSettingsOpen = false;
+    }
+
+    // TODO: do something about this
+    private async Task SendDocumentsFromSpool()
+    {
+        // sending = true;
+        try
+        {
+            await DocumentService.SendDocuments();
+            Snackbar.Add("All documents were put into processing successfully.\nOnce processed, they will be moved into Sent or Failed directory. (will require a manual refresh)", Severity.Info);
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+        finally
+        {
+            // sending = false;
+
+            outbox.RefreshFiles();
+        }
+    }
+
+    private async Task AddDocumentsToSpool()
+    {
+        var outboxSpoolPath = Preferences.Get("outboxSpoolPath", string.Empty, Assembly.GetExecutingAssembly().Location);
+        var outboxSpoolDir = new DirectoryInfo(outboxSpoolPath);
+        var filePickerResults = await FilePicker.PickMultipleAsync();
+
+        foreach (var fileResult in filePickerResults)
+        {
+            var file = new FileInfo(fileResult.FullPath);
+            FileHelper.SafeCopy(outboxSpoolDir, file);
+        }
+
+        outbox.RefreshFiles();
+    }
+}
