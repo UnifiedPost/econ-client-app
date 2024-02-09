@@ -73,9 +73,9 @@
                             </MudTooltip>
                             @if (FolderName == "inbox")
                             {
-                                <MudTooltip Text="Message Level Response">
+                                @* <MudTooltip Text="Message Level Response">
                                     <MudIconButton Icon="fa-solid fa-file-lines" OnClick="() => {}" Size="Size.Small" Disabled="@(context.Item.DocumentType != "Invoice" && context.Item.DocumentType != "CreditNote")" />
-                                </MudTooltip>
+                                </MudTooltip> *@
                                 <MudTooltip Text="Invoice Response">
                                     <MudIconButton Icon="fa-solid fa-file-invoice" OnClick="() => OpenInvoiceResponse(context.Item)" Size="Size.Small"
                                         Disabled="@(context.Item.DocumentType != "Invoice" && context.Item.DocumentType != "CreditNote")"/>
