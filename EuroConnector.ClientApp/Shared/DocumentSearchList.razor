@@ -32,12 +32,12 @@
                         <EconTextField Label="Receiver Entity Code" @bind-Value="filters.RecipientEntityCode" />
                         <EconTextField Label="Receiver VAT Number" @bind-Value="filters.RecipientVatNumber" />
                         <div class="date-range">
-                            <EconDatePicker Label="Created From" Date="createdFrom" @bind-Value="createdFrom"/>
-                            <EconDatePicker Label="Created To" Date="createdTo" @bind-Value="createdTo"/>
+                            <EconDatePicker Label="Created From" @bind-Date="createdFrom"/>
+                            <EconDatePicker Label="Created To" @bind-Date="createdTo"/>
                         </div>
                         <div class="date-range">
-                            <EconDatePicker Label="Updated From" Date="updatedFrom" @bind-Value="updatedFrom"/>
-                            <EconDatePicker Label="Updated To" Date="updatedTo" @bind-Value="updatedTo"/>
+                            <EconDatePicker Label="Updated From" @bind-Date="updatedFrom"/>
+                            <EconDatePicker Label="Updated To" @bind-Date="updatedTo"/>
                         </div>
                         <EconTextField Label="Document Reference" @bind-Value="filters.DocumentReference" />
                         <EconTextField Label="Receiver Entity Code" @bind-Value="filters.RecipientEntityCode" />
@@ -153,8 +153,8 @@
 
     private void SetDefaultFilters()
     {
-        createdFrom = DateTime.Today.AddDays(-10);
-        createdTo = DateTime.Today.AddDays(1).AddSeconds(-1);
+        createdFrom = DateTime.Today.ToUniversalTime().AddDays(-10);
+        createdTo = DateTime.UtcNow;
         updatedFrom = null;
         updatedTo = null;
 
@@ -170,11 +170,12 @@
     {
         isFiltersPopoverOpen = false;
 
-        if (createdTo is not null && createdTo.Value.Hour == 0) createdTo = createdTo.Value.AddDays(1).AddSeconds(-1);
-        if (updatedTo is not null && updatedTo.Value.Hour == 0) updatedTo = updatedTo.Value.AddDays(1).AddSeconds(-1);
 
-        filters.CreatedBetween = new List<DateTime?>() { createdFrom, createdTo };
-        filters.UpdatedBetween = new List<DateTime?>() { updatedFrom, updatedTo };
+        filters.CreatedBetween = new List<DateTime?>() { createdFrom?.ToUniversalTime(), createdTo?.ToUniversalTime() };
+        if (filters.CreatedBetween.All(x => x is null)) filters.CreatedBetween = null;
+
+        filters.UpdatedBetween = new List<DateTime?>() { updatedFrom?.ToUniversalTime(), updatedTo?.ToUniversalTime() };
+        if (filters.UpdatedBetween.All(x => x is null)) filters.UpdatedBetween = null;
 
         await GetDocuments();
     }

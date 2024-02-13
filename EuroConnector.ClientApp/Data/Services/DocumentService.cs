@@ -166,8 +166,9 @@ namespace EuroConnector.ClientApp.Data.Services
 
             _logger.Information("Fetching the list of documents in {FolderName} folder.", request.FolderName);
             _logger.Information("POST {Url}\n{Body}", requestUrl, request.ToJsonString());
-            
-            var response = await _httpClient.PostAsync(requestUrl, JsonContent.Create(request));
+
+            var body = JsonContent.Create(request);
+            var response = await _httpClient.PostAsync(requestUrl, body);
 
             if (!response.IsSuccessStatusCode)
             {

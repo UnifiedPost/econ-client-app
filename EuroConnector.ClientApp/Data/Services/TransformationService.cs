@@ -42,27 +42,34 @@ namespace EuroConnector.ClientApp.Data.Services
                 {
                     _logger.Information("Transforming file {Filename}", file.FullName);
 
+                    var filename = file.FullName;
+                    if (Regex.IsMatch(file.Name, @"\s+"))
+                    {
+                        filename = Regex.Replace(file.FullName, @"\s+", "_");
+                        filename = file.SafeMoveTo(filename);
+                    }
+
                     try
                     {
-                        var xml = File.ReadAllText(file.FullName);
+                        var xml = File.ReadAllText(filename);
 
                         if (!xml.IsXmlContent()) xml = $"<root>{xml}</root>";
 
                         var parameters = new Dictionary<string, string>();
-                        if (transformation.XsltName == "CSV_to_BIS3.XSL" || file.FullName.EndsWith("csv"))
+                        if (transformation.XsltName == "CSV_to_BIS3.XSL" || filename.EndsWith("csv"))
                         {
-                            parameters.Add("csv-uri", $"file:///{file.FullName.Replace(@"\", "/")}");
+                            parameters.Add("csv-uri", $"file:///{filename.Replace(@"\", "/")}");
                         }
 
                         var result = _xsltTransformer.Transform(xslt, xml, parameters);
 
-                        File.WriteAllText(Path.Combine(transformation.DestinationPath, $"{Path.GetFileNameWithoutExtension(file.Name)}.xml"), result);
+                        File.WriteAllText(Path.Combine(transformation.DestinationPath, $"{Path.GetFileNameWithoutExtension(filename)}.xml"), result);
                         file.Delete();
                     }
                     catch (Exception ex)
                     {
-                        _logger.Error(ex, "An error occured while transforming {Filename} with {Xslt}", file.Name, transformation.XsltName);
-                        file.SafeMoveTo(Path.Combine(failedPath, file.Name));
+                        _logger.Error(ex, "An error occured while transforming {Filename} with {Xslt}", filename, transformation.XsltName);
+                        file.SafeMoveTo(Path.Combine(failedPath, filename));
                     }
                 }
             }
