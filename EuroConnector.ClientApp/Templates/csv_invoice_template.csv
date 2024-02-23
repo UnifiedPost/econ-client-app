@@ -1,0 +1,3 @@
+LineID;Description;Quantity;Price;Amount;TaxCategoryID;TaxRate;InvoiceNo;IssueDate;DueDate;BuyerRef;ContractRef;SenderRegNumber;SenderVATNumber;SenderName;SenderAddress;SenderCountryCode;ReceiverRegNumber;ReceiverVATNumber;ReceiverName;ReceiverAddress;ReceiverCountryCode
+1;Smulki prekė;2,0000;5,1300;10,26;S;21,00;ABC1234567;2023-12-01;2023-12-20;332211;SUT-12345;123456333;LT01234563331;Trys paršiukai, UAB;Paršiukų g. 3,  03150 Vilnius;LT;123456777;LT01234567771;Septyni nykštukai, UAB;Nykštukų g. 7,  03150 Vilnius;LT
+2;Didelė prekė;1,0000;100,0000;100,00;S;21,00;ABC1234567;2023-12-01;2023-12-20;332211;SUT-12345;123456333;LT01234563331;Trys paršiukai, UAB;Paršiukų g. 3,  03150 Vilnius;LT;123456777;LT01234567771;Septyni nykštukai, UAB;Nykštukų g. 7,  03150 Vilnius;LT
