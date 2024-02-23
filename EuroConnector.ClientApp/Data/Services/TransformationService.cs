@@ -56,7 +56,7 @@ namespace EuroConnector.ClientApp.Data.Services
                         if (!xml.IsXmlContent()) xml = $"<root>{xml}</root>";
 
                         var parameters = new Dictionary<string, string>();
-                        if (transformation.XsltName == "CSV_to_BIS3.XSL" || filename.EndsWith("csv"))
+                        if (transformation.XsltName == "CSV-to-BIS3.XSL" || filename.EndsWith("csv"))
                         {
                             parameters.Add("csv-uri", $"file:///{filename.Replace(@"\", "/")}");
                         }
