@@ -16,11 +16,7 @@ namespace EuroConnector.ClientApp.Helpers
                 IssueDate = DateTime.Now.ToString("yyyy-MM-dd"),
                 SenderParty = new()
                 {
-                    EndpointId = new()
-                    {
-                        SchemeId = "0196",
-                        Value = document.RecipientEndpointId,
-                    },
+                    EndpointId = SetEndpointId(document.RecipientEndpointId),
                     PartyLegalEntity = new()
                     {
                         RegistrationName = document.RecipientName,
@@ -28,11 +24,7 @@ namespace EuroConnector.ClientApp.Helpers
                 },
                 ReceiverParty = new()
                 {
-                    EndpointId = new()
-                    {
-                        SchemeId = "0196",
-                        Value = document.SenderEndpointId,
-                    },
+                    EndpointId = SetEndpointId(document.SenderEndpointId),
                     PartyLegalEntity = new()
                     {
                         RegistrationName = document.SenderName,
@@ -83,6 +75,16 @@ namespace EuroConnector.ClientApp.Helpers
                 new ResponseCode() { Code = "AP", Label = "(AP) Accepted" },
                 new ResponseCode() { Code = "RE", Label = "(RE) Rejected" },
                 new ResponseCode() { Code = "PD", Label = "(PD) Paid" },
+            };
+        }
+
+        private static EndpointId SetEndpointId(string endpointId)
+        {
+            var endpointIdSplit = endpointId.Split(':');
+            return new()
+            {
+                SchemeId = endpointIdSplit[0],
+                Value = endpointIdSplit[1],
             };
         }
     }

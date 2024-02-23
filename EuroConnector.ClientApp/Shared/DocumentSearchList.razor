@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.WebUtilities
 @using Microsoft.Extensions.Primitives
 @using EuroConnector.ClientApp.Shared
+@using System.Text.Json
 
 @inject IDocumentService DocumentService;
 @inject ILogger Logger;
@@ -69,7 +70,7 @@
                                 <MudIconButton Icon="fa-solid fa-eye" OnClick="() => ViewDocument(context.Item.DocumentId)" Size="Size.Small" />
                             </MudTooltip>
                             <MudTooltip Text="Download Document">
-                                <MudIconButton Icon="fa-solid fa-download" OnClick="() => Download(context.Item.DocumentId)" Size="Size.Small" />
+                                <MudIconButton Icon="fa-solid fa-download" OnClick="() => Download(context.Item.DocumentId)" Size="Size.Small" Disabled="isDownloading"/>
                             </MudTooltip>
                             @if (FolderName == "inbox")
                             {
@@ -134,6 +135,7 @@
     bool isMetadataViewOpen = false;
     bool isInvoiceResponseOpen = false;
     bool isFiltersPopoverOpen = false;
+    bool isDownloading = false;
 
     DateTime? createdFrom;
     DateTime? createdTo;
@@ -145,8 +147,9 @@
         var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
         var query = QueryHelpers.ParseQuery(uri.Query);
 
-        if (!query.Any()) SetDefaultFilters();
-        else SetFiltersByQuery(query);
+        SetSavedFilters();
+        if (query.Any() && filters is null) SetFiltersByQuery(query);
+        else if (filters is null) SetDefaultFilters();
 
         await GetDocuments();
     }
@@ -170,12 +173,13 @@
     {
         isFiltersPopoverOpen = false;
 
-
         filters.CreatedBetween = new List<DateTime?>() { createdFrom?.ToUniversalTime(), createdTo?.ToUniversalTime() };
         if (filters.CreatedBetween.All(x => x is null)) filters.CreatedBetween = null;
 
         filters.UpdatedBetween = new List<DateTime?>() { updatedFrom?.ToUniversalTime(), updatedTo?.ToUniversalTime() };
         if (filters.UpdatedBetween.All(x => x is null)) filters.UpdatedBetween = null;
+
+        SaveFilters();
 
         await GetDocuments();
     }
@@ -190,12 +194,34 @@
                 RecipientEndpointId = query.GetValueOrDefault("recipientEndpointId"),
                 SenderEndpointId = query.GetValueOrDefault("senderEndpointId"),
             };
+
+        SaveFilters();
     }
 
     private async Task ClearFilters()
     {
         SetDefaultFilters();
         await GetDocuments();
+    }
+
+    private void SaveFilters()
+    {
+        filters.FolderName = FolderName;
+        var filterJson = filters.ToJsonString();
+        Preferences.Set(FolderName == "inbox" ? "inboxFilters" : "outboxFilters", filterJson, Assembly.GetExecutingAssembly().Location);
+    }
+
+    private void SetSavedFilters()
+    {
+        var filterJson = Preferences.Get(FolderName == "inbox" ? "inboxFilters" : "outboxFilters", string.Empty, Assembly.GetExecutingAssembly().Location);
+        if (string.IsNullOrEmpty(filterJson)) return;
+
+        filters = JsonSerializer.Deserialize<DocumentSearchRequest>(filterJson, JsonHelper.GetJsonSerializerOptions());
+        filters.FolderName = FolderName;
+        createdFrom = filters.CreatedBetween?.Min();
+        createdTo = filters.CreatedBetween?.Max();
+        updatedFrom = filters.UpdatedBetween?.Min();
+        updatedTo = filters.UpdatedBetween?.Max();
     }
 
     private async Task GetDocuments()
@@ -217,6 +243,7 @@
 
     private async Task Download(string id)
     {
+        isDownloading = true;
         try
         {
             await DownloadDocument(id);
@@ -227,6 +254,7 @@
             Logger.Error(ex, "An error occured while downloading document ID {DocumentId}", id);
             Error.ProcessError(ex);
         }
+        isDownloading = false;
     }
 
     private async Task DownloadDocument(string id)
@@ -254,16 +282,16 @@
 
     private async Task SaveDocument(DownloadedDocument document)
     {
-        var inboxPath = Preferences.Get("inboxPath", string.Empty, Assembly.GetExecutingAssembly().Location);
-        if (string.IsNullOrEmpty(inboxPath)) throw new Exception("Inbox path is not set.");
+        var path = Preferences.Get(FolderName == "inbox" ? "inboxPath" : "outboxPath", string.Empty, Assembly.GetExecutingAssembly().Location);
+        if (string.IsNullOrEmpty(path)) throw new Exception($"{(FolderName == "inbox" ? "Inbox" : "Outbox")} path is not set.");
 
-        var inboxDir = new DirectoryInfo(inboxPath);
-        if (!inboxDir.Exists) inboxDir.Create();
+        var dir = new DirectoryInfo(path);
+        if (!dir.Exists) dir.Create();
 
         var filename = $"{document.DocumentId}.xml";
 
         var content = Encoding.UTF8.GetString(document.DocumentContent);
-        await File.WriteAllTextAsync(Path.Combine(inboxPath, filename), content);
+        await File.WriteAllTextAsync(Path.Combine(path, filename), content);
     }
 
     private void ResponseStatus(DocumentMetadata document)
