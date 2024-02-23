@@ -19,7 +19,7 @@ namespace EuroConnector.ClientApp.Helpers
                     EndpointId = SetEndpointId(document.RecipientEndpointId),
                     PartyLegalEntity = new()
                     {
-                        RegistrationName = document.RecipientName,
+                        RegistrationName = string.IsNullOrEmpty(document.RecipientName) ? "-" : document.RecipientName,
                     }
                 },
                 ReceiverParty = new()
@@ -27,7 +27,7 @@ namespace EuroConnector.ClientApp.Helpers
                     EndpointId = SetEndpointId(document.SenderEndpointId),
                     PartyLegalEntity = new()
                     {
-                        RegistrationName = document.SenderName,
+                        RegistrationName = string.IsNullOrEmpty(document.SenderName) ? "-" : document.SenderName,
                     }
                 },
                 DocumentResponse = new()

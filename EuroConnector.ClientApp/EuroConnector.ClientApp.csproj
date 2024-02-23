@@ -95,7 +95,7 @@
     <None Update="Transformations\BIS3-to-E_Invoice.xsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Transformations\CSV_to_BIS3.XSL">
+    <None Update="Transformations\CSV-to-BIS3.XSL">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Transformations\E_Invoice-to-BIS3.xsl">
