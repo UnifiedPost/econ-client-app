@@ -8,39 +8,22 @@
 	<xsl:output indent="yes"/>
 	<xsl:strip-space elements="*"/>
 	<xsl:param name="csv-encoding" as="xs:string" select="'utf-8'"/>
-	<!-- <xsl:param name="csv-uri" as="xs:string" select="'file:///C:/Users/Dragugy1/Desktop/TESTAS/csv_invoice_template.csv'"/> -->
 	<xsl:param name="csv-uri" as="xs:string" />
-
-	<!-- <xsl:param name="csv-folder" as="xs:string" select="'file:///C:/Users/Dragugy1/Desktop/TESTAS/'"/> -->
-	<!-- <xsl:param name="csv-file" as="xs:string" select="'*.csv'"/> -->
-	<!-- <xsl:param name="csv-uri" as="xs:string" select="concat($csv-folder, $csv-file)"/> -->
-
-	<!-- <xsl:variable name="csv" select="."/> -->
-	<!-- <xsl:variable name="csv" select="unparsed-text($csv-uri, $csv-encoding)"/> -->
 	<xsl:variable name="csv" select="unparsed-text($csv-uri, $csv-encoding)"/>
-	<!-- <xsl:variable name="csv" select="replace(unparsed-text($csv-uri, $csv-encoding), '\r?\n', '&#xA;')"/> -->
 
 
 	<xsl:template match="/" name="csv2xml">
-		<!-- <xsl:variable name="csv" select="replace(unparsed-text($csv-uri, $csv-encoding), '\r?\n', '!!!'"/> -->
 		<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
-			<!-- <xsl:message terminate="no">Debug: Current Index - <xsl:value-of select="$csv"/></xsl:message> -->
-			<!-- <test><xsl:value-of select="$csv" /></test> -->
 			<xsl:call-template name="XMLBody"/>
 			<xsl:call-template name="XMLTaxes"/>
 			<xsl:call-template name="XMLLines"/>
-
 		</Invoice>
 	</xsl:template>
 
 	<xsl:template name="XMLBody">
-
 		<xsl:for-each select="tokenize($csv, '\r?\n')[position() = 2]">
 			<xsl:variable name="currentLine" select="normalize-space(.)"/>
-
-			<!-- Split CSV line into fields -->
 			<xsl:variable name="fields" select="tokenize($currentLine, ';')"/>
-
 			<xsl:variable name="LineID" select="$fields[1]"/>
 			<xsl:variable name="Description" select="$fields[2]"/>
 			<xsl:variable name="Quantity" select="$fields[3]"/>
@@ -95,15 +78,11 @@
 
 			<cac:AccountingSupplierParty>
 				<cac:Party>
-
-
 					<xsl:variable name="supplierSchema">
 						<xsl:call-template name="getSchemaID">
 							<xsl:with-param name="input" select="$SenderCountryCode"/>
 						</xsl:call-template>
 					</xsl:variable>
-
-
 					<cbc:EndpointID>
 						<xsl:attribute name="schemeID">
 							<xsl:value-of select="$supplierSchema"/>
@@ -230,27 +209,19 @@
 
 		<xsl:choose>
 			<xsl:when test="normalize-space(tokenize($csv, '&#xD;')[$currentIndex])">
-
 				<xsl:variable name="currentLine" select="tokenize($csv, '\r?\n')[$currentIndex]"/>
-				<!-- Split CSV line into fields -->
 				<xsl:variable name="fields" select="tokenize($currentLine, ';')"/>
-
 				<xsl:variable name="Amount" select="if (normalize-space($fields[5])) then xs:decimal(translate($fields[5], ',', '.')) else 0"/>
 				<xsl:variable name="TaxCategoryID" select="$fields[6]"/>
 				<xsl:variable name="TaxRate" select="if (normalize-space($fields[7])) then xs:decimal(translate($fields[7], ',', '.')) else 0"/>
 				<xsl:variable name="Price" select="if (normalize-space($fields[4])) then xs:decimal($fields[4]) else 0"/>
-
-				<!-- Accumulate values -->
 				<xsl:variable name="CurrentTotalAmount" select="$Amount"/>
 				<xsl:variable name="CurrentTaxAmount" select="$Amount * $TaxRate"/>
-
 				<xsl:variable name="NewTotalAmount" select="$TotalAmount + $CurrentTotalAmount"/>
 				<xsl:variable name="NewTotalTaxAmount" select="$TotalTaxAmount + $CurrentTaxAmount"/>
 				<xsl:variable name="NewTotalTaxableAmount" select="$TotalTaxableAmount + $CurrentTotalAmount"/>
 				<xsl:variable name="TaxAmount" select="$Amount * $TaxRate"/>
-				<!-- <xsl:message terminate="no">Debug: Current Index - <xsl:value-of select="$TaxRate"/></xsl:message> -->
 
-				<!-- Recursive call -->
 				<xsl:call-template name="XMLTaxes">
 					<xsl:with-param name="currentIndex" select="$currentIndex + 1"/>
 					<xsl:with-param name="TotalAmount" select="$NewTotalAmount"/>
@@ -310,19 +281,12 @@
 
 
 	<xsl:template name="XMLLines">
-		<!-- <xsl:for-each select="tokenize($csv, '\r?\n')[position() > 1 and string-length(normalize-space()) > 0]">-->
-		<!-- <xsl:for-each select="tokenize($csv, '\r?\n')[position() > 1 and string-length(normalize-space()) > 0][position() != last()] )">	 -->
 		<xsl:variable name="csvLines" select="tokenize($csv, '\r?\n')"/>
 		<xsl:for-each select="$csvLines[position() > 1 and position() != last() and not(starts-with(., '&lt;/root&gt;'))]">
-
 			<xsl:variable name="currentLine" select="normalize-space(.)"/>
-
-			<!-- Split CSV line into fields -->
 			<xsl:variable name="fields" select="tokenize($currentLine, ';')"/>
-
 			<xsl:variable name="LineID" select="$fields[1]"/>
 			<xsl:variable name="Description" select="$fields[2]"/>
-			<!-- <xsl:variable name="Quantity" select="xs:decimal($fields[3])"/> -->
 			<xsl:variable name="Quantity" select="format-number(xs:decimal(translate($fields[3], ',', '.')), '0.00')"/>
 			<xsl:variable name="Price" select="format-number(xs:decimal(translate($fields[4], ',', '.')), '0.00')"/>
 			<xsl:variable name="Amount" select="format-number(xs:decimal(translate($fields[5], ',', '.')), '0.00')"/>
