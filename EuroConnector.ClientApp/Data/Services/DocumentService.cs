@@ -108,32 +108,26 @@ namespace EuroConnector.ClientApp.Data.Services
 
             _logger.Information("POST {Url}\n{Body}", requestUrl, request.ToJsonString());
 
-            try
+            var response = await _httpClient.PostAsync(requestUrl, JsonContent.Create(request));
+
+            bool documentFailed = !response.IsSuccessStatusCode;
+
+            if (response.IsSuccessStatusCode)
             {
-                var response = await _httpClient.PostAsync(requestUrl, JsonContent.Create(request));
-
-                bool documentFailed = !response.IsSuccessStatusCode;
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseJson = await response.Content.ReadAsStringAsync();
-                    var responseData = await response.Content.ReadFromJsonAsync<DocumentSendResponse>();
-                    var document = responseData.Documents.FirstOrDefault();
-                    _logger.Information("Document ID {DocumentID}: Invoice Response sent successfully. Response data:\n{ResponseJson}",
-                        document.DocumentId, responseJson);
-                }
-                else
-                {
-                    var error = await response.Content.ReadAsStringAsync();
-
-                    _logger.Error("Invoice Response sending failed.\nResponse data: {ResponseJson}", error);
-
-                    var message = await ResponseHelper.ProcessFailedRequest(response, _logger, $"Invoice Response sending failed.");
-                }
+                var responseJson = await response.Content.ReadAsStringAsync();
+                var responseData = await response.Content.ReadFromJsonAsync<DocumentSendResponse>();
+                var document = responseData.Documents.FirstOrDefault();
+                _logger.Information("Document ID {DocumentID}: Invoice Response sent successfully. Response data:\n{ResponseJson}",
+                    document.DocumentId, responseJson);
             }
-            catch (Exception ex)
+            else
             {
-                _logger.Error(ex, "Invoice Response sending failed. {Message}", ex.Message);
+                var error = await response.Content.ReadAsStringAsync();
+
+                _logger.Error("Invoice Response sending failed.\nResponse data: {ResponseJson}", error);
+
+                var message = await ResponseHelper.ProcessFailedRequest(response, _logger, $"Invoice Response sending failed.");
+                throw new Exception(message);
             }
         }
 

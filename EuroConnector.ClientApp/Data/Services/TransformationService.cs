@@ -47,6 +47,7 @@ namespace EuroConnector.ClientApp.Data.Services
                     {
                         filename = Regex.Replace(file.FullName, @"\s+", "_");
                         filename = file.SafeMoveTo(filename);
+                        filename = Path.Combine(file.Directory.FullName, filename);
                     }
 
                     try

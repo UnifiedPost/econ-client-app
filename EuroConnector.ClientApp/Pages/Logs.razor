@@ -57,7 +57,7 @@
     }
 
     private bool FilterLogs(string line) => 
-        (string.IsNullOrEmpty(search) || line.Contains(search)) && (string.IsNullOrEmpty(logLevel) || logLevel.Equals("All") || line.Contains(logLevel));
+        (string.IsNullOrEmpty(search) || line.ToLower().Contains(search.ToLower())) && (string.IsNullOrEmpty(logLevel) || logLevel.Equals("All") || line.Contains(logLevel));
 
     private void SetContents()
     {
