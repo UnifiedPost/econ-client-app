@@ -89,9 +89,6 @@
     <ProjectReference Include="..\XsltTransformer\XsltTransformer.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Templates\csv_invoice_template.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="Transformations\BIS3-to-E_Invoice.xsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
