@@ -62,7 +62,7 @@
                     <PropertyColumn Property="x => x.DocumentNo" Title="Document no." />
                     <PropertyColumn Property="@(x => FolderName == "outbox" ? x.RecipientName : x.SenderName)" Title="@(FolderName == "outbox" ? "Receiver Name" : "Sender Name")" />
                     <PropertyColumn Property="x => x.DocumentType" Title="Type" />
-                    <PropertyColumn Property="x => x.Status" Title="Status" />
+                    <PropertyColumn Property="x => x.Status" Title="Status" CellStyle="font-weight: bold;"/>
                     <PropertyColumn Property="x => x.CreatedAt" Title="Created At" />
                     <TemplateColumn HeaderStyle="@(FolderName == "outbox" ? "width: 120px;" : "width: 180px;")" Sortable="false">
                         <CellTemplate>
