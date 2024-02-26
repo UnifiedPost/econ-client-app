@@ -24,6 +24,9 @@
 </MudDialog>
 
 @code {
+    [CascadingParameter]
+    public Error Error { get; set; }
+
     [Parameter]
     public DocumentMetadata Document { get; set; }
     [Parameter]
@@ -50,7 +53,14 @@
 
         var invoiceResponseContent = InvoiceResponseHelper.CreateInvoiceResponse(Document, responseCode, description);
 
-        await DocumentService.SendInvoiceResponse(invoiceResponseContent);
+        try
+        {
+            await DocumentService.SendInvoiceResponse(invoiceResponseContent);
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
 
         IsOpen = false;
     }
