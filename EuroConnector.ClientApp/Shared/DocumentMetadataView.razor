@@ -1,58 +1,64 @@
 ﻿@using EuroConnector.ClientApp.Data.Models;
 
 <MudList DisablePadding="true">
-    <MudListItem>
+    <MudListItem Dense="true">
         <strong>Document Number: </strong> @DocumentMetadata.DocumentNo
     </MudListItem>
-    <MudListItem>  
+    <MudListItem Dense="true">
         <strong>Document Standard: </strong> @DocumentMetadata.DocumentStandard
     </MudListItem>
-    <MudListItem>
+    <MudListItem Dense="true">
         <strong>Document Type: </strong> @DocumentMetadata.DocumentType
     </MudListItem>
-    <MudListItem>
+    <MudListItem Dense="true">
         <strong>Sender Endpoint ID: </strong> @DocumentMetadata.SenderEndpointId
     </MudListItem>
-    <MudListItem>
+    <MudListItem Dense="true">
         <strong>Sender Name: </strong> @DocumentMetadata.SenderName
     </MudListItem>
-    <MudListItem>
+    <MudListItem Dense="true">
         <strong>Sender Entity Code: </strong> @DocumentMetadata.SenderEntityCode
     </MudListItem>
-    <MudListItem>
+    <MudListItem Dense="true">
         <strong>Sender VAT Number: </strong> @DocumentMetadata.SenderVatNumber
     </MudListItem>
-    <MudListItem>
+    <MudListItem Dense="true">
         <strong>Recipient Endpoint ID: </strong> @DocumentMetadata.RecipientEndpointId
     </MudListItem>
-    <MudListItem>
+    <MudListItem Dense="true">
         <strong>Recipient Name: </strong> @DocumentMetadata.RecipientName
     </MudListItem>
-    <MudListItem>
+    <MudListItem Dense="true">
         <strong>Recipient Entity Code: </strong> @DocumentMetadata.RecipientEntityCode
     </MudListItem>
-    <MudListItem>
+    <MudListItem Dense="true">
         <strong>Recipient VAT Number: </strong> @DocumentMetadata.RecipientVatNumber
     </MudListItem>
-    <MudListItem>
+    <MudListItem Dense="true">
+        <strong>Peppol Message ID: </strong> @DocumentMetadata.PeppolMessageId
+    </MudListItem>
+    <MudListItem Dense="true">
+        <strong>Document Reference: </strong> @DocumentMetadata.DocumentReference
+    </MudListItem>
+    <MudListItem Dense="true">
         <strong>Date Created: </strong> @DocumentMetadata.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
     </MudListItem>
-    <MudListItem>
+    <MudListItem Dense="true">
         <strong>Date Updated: </strong> @DocumentMetadata.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss")
     </MudListItem>
-    <MudListItem>
+    <MudListItem Dense="true">
         <strong>Document Status: </strong> @DocumentMetadata.Status
     </MudListItem>
-    <MudListItem>
+    <MudListItem Dense="true">
         <strong>Status Notes: </strong> @DocumentMetadata.StatusNotes
     </MudListItem>
-    <MudListItem>
+    <MudListItem Dense="true">
         <strong>Folder Name: </strong> @DocumentMetadata.FolderName
     </MudListItem>
     @if (DocumentMetadata.CustomFields is not null)
         foreach (var field in DocumentMetadata?.CustomFields)
         {
-            <MudListItem>
+            <MudListItem Dense="true">
                 <strong>@field.Field: </strong> @field.Value
             </MudListItem>
         }

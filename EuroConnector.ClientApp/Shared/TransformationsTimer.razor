@@ -25,12 +25,12 @@
         var transformations = Preferences.Get("transformations", string.Empty, Assembly.GetExecutingAssembly().Location);
         if (string.IsNullOrEmpty(transformations)) return;
 
-        Snackbar.Add("Automatic transformation has started.", Severity.Info);
-        Logger.Information("Automatic transformation has started.");
+        // Snackbar.Add("Automatic transformation has started.", Severity.Info);
+        // Logger.Information("Automatic transformation has started.");
         try
         {
             TransformationService.Transform();
-            Logger.Information("Automatic transformation has finished.");
+            // Logger.Information("Automatic transformation has finished.");
         }
         catch (Exception ex)
         {

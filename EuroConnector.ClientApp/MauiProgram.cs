@@ -60,7 +60,7 @@ public static class MauiProgram
         {
             var httpClient = new HttpClient().EnableIntercept(sp);
 
-            httpClient.DefaultRequestHeaders.Add("Client-App-Version", "2.0.5");
+            httpClient.DefaultRequestHeaders.Add("Client-App-Version", "2.0.6");
 
             return httpClient;
         });

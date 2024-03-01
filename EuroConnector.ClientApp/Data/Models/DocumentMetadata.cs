@@ -14,6 +14,8 @@
         public string RecipientName { get; set; }
         public string RecipientEntityCode { get; set; }
         public string RecipientVatNumber { get; set; }
+        public string PeppolMessageId { get; set; }
+        public string DocumentReference { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public string Status { get; set; }

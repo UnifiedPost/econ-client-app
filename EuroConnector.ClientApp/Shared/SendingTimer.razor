@@ -24,7 +24,7 @@
 
     private async void OnTimedEvent(object source, ElapsedEventArgs e)
     {
-        var outPath = Preferences.Get("outboxPath", string.Empty, Assembly.GetExecutingAssembly().Location);
+        var outPath = Preferences.Get("outboxSpoolPath", string.Empty, Assembly.GetExecutingAssembly().Location);
         if (!string.IsNullOrEmpty(outPath))
         {
             var outDir = new DirectoryInfo(outPath);
