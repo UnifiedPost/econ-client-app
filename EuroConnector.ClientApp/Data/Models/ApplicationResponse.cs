@@ -36,7 +36,7 @@ namespace EuroConnector.ClientApp.Data.Models
 
     public class EndpointId
     {
-        [XmlAttribute(AttributeName = "schemeId")]
+        [XmlAttribute(AttributeName = "schemeID")]
         public string SchemeId { get; set; }
         [XmlText]
         public string Value { get; set; }
