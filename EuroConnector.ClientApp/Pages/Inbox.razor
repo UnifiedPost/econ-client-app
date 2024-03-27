@@ -1,17 +1,41 @@
 ﻿@page "/inbox"
 @using System.Reflection
+@using EuroConnector.ClientApp.Data.Interfaces
+
+@inject IDocumentService DocumentService;
 
 @attribute [Authorize]
 
 <MudText Typo="Typo.h3">Inbox</MudText>
 
-<DocumentSearchList FolderName="inbox" LocalPath="@path"/>
+@if (isLoading)
+{
+    <MudText Typo="Typo.h5" Style="margin-top: 25px;">Loading Documents...</MudText>
+}
+else
+{
+    <DocumentSearchList FolderName="inbox" LocalPath="@path" />
+    <EconButton OnClick="ReceiveDocuments">Receive New Documents</EconButton>
+}
 
  @code {
     string path;
+    bool isLoading;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        await ReceiveDocuments();
+
         path = Preferences.Get("inboxPath", string.Empty, Assembly.GetExecutingAssembly().Location);
+
+    }
+
+    private async Task ReceiveDocuments()
+    {
+        isLoading = true;
+        
+        await DocumentService.ReceiveDocumentList();
+
+        isLoading = false;
     }
 }

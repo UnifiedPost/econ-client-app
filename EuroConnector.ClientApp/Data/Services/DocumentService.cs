@@ -28,6 +28,7 @@ namespace EuroConnector.ClientApp.Data.Services
         {
             var outPath = Preferences.Get("outboxPath", string.Empty, Assembly.GetExecutingAssembly().Location);
             var outSpoolPath = Preferences.Get("outboxSpoolPath", string.Empty, Assembly.GetExecutingAssembly().Location);
+            var failedPath = Preferences.Get("failedPath", string.Empty, Assembly.GetExecutingAssembly().Location);
 
             _logger.Information("Sending documents in the outbox spool location. {OutboxSpoolPath}", outSpoolPath);
 
@@ -77,7 +78,8 @@ namespace EuroConnector.ClientApp.Data.Services
                     {
                         var error = await response.Content.ReadAsStringAsync();
 
-                        _logger.Error("File {FileName} sending failed.\nResponse data: {ResponseJson}", file.Name, error);
+                        _logger.Error("File {FileName} sending failed. Moving to {FailedPath}.\nResponse data: {ResponseJson}", file.Name, failedPath, error);
+                        file.SafeMoveTo(Path.Combine(failedPath, file.Name));
 
                         var message = await ResponseHelper.ProcessFailedRequest(response, _logger, $"File {file.Name} sending failed.");
                         failed++;
@@ -131,7 +133,7 @@ namespace EuroConnector.ClientApp.Data.Services
             }
         }
 
-        public async Task<ReceivedDocuments> ReceiveDocumentList()
+        public async Task ReceiveDocumentList()
         {
             var apiUrl = Preferences.Get("apiUrl", string.Empty, Assembly.GetExecutingAssembly().Location);
             var requestUrl = $"{apiUrl}public/v1/documents/received-list";
@@ -150,7 +152,6 @@ namespace EuroConnector.ClientApp.Data.Services
             var receivedDocuments = await response.Content.ReadFromJsonAsync<ReceivedDocuments>();
 
             _logger.Information("Received {NumberOfDocuments} documents.", receivedDocuments.Documents.Count);
-            return receivedDocuments;
         }
 
         public async Task<DocumentSearchResponse> SearchDocuments(DocumentSearchRequest request)

@@ -65,7 +65,7 @@
                     @* <PropertyColumn Property="x => x.Status" Title="Status" CellStyle="font-weight: bold;"/> *@
                     <TemplateColumn Title="Status">
                         <CellTemplate>
-                            <MudText Style="@(context.Item.Status == "New" ? "font-weight: bold;" : "")" Color="@(context.Item.Status == "Error" ? Color.Error : Color.Inherit)">
+                            <MudText Typo="Typo.body2" Style="@(context.Item.Status == "New" ? "font-weight: bold;" : "")" Color="@(context.Item.Status == "Error" ? Color.Error : Color.Inherit)">
                                 @context.Item.Status
                             </MudText>
                         </CellTemplate>
