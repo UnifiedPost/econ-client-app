@@ -79,14 +79,10 @@
                             <MudTooltip Text="Download Document">
                                 <MudIconButton Icon="fa-solid fa-download" OnClick="() => Download(context.Item.DocumentId)" Size="Size.Small" Disabled="isDownloading"/>
                             </MudTooltip>
-                            @if (FolderName == "inbox")
+                            @if (FolderName == "inbox" && (context.Item.Status == "Received" && (context.Item.DocumentType == "Invoice" || context.Item.DocumentType == "CreditNote")))
                             {
-                                @* <MudTooltip Text="Message Level Response">
-                                    <MudIconButton Icon="fa-solid fa-file-lines" OnClick="() => {}" Size="Size.Small" Disabled="@(context.Item.DocumentType != "Invoice" && context.Item.DocumentType != "CreditNote")" />
-                                </MudTooltip> *@
                                 <MudTooltip Text="Invoice Response">
-                                    <MudIconButton Icon="fa-solid fa-file-invoice" OnClick="() => OpenInvoiceResponse(context.Item)" Size="Size.Small"
-                                        Disabled="@(context.Item.DocumentType != "Invoice" && context.Item.DocumentType != "CreditNote")"/>
+                                    <MudIconButton Icon="fa-solid fa-file-invoice" OnClick="() => OpenInvoiceResponse(context.Item)" Size="Size.Small" />
                                 </MudTooltip>
                             }
                             <MudTooltip Text="Response Status">
@@ -163,7 +159,7 @@
 
     private void SetDefaultFilters()
     {
-        createdFrom = DateTime.Today.ToUniversalTime().AddDays(-10);
+        createdFrom = DateTime.Today.ToUniversalTime().AddDays(-30);
         createdTo = DateTime.UtcNow;
         updatedFrom = null;
         updatedTo = null;
@@ -254,7 +250,7 @@
         try
         {
             await DownloadDocument(id);
-            Snackbar.Add($"Document ID {id} successfully downloaded and saved in the outbox folder.", Severity.Success);
+            Snackbar.Add($"Document ID {id} successfully downloaded and saved in the {FolderName} folder.", Severity.Success);
         }
         catch (Exception ex)
         {
