@@ -22,10 +22,8 @@ else
     string path;
     bool isLoading;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await ReceiveDocuments();
-
         path = Preferences.Get("inboxPath", string.Empty, Assembly.GetExecutingAssembly().Location);
 
     }

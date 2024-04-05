@@ -3,11 +3,16 @@
 
 @inject IDocumentService DocumentService;
 
+<style>
+    .mud-dialog-title {
+        background-color: var(--mud-palette-primary);
+        color: white;
+    }
+</style>
+
 <MudDialog @bind-IsVisible="IsOpen" OnBackdropClick="Close">
-    <TitleContent>New Invoice Response</TitleContent>
+    <TitleContent>Invoice Response To @Document.DocumentNo / @Document.SenderName</TitleContent>
     <DialogContent>
-        <MudText Typo="Typo.body2">Document Number: @Document.DocumentNo</MudText>
-        <MudText Typo="Typo.body2">From: @Document.SenderName</MudText>
         <EconSelect T="string" Label="Response Code" @bind-Value="responseCode" Style="width: 350px;">
             @foreach (var item in InvoiceResponseHelper.GetResponseCodes())
             {
