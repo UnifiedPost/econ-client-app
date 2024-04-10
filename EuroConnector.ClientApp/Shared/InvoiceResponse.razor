@@ -4,13 +4,13 @@
 @inject IDocumentService DocumentService;
 
 <style>
-    .mud-dialog-title {
+    .inv-resp .mud-dialog-title {
         background-color: var(--mud-palette-primary);
         color: white;
     }
 </style>
 
-<MudDialog @bind-IsVisible="IsOpen" OnBackdropClick="Close">
+<MudDialog @bind-IsVisible="@IsOpen" OnBackdropClick="Close" Class="inv-resp">
     <TitleContent>Invoice Response To @Document.DocumentNo / @Document.SenderName</TitleContent>
     <DialogContent>
         <EconSelect T="string" Label="Response Code" @bind-Value="responseCode" Style="width: 350px;">
@@ -38,11 +38,24 @@
     [Parameter]
     public DocumentMetadata Document { get; set; }
     [Parameter]
-    public bool IsOpen { get; set; }
+    public bool IsOpen
+    { 
+        get => _isOpen;
+        set
+        {
+            if (_isOpen == value) return;
+            _isOpen = value;
+            IsOpenChanged.InvokeAsync(value);
+        } 
+    }
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
 
     string responseCode;
     string description;
     string message;
+
+    private bool _isOpen;
 
     private async Task Send()
     {
