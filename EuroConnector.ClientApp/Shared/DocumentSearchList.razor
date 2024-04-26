@@ -48,7 +48,7 @@
                             <EconDatePicker Label="Updated To" @bind-Date="updatedTo"/>
                         </div>
                         <EconTextField Label="Document Reference" @bind-Value="filters.DocumentReference" />
-                        <EconTextField Label="Receiver Entity Code" @bind-Value="filters.RecipientEntityCode" />
+                        <EconTextField Label="Document Status" @bind-Value="filters.Status" />
                         <EconTextField Label="Number Of Records" @bind-Value="filters.RecordsCountLimit" InputType="InputType.Number"/>
                         <div class="button-group filter-actions">
                             <EconButton OnClick="SetFilters">Apply</EconButton>
