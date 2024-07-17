@@ -173,6 +173,9 @@ namespace EuroConnector.ClientApp.Data.Services
 
             var documents = await response.Content.ReadFromJsonAsync<DocumentSearchResponse>();
 
+            // set to empty if null
+            documents.Documents ??= [];
+
             return documents;
         }
 

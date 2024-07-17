@@ -60,7 +60,7 @@
             </div>
         </div>
 
-        @if (documents is not null && documents?.Documents.Count() > 0)
+        @if (documents is not null && documents.Documents is not null && documents?.Documents.Count() > 0)
         {
             <MudDataGrid Items="@documents.Documents" Dense="true" ReadOnly="true" Elevation="4" HeaderClass="grid-header"
                          RowsPerPage="10" Loading="loading" LoadingProgressColor="Color.Secondary">

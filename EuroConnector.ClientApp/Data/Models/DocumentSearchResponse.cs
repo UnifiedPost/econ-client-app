@@ -2,6 +2,6 @@
 {
     public class DocumentSearchResponse
     {
-        public List<DocumentMetadata> Documents { get; set; }
+        public List<DocumentMetadata> Documents { get; set; } = [];
     }
 }
